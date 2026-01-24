@@ -12,7 +12,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            _root_ide_package_.com.keepingstock.ui.theme.KeepingStockTheme {
+            KeepingStockTheme {
                 KeepingStockApp()
             }
         }
