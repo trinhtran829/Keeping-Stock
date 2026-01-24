@@ -1,4 +1,4 @@
-package com.example.keepingstock.ui.theme
+package com.keepingstock.ui.theme
 
 import android.app.Activity
 import android.os.Build

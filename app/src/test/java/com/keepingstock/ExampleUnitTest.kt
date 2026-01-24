@@ -1,4 +1,4 @@
-package com.example.keepingstock
+package com.keepingstock
 
 import org.junit.Test
 

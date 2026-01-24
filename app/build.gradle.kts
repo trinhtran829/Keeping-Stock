@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.keepingstock"
+    namespace = "com.keepingstock"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.keepingstock"
+        applicationId = "com.keepingstock"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

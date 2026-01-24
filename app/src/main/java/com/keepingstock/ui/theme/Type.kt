@@ -1,4 +1,4 @@
-package com.example.keepingstock.ui.theme
+package com.keepingstock.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

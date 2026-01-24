@@ -1,4 +1,4 @@
-package com.example.keepingstock.ui.theme
+package com.keepingstock.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
