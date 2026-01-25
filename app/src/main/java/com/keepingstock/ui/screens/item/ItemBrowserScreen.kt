@@ -16,7 +16,7 @@ fun ItemBrowserScreen(
     Column (modifier = modifier.padding(16.dp)) {
         Text("Item Browser Screen (placeholder)")
         Button(onClick = { onOpenItem("01") }, modifier = Modifier.padding(top = 12.dp)) {
-            Text("Open Example item 01")
+            Text("Open Example Item 01")
         }
     }
 }
