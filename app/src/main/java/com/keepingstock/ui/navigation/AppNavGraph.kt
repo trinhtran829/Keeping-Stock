@@ -50,7 +50,10 @@ fun AppNavGraph() {
             val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
 
             ContainerBrowserScreen(
-                containerId = containerId
+                containerId = containerId,
+                onOpenItem = { itemId ->
+                    navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
+                }
             )
         }
 
@@ -59,11 +62,11 @@ fun AppNavGraph() {
         composable(
             route = NavRoute.ItemDetails.route,
             arguments = listOf(
-                navArgument(NavRoute.ItemDetails.route) { type = NavType.StringType }
+                navArgument(Routes.Args.ITEM_ID) { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val itemId = backStackEntry.arguments
-                ?.getString(NavRoute.ItemDetails.route) ?: error("Missing itemId")
+            val itemId = backStackEntry.arguments?.getString(Routes.Args.ITEM_ID)
+                ?: error("Missing itemId")
 
             ItemDetailsScreen(
                 itemId = itemId,
