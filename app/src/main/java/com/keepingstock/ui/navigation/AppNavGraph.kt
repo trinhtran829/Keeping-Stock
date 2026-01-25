@@ -74,6 +74,9 @@ fun AppNavGraph() {
                 onOpenItem = { itemId ->
                     navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
                 },
+                onOpenContainerInfo = { id ->
+                    navController.navigate(NavRoute.ContainerDetail.createRoute(id))
+                },
                 onGoToItemBrowser = {
                     navController.navigate(NavRoute.ItemBrowser.route) {
                         popUpTo(Routes.CONTAINER_BROWSER) { saveState = true }
