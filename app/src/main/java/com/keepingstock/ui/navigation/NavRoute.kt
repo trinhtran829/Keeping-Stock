@@ -56,7 +56,7 @@ sealed interface NavRoute {
                     "${Routes.Args.PARENT_CONTAINER_ID}={${Routes.Args.PARENT_CONTAINER_ID}}"
 
         // Function to build the actual route string; uses query param, builds using params list
-        // based on whether containerId and parentId values were provided.
+        // based on whether containerId and parentContainerId values were provided.
         fun createRoute(
             containerId: String? = null,
             parentContainerId: String? = null
@@ -69,4 +69,26 @@ sealed interface NavRoute {
             return if (params.isEmpty()) base else base + "?" + params.joinToString("&")
         }
     }
+
+    object AddEditItem : NavRoute {
+        override val route: String =
+            "${Routes.ADD_EDIT_ITEM}?" +
+                    "${Routes.Args.ITEM_ID}={${Routes.Args.ITEM_ID}}&" +
+                    "${Routes.Args.CONTAINER_ID}={${Routes.Args.CONTAINER_ID}}"
+
+        // Function to build the actual route string; uses query param, builds using params list
+        // based on whether itemId and containerId values were provided.
+        fun createRoute(
+            itemId: String? = null,
+            containerId: String? = null
+        ): String {
+            val base = Routes.ADD_EDIT_ITEM
+            val params = buildList {
+                if (itemId != null) add("${Routes.Args.ITEM_ID}=$itemId")
+                if (containerId != null) add("${Routes.Args.CONTAINER_ID}=$containerId")
+            }
+            return if (params.isEmpty()) base else base + "?" + params.joinToString("&")
+        }
+    }
+
 }
