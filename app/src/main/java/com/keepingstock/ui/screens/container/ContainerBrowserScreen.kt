@@ -19,7 +19,8 @@ fun ContainerBrowserScreen(
     onOpenContainerInfo: (containerId: String) -> Unit = {},
     onAddContainer: (parentContainerId: String?) -> Unit = {},
     onAddItem: (containerId: String?) -> Unit = {},
-    onGoToItemBrowser: () -> Unit = {}
+    onGoToItemBrowser: () -> Unit = {},
+    onScanQr: () -> Unit = {}
 ) {
     Column(modifier = modifier.padding(16.dp)) {
         Text("Container Browser Screen (placeholder)")
@@ -79,5 +80,13 @@ fun ContainerBrowserScreen(
         ) {
             Text("Go to Item Browser")
         }
+
+        Button(
+            onClick = onScanQr,
+            modifier = Modifier.padding(top = 12.dp)
+        ) {
+            Text("Scan QR")
+        }
+
     }
 }

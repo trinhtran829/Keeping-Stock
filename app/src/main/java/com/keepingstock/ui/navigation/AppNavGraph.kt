@@ -94,6 +94,9 @@ fun AppNavGraph() {
                 },
                 onAddItem = { cid ->
                     navController.navigate(NavRoute.AddEditItem.createRoute(containerId = cid))
+                },
+                onScanQr = {
+                    navController.navigate(NavRoute.QRScan.route)
                 }
             )
         }
@@ -208,12 +211,9 @@ fun AppNavGraph() {
         composable(route = NavRoute.QRScan.route) {
             QRScanScreen(
                 onScannedContainer = { scannedContainerId ->
+                    navController.popBackStack()
                     // Navigate to the container contents after a successful scan
-                    navController.navigate(NavRoute.ContainerBrowser.createRoute(scannedContainerId)) {
-                        popUpTo(Routes.CONTAINER_BROWSER) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+                    navController.navigate(NavRoute.ContainerBrowser.createRoute(scannedContainerId))
                 },
                 onCancel = { navController.popBackStack() }
             )
