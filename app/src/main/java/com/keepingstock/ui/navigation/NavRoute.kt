@@ -49,11 +49,14 @@ sealed interface NavRoute {
     // ----------------
 
     object AddEditContainer : NavRoute {
+        // Use query param for route since containerId and parentContainerId are optional
         override val route: String =
             "${Routes.ADD_EDIT_CONTAINER}?" +
                     "${Routes.Args.CONTAINER_ID}={${Routes.Args.CONTAINER_ID}}&" +
                     "${Routes.Args.PARENT_CONTAINER_ID}={${Routes.Args.PARENT_CONTAINER_ID}}"
 
+        // Function to build the actual route string; uses query param, builds using params list
+        // based on whether containerId and parentId values were provided.
         fun createRoute(
             containerId: String? = null,
             parentContainerId: String? = null

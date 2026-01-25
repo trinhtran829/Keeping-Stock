@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.Routes
+import com.keepingstock.ui.screens.container.AddEditContainerScreen
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
 import com.keepingstock.ui.screens.container.ContainerDetailScreen
 import com.keepingstock.ui.screens.item.ItemBrowserScreen
@@ -122,6 +123,37 @@ fun AppNavGraph() {
             ContainerDetailScreen(
                 containerId = containerId,
                 onBack = { navController.popBackStack() }
+            )
+        }
+
+        // -------------------------
+        // Register Add/Edit Screens
+        // -------------------------
+
+        composable(
+            route = NavRoute.AddEditContainer.route,
+            arguments = listOf(
+                navArgument(Routes.Args.CONTAINER_ID) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument(Routes.Args.PARENT_CONTAINER_ID) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
+            val parentContainerId = backStackEntry.arguments?.getString(Routes.Args.PARENT_CONTAINER_ID)
+
+            // TODO: onSave action not implemented yet
+            AddEditContainerScreen(
+                containerId = containerId,
+                parentContainerId = parentContainerId,
+                onSave = { navController.popBackStack() },
+                onCancel = { navController.popBackStack() }
             )
         }
     }
