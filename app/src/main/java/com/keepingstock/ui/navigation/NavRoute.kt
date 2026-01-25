@@ -91,4 +91,11 @@ sealed interface NavRoute {
         }
     }
 
+    // ---------------
+    // Utility Screens
+    // ---------------
+
+    object QRScan : NavRoute {
+        override val route: String = Routes.QR_SCAN
+    }
 }
