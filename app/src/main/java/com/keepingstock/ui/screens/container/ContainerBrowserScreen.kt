@@ -18,6 +18,7 @@ fun ContainerBrowserScreen(
     onOpenItem: (itemId: String) -> Unit = {},
     onOpenContainerInfo: (containerId: String) -> Unit = {},
     onAddContainer: (parentContainerId: String?) -> Unit = {},
+    onAddItem: (containerId: String?) -> Unit = {},
     onGoToItemBrowser: () -> Unit = {}
 ) {
     Column(modifier = modifier.padding(16.dp)) {
@@ -50,8 +51,28 @@ fun ContainerBrowserScreen(
             onClick = { onAddContainer(containerId) },
             modifier = Modifier.padding(top = 12.dp)
         ) {
-            Text(if (containerId == null) "Add container" else "Add subcontainer")
+            Text(
+                if (containerId == null) {
+                    "Add container"
+                } else {
+                    "Add subcontainer"
+                }
+            )
         }
+
+        Button(
+            onClick = { onAddItem(containerId) },
+            modifier = Modifier.padding(top = 12.dp)
+        ) {
+            Text(
+                if (containerId == null) {
+                    "Add item (choose container later)"
+                } else {
+                    "Add item to this container"
+                }
+            )
+        }
+
 
         Button(
             onClick = onGoToItemBrowser,
