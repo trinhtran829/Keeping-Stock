@@ -43,4 +43,27 @@ sealed interface NavRoute {
         // Function to build the actual route string; uses path param
         fun createRoute(containerId: String): String = "${Routes.CONTAINER_DETAIL}/$containerId"
     }
+
+    // ----------------
+    // Add/Edit Screens
+    // ----------------
+
+    object AddEditContainer : NavRoute {
+        override val route: String =
+            "${Routes.ADD_EDIT_CONTAINER}?" +
+                    "${Routes.Args.CONTAINER_ID}={${Routes.Args.CONTAINER_ID}}&" +
+                    "${Routes.Args.PARENT_CONTAINER_ID}={${Routes.Args.PARENT_CONTAINER_ID}}"
+
+        fun createRoute(
+            containerId: String? = null,
+            parentContainerId: String? = null
+        ): String {
+            val base = Routes.ADD_EDIT_CONTAINER
+            val params = buildList {
+                if (containerId != null) add("${Routes.Args.CONTAINER_ID}=$containerId")
+                if (parentContainerId != null) add("${Routes.Args.PARENT_CONTAINER_ID}=$parentContainerId")
+            }
+            return if (params.isEmpty()) base else base + "?" + params.joinToString("&")
+        }
+    }
 }
