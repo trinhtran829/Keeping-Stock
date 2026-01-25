@@ -63,6 +63,11 @@ fun AppNavGraph() {
 
             ContainerBrowserScreen(
                 containerId = containerId,
+                onOpenSubcontainer = { subId ->
+                    navController.navigate(NavRoute.ContainerBrowser.createRoute(subId)) {
+                        launchSingleTop = true
+                    }
+                },
                 onOpenItem = { itemId ->
                     navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
                 },
