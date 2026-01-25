@@ -13,6 +13,16 @@ sealed interface NavRoute {
         override val route: String = Routes.ITEM_BROWSER
     }
 
+    object ContainerBrowser : NavRoute {
+        // Use query param for route since containerId is optional
+        override val route: String =
+            "${Routes.CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}={${Routes.Args.CONTAINER_ID}}"
+
+        fun createRoute(containerId: String? = null): String =
+            containerId?.let { "${Routes.CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}=$it" }
+                ?: Routes.CONTAINER_BROWSER
+    }
+
     // ---------------
     // Details Screens
     // ---------------
