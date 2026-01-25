@@ -90,6 +90,9 @@ fun AppNavGraph() {
                     navController.navigate(
                         NavRoute.AddEditContainer.createRoute(parentContainerId = parentId)
                     )
+                },
+                onAddItem = { cid ->
+                    navController.navigate(NavRoute.AddEditItem.createRoute(containerId = cid))
                 }
             )
         }
