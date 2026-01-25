@@ -111,7 +111,11 @@ fun AppNavGraph() {
 
             ItemDetailsScreen(
                 itemId = itemId,
-                onBack = { navController.popBackStack()}
+                onBack = { navController.popBackStack()},
+                onEdit = { id ->
+                    navController.navigate(NavRoute.AddEditItem.createRoute(itemId = id))
+                }
+
             )
         }
 

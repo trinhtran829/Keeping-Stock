@@ -12,11 +12,16 @@ import androidx.compose.ui.unit.dp
 fun ItemDetailsScreen(
     itemId: String,
     onBack: () -> Unit,
+    onEdit: (itemId: String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(16.dp)) {
         Text("Item Details Screen (placeholder)")
         Text("itemId = $itemId")
+
+        Button(onClick = { onEdit(itemId) }, modifier = Modifier.padding(top = 12.dp)) {
+            Text("Edit")
+        }
 
         Button(onClick = onBack, modifier = Modifier.padding(top = 12.dp)) {
             Text("Back")
