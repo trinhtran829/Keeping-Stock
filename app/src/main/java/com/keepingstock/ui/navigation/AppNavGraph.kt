@@ -84,6 +84,11 @@ fun AppNavGraph() {
                         launchSingleTop = true
                         restoreState = true
                     }
+                },
+                onAddContainer = { parentId ->
+                    navController.navigate(
+                        NavRoute.AddEditContainer.createRoute(parentContainerId = parentId)
+                    )
                 }
             )
         }
