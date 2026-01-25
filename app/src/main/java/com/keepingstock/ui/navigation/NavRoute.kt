@@ -18,6 +18,7 @@ sealed interface NavRoute {
         override val route: String =
             "${Routes.CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}={${Routes.Args.CONTAINER_ID}}"
 
+        // Function to build the actual route string; uses query param
         fun createRoute(containerId: String? = null): String =
             containerId?.let { "${Routes.CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}=$it" }
                 ?: Routes.CONTAINER_BROWSER
@@ -30,8 +31,16 @@ sealed interface NavRoute {
     object ItemDetails : NavRoute {
         override val route: String = "${Routes.ITEM_DETAIL}/{${Routes.Args.ITEM_ID}}"
 
-        // Function to build the actual route string
+        // Function to build the actual route string; uses path param
         fun createRoute(itemId: String): String =
             "${Routes.ITEM_DETAIL}/$itemId"
+    }
+
+    object ContainerDetail : NavRoute {
+        override val route: String =
+            "${Routes.CONTAINER_DETAIL}/{${Routes.Args.CONTAINER_ID}}"
+
+        // Function to build the actual route string; uses path param
+        fun createRoute(containerId: String): String = "${Routes.CONTAINER_DETAIL}/$containerId"
     }
 }
