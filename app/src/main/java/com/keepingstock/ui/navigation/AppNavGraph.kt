@@ -24,7 +24,7 @@ fun AppNavGraph() {
     // The place in UI where the active destination composable is displayed
     NavHost(
         navController = navController,
-        startDestination = NavRoute.ContainerBrowser.route
+        startDestination = Routes.CONTAINER_BROWSER
     ) {
 
         // Register the ItemBrowser destination: when route == "item_browser", show ItemBrowserScreen
@@ -36,7 +36,9 @@ fun AppNavGraph() {
                 onOpenContainerBrowser = {
                     navController.navigate(
                         NavRoute.ContainerBrowser.createRoute(lastContainerId)) {
-                            launchSingleTop = true
+                        popUpTo(Routes.CONTAINER_BROWSER) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 }
             )
@@ -57,11 +59,7 @@ fun AppNavGraph() {
             backStackEntry ->
             val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
 
-            if (containerId != null) {
-                lastContainerId = containerId
-            } else if (lastContainerId == null) {
-                lastContainerId = null // root
-            }
+            lastContainerId = containerId
 
             ContainerBrowserScreen(
                 containerId = containerId,
@@ -70,7 +68,9 @@ fun AppNavGraph() {
                 },
                 onGoToItemBrowser = {
                     navController.navigate(NavRoute.ItemBrowser.route) {
+                        popUpTo(Routes.CONTAINER_BROWSER) { saveState = true }
                         launchSingleTop = true
+                        restoreState = true
                     }
                 }
             )
