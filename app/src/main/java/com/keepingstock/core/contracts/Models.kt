@@ -1,4 +1,4 @@
-package com.example.keepingstock.core.contracts
+package com.keepingstock.core.contracts
 
 // TODO migrate to @JvmInline value class for stronger type-safety
 typealias ItemId = String

@@ -1,4 +1,4 @@
-package com.example.keepingstock.core.contracts
+package com.keepingstock.core.contracts
 
 /**
  * Navigation contract:
