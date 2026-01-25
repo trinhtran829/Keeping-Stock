@@ -34,12 +34,12 @@ fun AppNavGraph() {
         composable(
             route = NavRoute.ItemDetails.route,
             arguments = listOf(
-                navArgument(NavRoute.ItemDetails.ITEM_ID) { type = NavType.StringType }
+                navArgument(NavRoute.ItemDetails.route) { type = NavType.StringType }
             )
         ) {
             backStackEntry ->
             val itemId = backStackEntry.arguments
-                ?.getString(NavRoute.ItemDetails.ITEM_ID) ?: error("Missing itemId")
+                ?.getString(NavRoute.ItemDetails.route) ?: error("Missing itemId")
 
             ItemDetailsScreen(
                 itemId = itemId,

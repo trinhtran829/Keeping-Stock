@@ -1,5 +1,7 @@
 package com.keepingstock.ui.navigation
 
+import com.keepingstock.core.contracts.Routes
+
 sealed interface NavRoute {
     val route: String
 
@@ -8,7 +10,7 @@ sealed interface NavRoute {
     // -------------
 
     object ItemBrowser : NavRoute {
-        override val route: String = "item_browser"
+        override val route: String = Routes.ITEM_BROWSER
     }
 
     // ---------------
@@ -16,10 +18,10 @@ sealed interface NavRoute {
     // ---------------
 
     object ItemDetails : NavRoute {
-        const val ITEM_ID = "itemId"
-        override val route: String = "item_details/{$ITEM_ID}"
+        override val route: String = "${Routes.ITEM_DETAIL}/{${Routes.Args.ITEM_ID}}"
 
         // Function to build the actual route string
-        fun createRoute(itemId: String): String = "item_details/$itemId"
+        fun createRoute(itemId: String): String =
+            "${Routes.ITEM_DETAIL}/$itemId"
     }
 }
