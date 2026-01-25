@@ -122,7 +122,10 @@ fun AppNavGraph() {
 
             ContainerDetailScreen(
                 containerId = containerId,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onEdit = { id ->
+                    navController.navigate(NavRoute.AddEditContainer.createRoute(containerId = id))
+                }
             )
         }
 

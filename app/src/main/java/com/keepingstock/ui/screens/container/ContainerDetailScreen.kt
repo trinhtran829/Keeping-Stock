@@ -12,7 +12,8 @@ import androidx.compose.ui.unit.dp
 fun ContainerDetailScreen(
     containerId: String,
     modifier: Modifier = Modifier,
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
+    onEdit: (containerId: String) -> Unit = {}
 ) {
     Column(modifier = modifier.padding(16.dp)) {
         Text("Container Detail Screen (placeholder)")
@@ -23,6 +24,11 @@ fun ContainerDetailScreen(
             modifier = Modifier.padding(top = 12.dp)
         ) {
             Text("Back")
+        }
+        Button(
+            onClick = { onEdit(containerId) }, modifier = Modifier.padding(top = 12.dp)
+        ) {
+            Text("Edit")
         }
     }
 }
