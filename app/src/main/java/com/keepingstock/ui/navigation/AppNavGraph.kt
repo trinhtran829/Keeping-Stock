@@ -17,6 +17,7 @@ import com.keepingstock.ui.screens.container.ContainerDetailScreen
 import com.keepingstock.ui.screens.item.AddEditItemScreen
 import com.keepingstock.ui.screens.item.ItemBrowserScreen
 import com.keepingstock.ui.screens.item.ItemDetailsScreen
+import com.keepingstock.ui.screens.qr.QRScanScreen
 
 @Composable
 fun AppNavGraph() {
@@ -200,5 +201,22 @@ fun AppNavGraph() {
             )
         }
 
+        // -----------------------
+        // Register QR Scan Screen
+        // -----------------------
+
+        composable(route = NavRoute.QRScan.route) {
+            QRScanScreen(
+                onScannedContainer = { scannedContainerId ->
+                    // Navigate to the container contents after a successful scan
+                    navController.navigate(NavRoute.ContainerBrowser.createRoute(scannedContainerId)) {
+                        popUpTo(Routes.CONTAINER_BROWSER) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onCancel = { navController.popBackStack() }
+            )
+        }
     }
 }
