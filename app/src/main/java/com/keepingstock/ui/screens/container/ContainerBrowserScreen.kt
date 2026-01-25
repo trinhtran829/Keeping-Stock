@@ -16,7 +16,8 @@ fun ContainerBrowserScreen(
     modifier: Modifier = Modifier,
     onOpenSubcontainer: (containerId: String) -> Unit = {},
     onOpenItem: (itemId: String) -> Unit = {},
-    onOpenContainerInfo: (containerId: String) -> Unit = {}
+    onOpenContainerInfo: (containerId: String) -> Unit = {},
+    onGoToItemBrowser: () -> Unit = {}
 ) {
     Column(modifier = modifier.padding(16.dp)) {
         Text("Container Browser Screen (placeholder)")
@@ -42,6 +43,13 @@ fun ContainerBrowserScreen(
             modifier = Modifier.padding(top = 12.dp)
         ) {
             Text("Open container info")
+        }
+
+        Button(
+            onClick = onGoToItemBrowser,
+            modifier = Modifier.padding(top = 12.dp)
+        ) {
+            Text("Go to Item Browser")
         }
     }
 }

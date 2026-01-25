@@ -1,6 +1,10 @@
 package com.keepingstock.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,6 +19,7 @@ import com.keepingstock.ui.screens.item.ItemDetailsScreen
 fun AppNavGraph() {
     // The navigation manager that tracks current screen and back stack
     val navController = rememberNavController()
+    var lastContainerId by rememberSaveable { mutableStateOf<String?>(null) }
 
     // The place in UI where the active destination composable is displayed
     NavHost(
@@ -29,7 +34,10 @@ fun AppNavGraph() {
                     navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
                 },
                 onOpenContainerBrowser = {
-                    navController.navigate(NavRoute.ContainerBrowser.createRoute())
+                    navController.navigate(
+                        NavRoute.ContainerBrowser.createRoute(lastContainerId)) {
+                            launchSingleTop = true
+                    }
                 }
             )
         }
@@ -49,10 +57,21 @@ fun AppNavGraph() {
             backStackEntry ->
             val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
 
+            if (containerId != null) {
+                lastContainerId = containerId
+            } else if (lastContainerId == null) {
+                lastContainerId = null // root
+            }
+
             ContainerBrowserScreen(
                 containerId = containerId,
                 onOpenItem = { itemId ->
                     navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
+                },
+                onGoToItemBrowser = {
+                    navController.navigate(NavRoute.ItemBrowser.route) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }

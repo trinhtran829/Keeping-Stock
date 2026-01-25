@@ -24,7 +24,7 @@ fun ItemBrowserScreen(
         }
 
         Button(onClick = onOpenContainerBrowser, modifier = Modifier.padding(top = 12.dp)) {
-            Text("Go to Container Browser (root)")
+            Text("Go to Container Browser (last open)")
         }
     }
 }
