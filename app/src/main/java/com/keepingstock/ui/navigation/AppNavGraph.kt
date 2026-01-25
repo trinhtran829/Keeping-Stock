@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
+import com.keepingstock.ui.screens.container.ContainerDetailScreen
 import com.keepingstock.ui.screens.item.ItemBrowserScreen
 import com.keepingstock.ui.screens.item.ItemDetailsScreen
 
@@ -26,6 +27,10 @@ fun AppNavGraph() {
         navController = navController,
         startDestination = Routes.CONTAINER_BROWSER
     ) {
+
+        // ----------------------
+        // Register Core Browsers
+        // ----------------------
 
         // Register the ItemBrowser destination: when route == "item_browser", show ItemBrowserScreen
         composable(route = NavRoute.ItemBrowser.route) {
@@ -79,6 +84,10 @@ fun AppNavGraph() {
             )
         }
 
+        // ------------------------
+        // Register Details Screens
+        // ------------------------
+
         // Register the ItemDetails destination: when route == "item_details" with itemId,
         // show ItemDetailsScreen
         composable(
@@ -93,6 +102,23 @@ fun AppNavGraph() {
             ItemDetailsScreen(
                 itemId = itemId,
                 onBack = { navController.popBackStack()}
+            )
+        }
+
+        // Register the ContainerDetails destination: when route == "container_details" with
+        // containerId, show ContainerDetailScreen
+        composable(
+            route = NavRoute.ContainerDetail.route,
+            arguments = listOf(
+                navArgument(Routes.Args.CONTAINER_ID) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
+                ?: error("Missing containerId")
+
+            ContainerDetailScreen(
+                containerId = containerId,
+                onBack = { navController.popBackStack() }
             )
         }
     }
