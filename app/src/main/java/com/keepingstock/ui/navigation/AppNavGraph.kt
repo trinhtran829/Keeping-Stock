@@ -6,6 +6,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.keepingstock.core.contracts.Routes
+import com.keepingstock.ui.screens.container.ContainerBrowserScreen
 import com.keepingstock.ui.screens.item.ItemBrowserScreen
 import com.keepingstock.ui.screens.item.ItemDetailsScreen
 
@@ -29,6 +31,26 @@ fun AppNavGraph() {
             )
         }
 
+        // Register the ContainerBrowser destination: when route == "container_browser" with or
+        // without the containerId, show ContainerBrowser of that container (or root)
+        composable(
+            route = NavRoute.ContainerBrowser.route,
+            arguments = listOf(
+                navArgument(Routes.Args.CONTAINER_ID) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) {
+            backStackEntry ->
+            val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
+
+            ContainerBrowserScreen(
+                containerId = containerId
+            )
+        }
+
         // Register the ItemDetails destination: when route == "item_details" with itemId,
         // show ItemDetailsScreen
         composable(
@@ -36,8 +58,7 @@ fun AppNavGraph() {
             arguments = listOf(
                 navArgument(NavRoute.ItemDetails.route) { type = NavType.StringType }
             )
-        ) {
-            backStackEntry ->
+        ) { backStackEntry ->
             val itemId = backStackEntry.arguments
                 ?.getString(NavRoute.ItemDetails.route) ?: error("Missing itemId")
 
