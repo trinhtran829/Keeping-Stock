@@ -19,7 +19,7 @@ fun AppNavGraph() {
     // The place in UI where the active destination composable is displayed
     NavHost(
         navController = navController,
-        startDestination = NavRoute.ItemBrowser.route
+        startDestination = NavRoute.ContainerBrowser.route
     ) {
 
         // Register the ItemBrowser destination: when route == "item_browser", show ItemBrowserScreen
