@@ -14,6 +14,7 @@ import com.keepingstock.core.contracts.Routes
 import com.keepingstock.ui.screens.container.AddEditContainerScreen
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
 import com.keepingstock.ui.screens.container.ContainerDetailScreen
+import com.keepingstock.ui.screens.item.AddEditItemScreen
 import com.keepingstock.ui.screens.item.ItemBrowserScreen
 import com.keepingstock.ui.screens.item.ItemDetailsScreen
 
@@ -164,5 +165,33 @@ fun AppNavGraph() {
                 onCancel = { navController.popBackStack() }
             )
         }
+
+        composable(
+            route = NavRoute.AddEditItem.route,
+            arguments = listOf(
+                navArgument(Routes.Args.ITEM_ID) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument(Routes.Args.CONTAINER_ID) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getString(Routes.Args.ITEM_ID)
+            val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
+
+            // TODO: onSave action not implemented yet
+            AddEditItemScreen(
+                itemId = itemId,
+                containerId = containerId,
+                onSave = { navController.popBackStack() },
+                onCancel = { navController.popBackStack() }
+            )
+        }
+
     }
 }
