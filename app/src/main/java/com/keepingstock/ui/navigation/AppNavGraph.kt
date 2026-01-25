@@ -27,6 +27,9 @@ fun AppNavGraph() {
             ItemBrowserScreen(
                 onOpenItem = { itemId ->
                     navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
+                },
+                onOpenContainerBrowser = {
+                    navController.navigate(NavRoute.ContainerBrowser.createRoute())
                 }
             )
         }
