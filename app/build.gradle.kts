@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.keepingstock"
+    namespace = "com.keepingstock"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.keepingstock"
+        applicationId = "com.keepingstock"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -56,4 +56,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 }
