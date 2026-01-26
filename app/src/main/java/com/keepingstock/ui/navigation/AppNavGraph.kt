@@ -1,5 +1,7 @@
 package com.keepingstock.ui.navigation
 
+import com.keepingstock.core.DebugFlags
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,9 +13,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.Routes
+import com.keepingstock.ui.screens.media.CameraScreen
+import com.keepingstock.ui.screens.media.GalleryScreen
+import com.keepingstock.ui.screens.media.PhotoScreen
 import com.keepingstock.ui.screens.container.AddEditContainerScreen
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
 import com.keepingstock.ui.screens.container.ContainerDetailScreen
+import com.keepingstock.ui.screens.debug.DebugGalleryScreen
 import com.keepingstock.ui.screens.item.AddEditItemScreen
 import com.keepingstock.ui.screens.item.ItemBrowserScreen
 import com.keepingstock.ui.screens.item.ItemDetailsScreen
@@ -24,11 +30,13 @@ fun AppNavGraph() {
     // The navigation manager that tracks current screen and back stack
     val navController = rememberNavController()
     var lastContainerId by rememberSaveable { mutableStateOf<String?>(null) }
+    val startDestination =
+        if (DebugFlags.ENABLE_DEBUG_GALLERY) Routes.DEBUG_GALLERY else Routes.CONTAINER_BROWSER
 
     // The place in UI where the active destination composable is displayed
     NavHost(
         navController = navController,
-        startDestination = Routes.CONTAINER_BROWSER
+        startDestination = startDestination
     ) {
 
         // ----------------------
@@ -218,5 +226,73 @@ fun AppNavGraph() {
                 onCancel = { navController.popBackStack() }
             )
         }
+
+        // -----------------------
+        // Register Media Screens
+        // -----------------------
+
+        composable(route = NavRoute.Camera.route) {
+            CameraScreen(
+                onOpenGallery = {
+                    navController.navigate(NavRoute.Gallery.route)
+                },
+                onPhotoCaptured = { uri ->
+                    navController.navigate(NavRoute.Photo.createRoute(uri))
+                }
+            )
+        }
+
+        composable(route = NavRoute.Gallery.route) {
+            GalleryScreen(
+                onPhotoSelected = { uri ->
+                    navController.navigate(NavRoute.Photo.createRoute(uri))
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = NavRoute.Photo.route,
+            arguments = listOf(
+                navArgument(Routes.Args.PHOTO_URI) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val encoded = backStackEntry.arguments?.getString(Routes.Args.PHOTO_URI)
+                ?: return@composable
+
+            val photoUri = Uri.parse(Uri.decode(encoded))
+
+            PhotoScreen(
+                photoUri = photoUri,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // ----------------------
+        // Register Debug Screens
+        // ----------------------
+
+        composable(route = NavRoute.DebugGallery.route) {
+            DebugGalleryScreen(
+                onOpenContainerBrowser = {
+                    navController.navigate(NavRoute.ContainerBrowser.createRoute(null))
+                },
+                onOpenItemBrowser = {
+                    navController.navigate(NavRoute.ItemBrowser.route)
+                },
+                onOpenQrScan = { navController.navigate(NavRoute.QRScan.route) },
+                onOpenCamera = { navController.navigate(NavRoute.Camera.route) },
+                onOpenGallery = { navController.navigate(NavRoute.Gallery.route) },
+
+                // TODO: placeholder URI. Swap with real demo photo Uri later
+                onOpenPhotoDemo = {
+                    val demo = android.net.Uri.parse("content://media/external/images/media/1")
+                    navController.navigate(NavRoute.Photo.createRoute(demo))
+                }
+            )
+        }
+
     }
 }
