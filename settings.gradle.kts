@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Keeping Stock"
 include(":app")
+ 
