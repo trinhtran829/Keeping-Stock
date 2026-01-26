@@ -1,5 +1,6 @@
 package com.keepingstock.ui.navigation
 
+import android.net.Uri
 import com.keepingstock.core.contracts.Routes
 
 sealed interface NavRoute {
@@ -97,5 +98,26 @@ sealed interface NavRoute {
 
     object QRScan : NavRoute {
         override val route: String = Routes.QR_SCAN
+    }
+
+    // -------------
+    // Media Screens
+    // -------------
+
+    object Camera : NavRoute {
+        override val route: String = Routes.CAMERA
+    }
+
+    object Gallery : NavRoute {
+        override val route: String = Routes.GALLERY
+    }
+
+    object Photo : NavRoute {
+        override val route: String = "${Routes.PHOTO}/{${Routes.Args.PHOTO_URI}}"
+
+        fun createRoute(photoUri: Uri): String {
+            val encoded = Uri.encode(photoUri.toString())
+            return "${Routes.PHOTO}/$encoded"
+        }
     }
 }
