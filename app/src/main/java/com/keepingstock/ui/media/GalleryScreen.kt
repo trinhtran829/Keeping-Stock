@@ -33,7 +33,10 @@ import coil.compose.rememberAsyncImagePainter
  * GalleryScreen: Displays all photos captured by the app in a grid layout.
  */
 @Composable
-fun GalleryScreen(navController: NavHostController) {
+fun GalleryScreen(
+    onPhotoSelected: (Uri) -> Unit,
+    onBack: () -> Unit
+) {
     val context = LocalContext.current
 
     // A list to store the URIs of the photos
@@ -67,8 +70,7 @@ fun GalleryScreen(navController: NavHostController) {
                         .padding(2.dp)
                         .clickable {
                             // Navigate to full-screen photo when clicked
-                            val encoded = Uri.encode(uri.toString())
-                            navController.navigate("photo/$encoded")
+                            onPhotoSelected(uri)
                         },
                     contentScale = ContentScale.Companion.Crop
                 )
@@ -77,7 +79,7 @@ fun GalleryScreen(navController: NavHostController) {
 
         // Back button to return to CameraScreen
         Button(
-            onClick = { navController.popBackStack() },
+            onClick = { onBack() },
             modifier = Modifier.Companion.fillMaxWidth().padding(16.dp)
         ) {
             Text("Back to Camera")
