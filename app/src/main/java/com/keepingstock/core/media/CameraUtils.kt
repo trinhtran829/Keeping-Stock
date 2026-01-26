@@ -1,4 +1,4 @@
-package com.keepingstock
+package com.keepingstock.core.media
 
 import android.content.ContentValues
 import android.content.Context
@@ -10,7 +10,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 fun takePhoto(
     context: Context,

@@ -42,7 +42,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.keepingstock.takePhoto
+import com.keepingstock.core.media.takePhoto
 
 @Composable
 fun CameraScreen(navController: NavHostController) {
