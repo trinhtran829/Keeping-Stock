@@ -285,7 +285,13 @@ fun AppNavGraph() {
                 },
                 onOpenQrScan = { navController.navigate(NavRoute.QRScan.route) },
                 onOpenCamera = { navController.navigate(NavRoute.Camera.route) },
-                onOpenGallery = { navController.navigate(NavRoute.Gallery.route) }
+                onOpenGallery = { navController.navigate(NavRoute.Gallery.route) },
+
+                // TODO: placeholder URI. Swap with real demo photo Uri later
+                onOpenPhotoDemo = {
+                    val demo = android.net.Uri.parse("content://media/external/images/media/1")
+                    navController.navigate(NavRoute.Photo.createRoute(demo))
+                }
             )
         }
 

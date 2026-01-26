@@ -21,6 +21,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             KeepingStockTheme {
+                /*
                 val navController = rememberNavController()
                 NavHost(navController, startDestination = "camera") {
                     composable("camera") { CameraScreen(navController) }
@@ -34,6 +35,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+                 */
             }
         }
     }
