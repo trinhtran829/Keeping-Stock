@@ -83,6 +83,7 @@ sealed interface NavRoute {
             containerId: String? = null
         ): String {
             val base = Routes.ADD_EDIT_ITEM
+
             val params = buildList {
                 if (itemId != null) add("${Routes.Args.ITEM_ID}=$itemId")
                 if (containerId != null) add("${Routes.Args.CONTAINER_ID}=$containerId")

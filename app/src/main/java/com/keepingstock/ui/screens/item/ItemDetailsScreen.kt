@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 fun ItemDetailsScreen(
     itemId: String,
     onBack: () -> Unit,
-    onEdit: (itemId: String) -> Unit = {},
+    onEdit: (itemId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(16.dp)) {
