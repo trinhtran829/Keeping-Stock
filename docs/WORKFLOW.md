@@ -144,9 +144,13 @@ Don't use `NavController` inside screens!
 
 See the above example for a good screen signature. Use these callbacks for your UI's actions!
 
+These should usually just be empty functions, that way you can define what these callback actions actually do in AppNavGraph in Step 3.
+
 ### Step 2: Create a NavRoute
 
-Each screen needs a `NavRoute`. Think of the NavRoute as the address, phone number, or URL for your screen
+Each screen needs a `NavRoute`. Think of the NavRoute as the phone number for your screen. Creating a NavRoute is like assigning a phone number and putting it in the phone book.
+
+Routes use the string values defined in core.contracts.Routes for their addresses. To continue the analogy, this defines known and existing area codes (kinda - stretching the analogy a little there. It just holds string constants so we don't have raw strings literals in the NavRoute file).
 
   - Open the ui.navigation.NavRoute file
   - Add your new route near the bottom under **CUSTOM SCREENS - TO BE FORMALIZED**
@@ -173,7 +177,9 @@ object ItemBrowser : NavRoute {
 
 This is where your screen is wired into the app.
 
-Think of registering the NavRoute in the NavHost like putting your screen's number in the phone book
+Think of the AppNavGraph as the central routing office, the switchboard. Registering the NavRoute in the AppNavGraph is like telling the switchboard "when someone dials this number, connect them to this person and build the call like this."
+
+Except it's actually "when this route is encountered, show this screen and build the arguments for the screen like this."
 
   - Open the ui.navigation.AppNavGraph file
   - Register your new route near the bottom under **CUSTOM SCREEN - TO BE FORMALIZED**
@@ -187,13 +193,12 @@ The route registration takes the form of `composable(route = NavRoute.YourNavRou
 Add the call to your screen here. Any callback function arguments you included in your screen's parameters in Step 1 will also need to be resolved here!
 
 If your screen opens any additional screens, this is where you can define the behavior of your callbacks to navigate to those screen's registered routes
-    
-  **Advanced step:**  
-  - Any arguments in your route's address will need to be resolved into variables pulled from the backStackEntry - see above
 
 ### Step 4: Add an entry to the Debug Gallery
 
 This lets you test your screen in the emulator by adding a button to the debug gallery
+
+Since I've already extended the analogy this far, adding the button is like installing a new speed dial button on your phone. It's not actually programmed to call that number yet, but now we have a button that we'll be able to say "when pressed, dial a number I'll define in AppNavGraph."
 
   - Open ui.screens.debug.DebugGalleryScreen
   - Add a new callback parameter in the DebugGalleryScreen signature
@@ -203,6 +208,8 @@ This lets you test your screen in the emulator by adding a button to the debug g
 ### Step 5: Wire Debug Gallery navigation
  The DebugGalleryScreen's registered route needs to be updated in the AppNavGraph to accomodate the new callback function added in Step 4
 
+ Last part of the analogy - need to actually update the registered behavior of debug gallery screen because of the new speed dial button (tell the switchboard, "when the speed dial button is pressed, this is the number that should be dialed")
+
   - Open the ui.navigation.AppNavGraph again
   - Scroll to the very bottom, under the "Register Debug Screens" section
   - Add your `onOpen<your-screen-name>` callback function to the arguments passed to the debug gallery screen.
@@ -210,4 +217,4 @@ This lets you test your screen in the emulator by adding a button to the debug g
 
 You should now be able to run the app and see your screen's entry/preview button in the Debug Gallery!
 
-Again, this can be overwhelming at first, and if you need us to help just ping us and we'll help best we can!
+Again, this can be overwhelming at first, and if you need help just ping us and we'll all help best we can!
