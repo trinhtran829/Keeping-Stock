@@ -10,6 +10,7 @@ object Routes {
         const val CONTAINER_ID = "containerId"
         const val ITEM_ID = "itemId"
         const val PARENT_CONTAINER_ID = "parentContainerId"
+        const val PHOTO_URI = "photoUri"
     }
 
     // Core Browsers
@@ -26,4 +27,9 @@ object Routes {
 
     // Utility
     const val QR_SCAN = "qr_scan"
+
+    // Media
+    const val CAMERA = "camera"
+    const val GALLERY = "gallery"
+    const val PHOTO = "photo"
 }
