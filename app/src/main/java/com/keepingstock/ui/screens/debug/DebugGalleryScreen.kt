@@ -31,13 +31,22 @@ fun DebugGalleryScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
+            text = "DEBUG BUILD",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.error
+        )
+        Text(
+            text = "Switch Build Variant to RELEASE to run the normal app flow.",
+            style = MaterialTheme.typography.bodySmall
+        )
+        Text(
             text = "Debug Gallery",
             style = MaterialTheme.typography.headlineMedium
         )
         Text(
             text = "Use these shortcuts to test screens in the emulator. " +
                     "Do not add navigation graphs or change MainActivity.",
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyMedium
         )
 
         DebugButton("Container Browser", onOpenContainerBrowser)

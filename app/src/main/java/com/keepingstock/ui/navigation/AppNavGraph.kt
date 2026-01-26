@@ -1,5 +1,6 @@
 package com.keepingstock.ui.navigation
 
+import com.keepingstock.core.DebugFlags
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,11 +30,13 @@ fun AppNavGraph() {
     // The navigation manager that tracks current screen and back stack
     val navController = rememberNavController()
     var lastContainerId by rememberSaveable { mutableStateOf<String?>(null) }
+    val startDestination =
+        if (DebugFlags.ENABLE_DEBUG_GALLERY) Routes.DEBUG_GALLERY else Routes.CONTAINER_BROWSER
 
     // The place in UI where the active destination composable is displayed
     NavHost(
         navController = navController,
-        startDestination = Routes.CONTAINER_BROWSER
+        startDestination = startDestination
     ) {
 
         // ----------------------
