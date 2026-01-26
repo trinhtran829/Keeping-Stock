@@ -277,14 +277,10 @@ fun AppNavGraph() {
         composable(route = NavRoute.DebugGallery.route) {
             DebugGalleryScreen(
                 onOpenContainerBrowser = {
-                    navController.navigate(Routes.CONTAINER_BROWSER) {
-                        popUpTo(Routes.DEBUG_GALLERY) { inclusive = true }
-                    }
+                    navController.navigate(NavRoute.ContainerBrowser.createRoute(null))
                 },
                 onOpenItemBrowser = {
-                    navController.navigate(NavRoute.ItemBrowser.route) {
-                        popUpTo(Routes.DEBUG_GALLERY) { inclusive = true }
-                    }
+                    navController.navigate(NavRoute.ItemBrowser.route)
                 },
                 onOpenQrScan = { navController.navigate(NavRoute.QRScan.route) },
                 onOpenCamera = { navController.navigate(NavRoute.Camera.route) },
