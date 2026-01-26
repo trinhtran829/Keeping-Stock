@@ -1,4 +1,4 @@
-package com.keepingstock
+package com.keepingstock.ui.media
 
 import android.content.Context
 import android.net.Uri
@@ -6,14 +6,22 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -36,25 +44,25 @@ fun GalleryScreen(navController: NavHostController) {
         loadPhotos(context, photos)
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(top = 32.dp)) {
+    Column(modifier = Modifier.Companion.fillMaxSize().padding(top = 32.dp)) {
         // Screen title
         Text(
             text = "Gallery",
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.Companion.padding(16.dp),
             style = MaterialTheme.typography.headlineMedium
         )
 
         // Photo grid
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.Companion.weight(1f),
             contentPadding = PaddingValues(2.dp)
         ) {
             items(photos) { uri ->
                 Image(
                     painter = rememberAsyncImagePainter(uri),
                     contentDescription = null,
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .aspectRatio(1f)
                         .padding(2.dp)
                         .clickable {
@@ -62,7 +70,7 @@ fun GalleryScreen(navController: NavHostController) {
                             val encoded = Uri.encode(uri.toString())
                             navController.navigate("photo/$encoded")
                         },
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Companion.Crop
                 )
             }
         }
@@ -70,7 +78,7 @@ fun GalleryScreen(navController: NavHostController) {
         // Back button to return to CameraScreen
         Button(
             onClick = { navController.popBackStack() },
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
+            modifier = Modifier.Companion.fillMaxWidth().padding(16.dp)
         ) {
             Text("Back to Camera")
         }

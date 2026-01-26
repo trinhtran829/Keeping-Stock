@@ -1,22 +1,35 @@
-package com.keepingstock
+package com.keepingstock.ui.media
 
 import android.Manifest
-import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +42,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.keepingstock.takePhoto
 
 @Composable
 fun CameraScreen(navController: NavHostController) {
@@ -44,7 +58,10 @@ fun CameraScreen(navController: NavHostController) {
     LaunchedEffect(Unit) { permissionLauncher.launch(Manifest.permission.CAMERA) }
 
     if (!hasCameraPermission) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.Companion.fillMaxSize(),
+            contentAlignment = Alignment.Companion.Center
+        ) {
             Text("Camera permission required")
         }
         return
@@ -52,20 +69,25 @@ fun CameraScreen(navController: NavHostController) {
 
     val imageCapture = remember { ImageCapture.Builder().build() }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.Companion.fillMaxSize()) {
         AndroidView(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.Companion.fillMaxSize(),
             factory = { ctx ->
                 val previewView = PreviewView(ctx)
-                val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
+                val cameraProviderFuture = ProcessCameraProvider.Companion.getInstance(ctx)
                 cameraProviderFuture.addListener({
                     val cameraProvider = cameraProviderFuture.get()
-                    val preview = androidx.camera.core.Preview.Builder().build().also {
+                    val preview = Preview.Builder().build().also {
                         it.setSurfaceProvider(previewView.surfaceProvider)
                     }
-                    val cameraSelector = androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
+                    val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
                     cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, imageCapture)
+                    cameraProvider.bindToLifecycle(
+                        lifecycleOwner,
+                        cameraSelector,
+                        preview,
+                        imageCapture
+                    )
                 }, ContextCompat.getMainExecutor(ctx))
                 previewView
             }
@@ -73,30 +95,34 @@ fun CameraScreen(navController: NavHostController) {
 
         // Bottom row with thumbnail, capture button
         Row(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
+            modifier = Modifier.Companion
+                .align(Alignment.Companion.BottomCenter)
                 .fillMaxWidth()
                 .padding(bottom = 48.dp, start = 24.dp, end = 24.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Companion.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Box(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .size(60.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color.DarkGray)
+                    .background(Color.Companion.DarkGray)
                     .clickable { navController.navigate("gallery") },
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Companion.Center
             ) {
                 if (lastPhotoUri != null) {
                     Image(
                         painter = rememberAsyncImagePainter(lastPhotoUri),
                         contentDescription = "Gallery",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                        modifier = Modifier.Companion.fillMaxSize(),
+                        contentScale = ContentScale.Companion.Crop
                     )
                 } else {
-                    Text("Gallery", color = Color.White, style = MaterialTheme.typography.labelSmall)
+                    Text(
+                        "Gallery",
+                        color = Color.Companion.White,
+                        style = MaterialTheme.typography.labelSmall
+                    )
                 }
             }
 
@@ -107,8 +133,7 @@ fun CameraScreen(navController: NavHostController) {
                 }
             }) { Text("Capture") }
 
-            Spacer(modifier = Modifier.size(60.dp))
+            Spacer(modifier = Modifier.Companion.size(60.dp))
         }
     }
 }
-
