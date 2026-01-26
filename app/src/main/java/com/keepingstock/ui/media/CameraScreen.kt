@@ -40,12 +40,14 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.keepingstock.core.media.takePhoto
 
 @Composable
-fun CameraScreen(navController: NavHostController) {
+fun CameraScreen(
+    onOpenGallery: () -> Unit,
+    onPhotoCaptured: (Uri) -> Unit
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var hasCameraPermission by remember { mutableStateOf(false) }
@@ -107,7 +109,7 @@ fun CameraScreen(navController: NavHostController) {
                     .size(60.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(Color.Companion.DarkGray)
-                    .clickable { navController.navigate("gallery") },
+                    .clickable { onOpenGallery() },
                 contentAlignment = Alignment.Companion.Center
             ) {
                 if (lastPhotoUri != null) {
@@ -129,7 +131,7 @@ fun CameraScreen(navController: NavHostController) {
             Button(onClick = {
                 takePhoto(context, imageCapture) { uri ->
                     lastPhotoUri = uri
-                    navController.navigate("photo/${Uri.encode(uri.toString())}")
+                    onPhotoCaptured(uri)
                 }
             }) { Text("Capture") }
 
