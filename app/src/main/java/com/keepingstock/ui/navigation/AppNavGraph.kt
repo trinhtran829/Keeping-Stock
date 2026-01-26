@@ -1,5 +1,6 @@
 package com.keepingstock.ui.navigation
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +12,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.Routes
+import com.keepingstock.ui.media.CameraScreen
+import com.keepingstock.ui.media.GalleryScreen
+import com.keepingstock.ui.media.PhotoScreen
 import com.keepingstock.ui.screens.container.AddEditContainerScreen
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
 import com.keepingstock.ui.screens.container.ContainerDetailScreen
@@ -216,6 +220,49 @@ fun AppNavGraph() {
                     navController.navigate(NavRoute.ContainerBrowser.createRoute(scannedContainerId))
                 },
                 onCancel = { navController.popBackStack() }
+            )
+        }
+
+        // -----------------------
+        // Register Media Screens
+        // -----------------------
+
+        composable(route = NavRoute.Camera.route) {
+            CameraScreen(
+                onOpenGallery = {
+                    navController.navigate(NavRoute.Gallery.route)
+                },
+                onPhotoCaptured = { uri ->
+                    navController.navigate(NavRoute.Photo.createRoute(uri))
+                }
+            )
+        }
+
+        composable(route = NavRoute.Gallery.route) {
+            GalleryScreen(
+                onPhotoSelected = { uri ->
+                    navController.navigate(NavRoute.Photo.createRoute(uri))
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = NavRoute.Photo.route,
+            arguments = listOf(
+                navArgument(Routes.Args.PHOTO_URI) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val encoded = backStackEntry.arguments?.getString(Routes.Args.PHOTO_URI)
+                ?: return@composable
+
+            val photoUri = Uri.parse(Uri.decode(encoded))
+
+            PhotoScreen(
+                photoUri = photoUri,
+                onBack = { navController.popBackStack() }
             )
         }
     }
