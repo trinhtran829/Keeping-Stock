@@ -122,6 +122,13 @@ sealed interface NavRoute {
         }
     }
 
+    // ---------------------------------
+    // CUSTOM SCREENs - TO BE FORMALIZED
+    // ---------------------------------
+
+    // Define custom/temporary screen routes here
+
+
     // -------------
     // Debug Screens
     // -------------
