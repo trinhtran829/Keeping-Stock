@@ -120,4 +120,12 @@ sealed interface NavRoute {
             return "${Routes.PHOTO}/$encoded"
         }
     }
+
+    // -------------
+    // Debug Screens
+    // -------------
+
+    object DebugGallery : NavRoute {
+        override val route: String = Routes.DEBUG_GALLERY
+    }
 }

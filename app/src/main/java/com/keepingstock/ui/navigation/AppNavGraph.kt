@@ -18,6 +18,7 @@ import com.keepingstock.ui.screens.media.PhotoScreen
 import com.keepingstock.ui.screens.container.AddEditContainerScreen
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
 import com.keepingstock.ui.screens.container.ContainerDetailScreen
+import com.keepingstock.ui.screens.debug.DebugGalleryScreen
 import com.keepingstock.ui.screens.item.AddEditItemScreen
 import com.keepingstock.ui.screens.item.ItemBrowserScreen
 import com.keepingstock.ui.screens.item.ItemDetailsScreen
@@ -265,5 +266,28 @@ fun AppNavGraph() {
                 onBack = { navController.popBackStack() }
             )
         }
+
+        // ----------------------
+        // Register Debug Screens
+        // ----------------------
+
+        composable(route = NavRoute.DebugGallery.route) {
+            DebugGalleryScreen(
+                onOpenContainerBrowser = {
+                    navController.navigate(Routes.CONTAINER_BROWSER) {
+                        popUpTo(Routes.DEBUG_GALLERY) { inclusive = true }
+                    }
+                },
+                onOpenItemBrowser = {
+                    navController.navigate(NavRoute.ItemBrowser.route) {
+                        popUpTo(Routes.DEBUG_GALLERY) { inclusive = true }
+                    }
+                },
+                onOpenQrScan = { navController.navigate(NavRoute.QRScan.route) },
+                onOpenCamera = { navController.navigate(NavRoute.Camera.route) },
+                onOpenGallery = { navController.navigate(NavRoute.Gallery.route) }
+            )
+        }
+
     }
 }

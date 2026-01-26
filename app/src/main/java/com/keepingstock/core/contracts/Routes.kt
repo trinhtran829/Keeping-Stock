@@ -32,4 +32,7 @@ object Routes {
     const val CAMERA = "camera"
     const val GALLERY = "gallery"
     const val PHOTO = "photo"
+
+    // Debug
+    const val DEBUG_GALLERY = "debug_gallery"
 }
