@@ -21,13 +21,14 @@ import coil.compose.rememberAsyncImagePainter
  * PhotoScreen: Displays a single full-screen photo.
  */
 @Composable
-fun PhotoScreen(uriString: String, navController: NavHostController) {
-    val uri = Uri.parse(Uri.decode(uriString)) // Decode the URI passed from navigation
-
+fun PhotoScreen(
+    photoUri: Uri,
+    onBack: () -> Unit
+) {
     Box(modifier = Modifier.Companion.fillMaxSize().background(Color.Companion.Black)) {
         // Display the photo
         Image(
-            painter = rememberAsyncImagePainter(uri),
+            painter = rememberAsyncImagePainter(photoUri),
             contentDescription = "Full photo",
             modifier = Modifier.Companion.fillMaxSize(),
             contentScale = ContentScale.Companion.Fit
@@ -36,7 +37,7 @@ fun PhotoScreen(uriString: String, navController: NavHostController) {
         // Back button to return to the previous screen
         Button(
             modifier = Modifier.Companion.align(Alignment.Companion.BottomCenter).padding(48.dp),
-            onClick = { navController.popBackStack() }
+            onClick = onBack
         ) {
             Text("Back")
         }
