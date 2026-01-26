@@ -1,4 +1,4 @@
-package com.keepingstock.ui.media
+package com.keepingstock.ui.screens.media
 
 import android.content.Context
 import android.net.Uri
@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 
 /**

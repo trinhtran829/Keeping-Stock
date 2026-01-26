@@ -12,9 +12,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.Routes
-import com.keepingstock.ui.media.CameraScreen
-import com.keepingstock.ui.media.GalleryScreen
-import com.keepingstock.ui.media.PhotoScreen
+import com.keepingstock.ui.screens.media.CameraScreen
+import com.keepingstock.ui.screens.media.GalleryScreen
+import com.keepingstock.ui.screens.media.PhotoScreen
 import com.keepingstock.ui.screens.container.AddEditContainerScreen
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
 import com.keepingstock.ui.screens.container.ContainerDetailScreen

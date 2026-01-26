@@ -1,4 +1,4 @@
-package com.keepingstock.ui.media
+package com.keepingstock.ui.screens.media
 
 import android.Manifest
 import android.net.Uri
