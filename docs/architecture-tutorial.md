@@ -6,6 +6,8 @@ If you need clarification or had a different idea of how things would work with 
 
 ## Overall Architecture Structure
 
+**IN PROGRESS - will fill this section out after finishing individual sections**
+
 ## Part 1 - App Entry
 
 - `MainActivity`: Android entry point; minimal system UI setup.
