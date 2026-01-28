@@ -270,6 +270,13 @@ fun AppNavGraph() {
             )
         }
 
+        // ---------------------------------
+        // CUSTOM SCREENS - TO BE FORMALIZED
+        // ---------------------------------
+
+        // Register custom/temporary screens here
+
+
         // ----------------------
         // Register Debug Screens
         // ----------------------

@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.keepingstock.ui.theme.KeepingStockTheme
 
+// Add callback functions for custom screens here
 @Composable
 fun DebugGalleryScreen(
     onOpenContainerBrowser: () -> Unit,
@@ -56,6 +57,9 @@ fun DebugGalleryScreen(
         DebugButton("Camera", onOpenCamera)
         DebugButton("Gallery", onOpenGallery)
         DebugButton("Photo (demo)", onOpenPhotoDemo)
+
+        // Add debug buttons to custom screens here
+
     }
 }
 
