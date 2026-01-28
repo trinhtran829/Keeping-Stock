@@ -1,6 +1,7 @@
 package com.keepingstock.data
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.util.Date
 
