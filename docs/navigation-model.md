@@ -14,7 +14,7 @@ Screens:
     Utility:
         QRScan
 
-
+```
 Nav Menu
 |- ContainerBrowser
 |    |- tap info -> ContainerDetail(containerId)
@@ -29,3 +29,4 @@ Nav Menu
     |- tap item -> ItemDetail(itemId)
     |         |- edit -> AddEditItem(itemId)
     |- tap add item -> AddEditItem()
+```
