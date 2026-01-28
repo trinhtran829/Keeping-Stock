@@ -18,7 +18,8 @@ If you need clarification or had a different idea of how things would work with 
 All Android apps start in the `MainActivity`. This is located in the root folder of `com.keepingstock`. It's not meant to do much, all it's really doing is setting the screen's content to the main `KeepingStockApp` composable, and wrapping that composable in the `KeepingStockTheme`. 
 
 > **Extra Info:** 
-> The MainAct`ivity is meant to do Sytem UI setup - things like set the theme and handle window size classes (tablet vs phone layout). These are outside the scope of this document for now.
+> 
+> The `MainActivity` is meant to do Sytem UI setup - things like set the theme and handle window size classes (tablet vs phone layout). These are outside the scope of this document for now.
 
 ### KeepingStockApp Composable
 
@@ -33,11 +34,13 @@ Baiscally, navigation determines which screen is displayed, while the Scaffold d
 This separation allows screens to remain simple and navigation-agnostic, while app-wide UI behavior is controlled in a single place.
 
 > **Extra Info:** 
+> 
 > Scaffold should really be a one-per-app shell. We don't want to put a scaffold in each screen or have multiple scaffolds in each destination - that gets messy. The single scaffold can be adjusted for each screen, like changing the top bar title, showing and hiding buttons, some screens may want to hide the bottom bar, etc.
 >
 > Example: the Camera screen is full-screen, so the Scaffold can hide the top/bottom bars for that destination.
 
-> **Extra Info:** 
+> **Extra Info:**
+>
 > `KeepingStockApp` might also be useful for other things, like debug overlays, fake repository mode for demos, and toggles for test data. Might add these kinds of things down the line, but right now outside the scope of this document
 
 
@@ -51,7 +54,8 @@ The biggest components of navigation for our app are `AppNavGraph` and `NavRoute
 
 `NavRoute` and `AppNavGraph` work together, but they do two different jobs. `NavRoute` defines route strings and argument structure of those routes, and provides helper functions (i.e. `createRoute`) to build valid routes. The `AppNavGraph` registers those routes with the `NavHost`, extracts arguments from routes, decides which screen composables to show, and wires screen callbacks to navigation actions. `NavRoute` defines addresses, `AppNavGraph` decides what happens when you go to that address.
 
-> **Note**
+> **Note:**
+>
 > This section is longer than the others since it's gotten the most attention during this intial week of coding
 
 ### NavRoute Interface 
@@ -62,7 +66,8 @@ A sealed interface isn't much different from a normal interface, which is just a
 
 To that end, you'll notice that all the objects in the interace specifically implement the `NavRoute` interface, and they all include an `override val route: String = `. EVERY object that implements the `NavRoute` interface must have this override, and that is the only requirement.
 
-**Example**
+**Example:**
+
 ```kotlin
 object ItemBrowser : NavRoute {
     override val route: String = Routes.ITEM_BROWSER
@@ -77,7 +82,8 @@ There are two types of paths that can be built with arguments:
  - Path parameters for paths with one argument(e.g. `item_details/111`, where 111 is the `itemId`) 
  - Query parameters for paths with multiple arguments, which can be made optional (e.g. `add_edit_item?itemId=111&containerId=999`, where 111 is the `itemId` and 999 is the `containerId` - think website URLs)
 
-> **Extra Info**
+> **Extra Info:**
+>
 > How exactly these are built are out of scope for this doc, but for examples:
 > - `ItemDetails`, `ContainerDetail`, and `Photo` use path parameters.
 > - `ContainerBrowser`, `AddEditContainer`, and `AddEditItem` use query parameters.
@@ -96,17 +102,20 @@ The main functions called using the `navController` that we use are:
 - `.navigate(NavRoute.SomeNavRoute.route)` which moves forward (adds to the back stack) 
 - `.navController.popBackStack()` which goes back (remoes from the back stack)
 
-> **Extra Info**
+> **Extra Info:**
+>
 > There are more advanced options (`popUpTo`, `launchSingleTop`, `restoreState`), which are used in a few places, but those are beyond the scope of this doc for now.
 
 When `NavHost` is declared, the main arguments you pass to it are the `navController` and the `startDestination` of the app itself (in the form of a route string).
 
-> **Extra Info**
+> **Extra Info:**
+>
 > The `NavHost`'s arguments also appear to be where enter and exit transistions can be set! Something to consider for later.
 
 In the `NavHost` block, `NavRoute` routes are registered so that the app knows what screen to go to and how to build the arguments for the screen. Registering the `NavRoute` in the `NavHost` is like telling the switchboard "when someone dials this number, connect them to this person and build the call like this."
 
 > **Extra Info (Advanced)**
+>
 > Inside the `NavHost {...}` block, routes are registered using a builder lamda (`NavGraphBuilder.() -> Unit`). I'm still wrapping my head around the *exact* mechanism by which this works (I've mostly been working off of existing examples I've found), but you are registering composables using this builder lambda, which is using the `NavGraphBuilder` function to build `NavGraph`s for you. Technically, you are not registering routes themselves to the `NavHost`, you're registering `NavGraph`s. 
 >
 > It gets more complicated than that, but that's again outside of the scope of this doc! You definitely don't need to understand this to work with navigation.
@@ -115,7 +124,8 @@ In each composable registered in the `NavHost` there are arguments for the route
 
 From there, right now all that we do is build the UI screen that the route indicates we need to create, building the callback functions using their intended navigation calls with navController and any other arguments required by the Screen!
 
-**Jumping Ahead Slightly**
+**Jumping Ahead Slightly:**
+
 The `AppNavGraph` will be where we end up wiring in the ViewModels and how we expose UI state to the screens. They're not there yet, but the way they work is integrated with navigation.
 
 When we add ViewModels and UiState, most of the composables will include a line to obtain the ViewModel scoped to that destination (via a factory if they have a constructor), and another line to observe the UiState from the ViewModel (*observe* and not *build*. This distinction keeps getting hammered to me as important, because it needs to survive recomposition of the composable, which happens when things like "user rotates his phone" occur), and finally pass the UiState alonside the callbacks into the Screen.
@@ -164,6 +174,7 @@ ItemDetailsScreen(
 
 ```
 > **Small Note**
+>
 > In the above example, I've changed the signature from the *actual* `ItemDetailsScreen` we have in our app right now. In the one in our app, right now it has `onEdit: (itemId: String) -> Unit`, and the `AppNavGraph` uses a lambda expression to pass the `itemId` to that callback's parameter. This kinda goes against the intended UI responsibility boundaries, since it means the screen is deciding which `itemId` gets edited and has to know the current `itemId`. 
 >
 > It's like this in the app right now, because no ViewModel or UiState is hooked up yet. Once UiState is introduced, the screen will already have the current item's ID as part of its state, so it no longer needs to pass it back explicitly.
@@ -173,6 +184,7 @@ This keeps navigation centralized and organized. Easier to keep track of and con
 Essentially, if you see actual navigation stuff in your screen, it's a sign that the stuff should get refactored into `AppNavGraph`
 
 > **Jumping Ahead**
+>
 > In the above example, `itemId` is going to be replaced by something like `uiState: ItemDetailsUiState`. This won't effect the `AppNavGraph` example too much aside from passing a different parameter, and a little tweaking of the `onEdit` callback.
 > 
 > It's worth noting here that screens do **not** create, store, or fetch data. They don't own state, they just render it.
