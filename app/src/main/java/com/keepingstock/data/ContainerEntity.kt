@@ -5,17 +5,15 @@ import androidx.room.PrimaryKey
 import java.util.Date
 
 @Entity(
-    tableName = "items",
-    indices = [Index("containerId")]
+    tableName = "containers",
+    indices = [Index("parentContainerId")]
 )
-data class ItemEntity (
+data class ContainerEntity (
     @PrimaryKey(autoGenerate = true)
-    val itemId: Long = 0,
+    val containerId: Long = 0,
     val name: String,
     val description: String? = null,
     val imageUri: String? = null,
-    val containerId: Long? = null,
-    val status: ItemStatus,
-    val createdDate: Date = Date(),
-    val checkoutDate: Date? = null
+    val parentContainerId: Long? = null,
+    val createdDate: Date = Date()
 )
