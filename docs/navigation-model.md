@@ -1,20 +1,26 @@
-Screens:
-    Core Browsers:
-        ContainerBrowser
-        ItemBrowser
+# Navigation Model
 
-    Detail Screens:
-        ItemDetail
-        ContainerDetail
+Initial navigation model - update as more screens are integrated into the app
+
+## Screens:
+
+### Core Browsers:
+- ContainerBrowser
+- ItemBrowser
+
+### Detail Screens:
+- ItemDetail
+- ContainerDetail
     
-    Add/Edit Forms:
-        AddEditContainer
-        AddEditItem
+### Add/Edit Forms:
+- AddEditContainer
+- AddEditItem
 
-    Utility:
-        QRScan
+### Utility:
+- QRScan
 
-
+## Simplified Navigation Flow
+```
 Nav Menu
 |- ContainerBrowser
 |    |- tap info -> ContainerDetail(containerId)
@@ -29,3 +35,4 @@ Nav Menu
     |- tap item -> ItemDetail(itemId)
     |         |- edit -> AddEditItem(itemId)
     |- tap add item -> AddEditItem()
+```
