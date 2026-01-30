@@ -3,6 +3,15 @@ package com.keepingstock.ui.navigation
 import android.net.Uri
 import com.keepingstock.core.contracts.Routes
 
+/**
+ * All navigation routes used by the application.
+ *
+ * ---
+ * GenAI usage citation:
+ * This code was generated with the help of ChatGPT.
+ * This transcript documents the GenAI interaction that led to this code:
+ * https://chatgpt.com/share/6979a590-ad20-800f-84e4-df349b314ecb
+ */
 sealed interface NavRoute {
     val route: String
 
