@@ -3,6 +3,13 @@ package com.keepingstock.data
 import androidx.room.TypeConverter
 import java.util.Date
 
+/*
+* This code was generated with the help of Android Basics with Compose course.
+* This link
+* https://developer.android.com/training/data-storage/room/referencing-data
+* documents the sample code that led to my code.
+*/
+
 class Converter {
     @TypeConverter
     fun fromItemStatus(status: ItemStatus): String {

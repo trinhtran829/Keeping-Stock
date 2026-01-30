@@ -1,3 +1,8 @@
+# Code adapted from:
+# GitHub Repository: https://github.com/actions/starter-workflows/blob/main/ci/android.yml
+# Author: Josh Soref
+# License: MIT
+
 name: PR Checks
 
 on:
