@@ -25,6 +25,31 @@ import com.keepingstock.ui.screens.item.ItemBrowserScreen
 import com.keepingstock.ui.screens.item.ItemDetailsScreen
 import com.keepingstock.ui.screens.qr.QRScanScreen
 
+/**
+ * Defines the top-level navigation graph for the application.
+ *
+ * This composable is responsible for:
+ * - Creating and remembering a single NavController instance for the app.
+ *      - TODO: consider moving to KeepingStockApp when Scaffold is added
+ * - Selecting the start destination based on debug configuration flags.
+ * - Registering all routes and mapping them to their corresponding screens.
+ * - Wiring navigation callbacks between screens, including argument passing and back stack
+ *   behavior
+ *
+ * The navigation graph includes:
+ * - Core browser screens for containers and items
+ * - Detail screens for viewing individual containers and items
+ * - Add/Edit screens for containers and items
+ * - QR scanning screen
+ * - Media screens (camera, gallery, photo preview)
+ * - Debug gallery screens
+ *
+ * ---
+ * GenAI usage citation:
+ * This code was generated with the help of ChatGPT.
+ * This transcript documents the GenAI interaction that led to this code:
+ * https://chatgpt.com/share/6979a590-ad20-800f-84e4-df349b314ecb
+ */
 @Composable
 fun AppNavGraph() {
     // The navigation manager that tracks current screen and back stack
