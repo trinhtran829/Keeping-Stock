@@ -29,7 +29,7 @@ import com.keepingstock.ui.screens.qr.QRScanScreen
  * Defines the top-level navigation graph for the application.
  *
  * This composable is responsible for:
- * - Creating and remembering a single {@link NavController} instance for the app.
+ * - Creating and remembering a single NavController instance for the app.
  *      - TODO: consider moving to KeepingStockApp when Scaffold is added
  * - Selecting the start destination based on debug configuration flags.
  * - Registering all routes and mapping them to their corresponding screens.
