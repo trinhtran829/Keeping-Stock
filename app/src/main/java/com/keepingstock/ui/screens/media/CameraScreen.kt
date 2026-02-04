@@ -42,17 +42,20 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
 import com.keepingstock.core.media.takePhoto
-
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.keepingstock.ui.viewmodel.media.CameraViewModel
 @Composable
 fun CameraScreen(
+    viewModel: CameraViewModel = viewModel(),
     onOpenGallery: () -> Unit,
     onPhotoCaptured: (Uri) -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var hasCameraPermission by remember { mutableStateOf(false) }
-    var lastPhotoUri by remember { mutableStateOf<Uri?>(null) }
-
+    //var lastPhotoUri by remember { mutableStateOf<Uri?>(null) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val permissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             hasCameraPermission = granted
@@ -112,7 +115,7 @@ fun CameraScreen(
                     .clickable { onOpenGallery() },
                 contentAlignment = Alignment.Companion.Center
             ) {
-                if (lastPhotoUri != null) {
+                /*if (lastPhotoUri != null) {
                     Image(
                         painter = rememberAsyncImagePainter(lastPhotoUri),
                         contentDescription = "Gallery",
@@ -125,12 +128,25 @@ fun CameraScreen(
                         color = Color.Companion.White,
                         style = MaterialTheme.typography.labelSmall
                     )
-                }
+                }*/
+                uiState.lastPhotoUri?.let { uri ->
+                    Image(
+                        painter = rememberAsyncImagePainter(uri),
+                        contentDescription = "Gallery",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } ?: Text(
+                    text = "Gallery",
+                    color = Color.White,
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
 
             Button(onClick = {
                 takePhoto(context, imageCapture) { uri ->
-                    lastPhotoUri = uri
+                    //lastPhotoUri = uri
+                    viewModel.onPhotoCaptured(uri)
                     onPhotoCaptured(uri)
                 }
             }) { Text("Capture") }
