@@ -17,16 +17,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.Routes
+import com.keepingstock.ui.navigation.destinations.addContainerBrowserDestination
+import com.keepingstock.ui.navigation.destinations.addItemBrowserDestination
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.media.CameraScreen
 import com.keepingstock.ui.screens.media.GalleryScreen
 import com.keepingstock.ui.screens.media.PhotoScreen
 import com.keepingstock.ui.screens.container.AddEditContainerScreen
-import com.keepingstock.ui.screens.container.ContainerBrowserScreen
 import com.keepingstock.ui.screens.container.ContainerDetailScreen
 import com.keepingstock.ui.screens.debug.DebugGalleryScreen
 import com.keepingstock.ui.screens.item.AddEditItemScreen
-import com.keepingstock.ui.screens.item.ItemBrowserScreen
 import com.keepingstock.ui.screens.item.ItemDetailsScreen
 import com.keepingstock.ui.screens.qr.QRScanScreen
 
@@ -62,8 +62,15 @@ fun AppNavGraph(
     showSnackbar: (String) -> Unit = {}
 ) {
     var lastContainerId by rememberSaveable { mutableStateOf<String?>(null) }
+    val lastContainerIdState = rememberSaveable { mutableStateOf<String?>(null) }
     val startDestination =
         if (DebugFlags.ENABLE_DEBUG_GALLERY) Routes.DEBUG_GALLERY else Routes.CONTAINER_BROWSER
+
+    val deps = NavDeps(
+        navController = navController,
+        onTopBarChange = onTopBarChange,
+        showSnackbar = showSnackbar
+    )
 
     // The place in UI where the active destination composable is displayed
     NavHost(
@@ -79,97 +86,8 @@ fun AppNavGraph(
         // ----------------------
         // Register Core Browsers
         // ----------------------
-
-        // Register the ItemBrowser destination: when route == "item_browser", show ItemBrowserScreen
-        composable(route = NavRoute.ItemBrowser.route) {
-
-            LaunchedEffect(Unit) {
-                onTopBarChange(
-                    TopBarConfig(
-                        title = "All Items",
-                        showBack = false
-                    )
-                )
-            }
-
-            ItemBrowserScreen(
-                onOpenItem = { itemId ->
-                    navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
-                },
-                onOpenContainerBrowser = {
-                    navController.navigate(
-                        NavRoute.ContainerBrowser.createRoute(lastContainerId)) {
-                        popUpTo(Routes.CONTAINER_BROWSER) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
-            )
-        }
-
-        // Register the ContainerBrowser destination: when route == "container_browser" with or
-        // without the containerId, show ContainerBrowser of that container (or root)
-        composable(
-            route = NavRoute.ContainerBrowser.route,
-            arguments = listOf(
-                navArgument(Routes.Args.CONTAINER_ID) {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = null
-                }
-            )
-        ) {
-            backStackEntry ->
-            val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
-
-            // TODO: Display container name in title instead of id
-            LaunchedEffect(containerId) {
-                onTopBarChange(
-                    TopBarConfig(
-                        title = (
-                            if (containerId == null)
-                                "Root Container Browser"
-                            else
-                                "Container $containerId Browser"
-                        ),
-                        showBack = containerId != null
-                    )
-                )
-            }
-
-            lastContainerId = containerId
-
-            ContainerBrowserScreen(
-                containerId = containerId,
-                onOpenSubcontainer = { subId ->
-                    navController.navigate(NavRoute.ContainerBrowser.createRoute(subId))
-                },
-                onOpenItem = { itemId ->
-                    navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
-                },
-                onOpenContainerInfo = { id ->
-                    navController.navigate(NavRoute.ContainerDetail.createRoute(id))
-                },
-                onGoToItemBrowser = {
-                    navController.navigate(NavRoute.ItemBrowser.route) {
-                        popUpTo(Routes.CONTAINER_BROWSER) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
-                onAddContainer = { parentId ->
-                    navController.navigate(
-                        NavRoute.AddEditContainer.createRoute(parentContainerId = parentId)
-                    )
-                },
-                onAddItem = { cid ->
-                    navController.navigate(NavRoute.AddEditItem.createRoute(containerId = cid))
-                },
-                onScanQr = {
-                    navController.navigate(NavRoute.QRScan.route)
-                }
-            )
-        }
+        addItemBrowserDestination(deps, lastContainerId = { lastContainerIdState.value })
+        addContainerBrowserDestination(deps, lastContainerIdState)
 
         // ------------------------
         // Register Details Screens
