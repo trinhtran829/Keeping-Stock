@@ -40,10 +40,10 @@ fun KeepingStockApp() {
                 title = { Text(topBarConfig.title) },
                 navigationIcon = {
                     if (topBarConfig.showBack) {
-                        IconButton (onClick = { /* TODO */ }) {
+                        IconButton (onClick = { navController.popBackStack() }) {
                             Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                         }
-                    } else null
+                    }
                 }
             )
         }

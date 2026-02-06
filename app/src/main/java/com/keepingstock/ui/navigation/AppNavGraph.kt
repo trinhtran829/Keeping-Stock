@@ -2,8 +2,6 @@ package com.keepingstock.ui.navigation
 
 import com.keepingstock.core.DebugFlags
 import android.net.Uri
-import android.net.http.SslCertificate.restoreState
-import android.net.http.SslCertificate.saveState
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -17,7 +15,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.ui.scaffold.TopBarConfig
