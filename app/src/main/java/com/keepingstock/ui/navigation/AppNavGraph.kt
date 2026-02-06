@@ -4,6 +4,7 @@ import com.keepingstock.core.DebugFlags
 import android.net.Uri
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.Routes
+import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.media.CameraScreen
 import com.keepingstock.ui.screens.media.GalleryScreen
 import com.keepingstock.ui.screens.media.PhotoScreen
@@ -56,7 +58,8 @@ import com.keepingstock.ui.screens.qr.QRScanScreen
 @Composable
 fun AppNavGraph(
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues
+    contentPadding: PaddingValues,
+    onTopBarChange: (TopBarConfig) -> Unit
 ) {
     // The navigation manager that tracks current screen and back stack
     val navController = rememberNavController()
