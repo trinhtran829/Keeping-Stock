@@ -262,9 +262,26 @@ So ultimately, every screen will have it's own UiState type, even if two screens
 
 > **TODO:**
 >
-> Add a UiState type for every screen type
+> Add a UiState type for every screen type. I noticed that currently Rich has put the UiState and the ViewModel in the same file - this is ultimately a minor decision that is easy to refactor if we want to separate UiState and ViewModels into separate files.
+>
+> Additionally, we need to discuss the possible screen states for each screen type. I've mentioned Loading, Empty, Ready(items), and Error(message), but other types of screens may have other states. For example, form screens (add/edit) may have states like Editing, Saving, ValidationError, and Saved. Then for utility screens like for the camera, we can have PermissionRequired, Ready, and Processing states. 
 
-### 
+### ViewModels - What they are and why we need them
+
+A ViewModel is a screen's manager. It's also the owner of the UiState - it's important that the UI doesn't own it's own state. If a screen is "what it looks like", then ViewModel is "What's going on".
+
+
+
+At this point, it might be helpful to actually talk about ownership and recomposition and reconfiguration. why UI shouldn't own  what it means for
+
+
+> **TODO:**
+>
+> Like UiState, each screen needs it's own ViewModel, so we need to add a ViewModel type for every screen.
+
+
+### How ViewModels expose UiState
+
 
 
 ### **THIS SECTION IS CURRENTLY IN PROGRESS**
