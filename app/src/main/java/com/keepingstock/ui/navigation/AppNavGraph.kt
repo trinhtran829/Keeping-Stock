@@ -2,11 +2,14 @@ package com.keepingstock.ui.navigation
 
 import com.keepingstock.core.DebugFlags
 import android.net.Uri
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -51,7 +54,10 @@ import com.keepingstock.ui.screens.qr.QRScanScreen
  * https://chatgpt.com/share/6979a590-ad20-800f-84e4-df349b314ecb
  */
 @Composable
-fun AppNavGraph() {
+fun AppNavGraph(
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues
+) {
     // The navigation manager that tracks current screen and back stack
     val navController = rememberNavController()
     var lastContainerId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -61,7 +67,8 @@ fun AppNavGraph() {
     // The place in UI where the active destination composable is displayed
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = startDestination,
+        modifier = modifier.padding(contentPadding)
     ) {
 
         // ----------------------

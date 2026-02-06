@@ -23,5 +23,5 @@ fun KeepingStockApp() {
             contentPadding = innerPadding
         )
     }
-    
+
 }
