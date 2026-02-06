@@ -70,8 +70,8 @@ fun KeepingStockApp() {
             navController = navController,
             modifier = Modifier,
             contentPadding = innerPadding,
-            onTopBarChange = { topBarConfig = it }
-            // TODO: pass showSnackbar hook if needed later
+            onTopBarChange = { topBarConfig = it },
+            showSnackbar = showSnackbar
         )
     }
 }

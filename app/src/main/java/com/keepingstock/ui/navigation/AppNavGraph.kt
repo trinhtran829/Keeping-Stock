@@ -34,8 +34,6 @@ import com.keepingstock.ui.screens.qr.QRScanScreen
  * Defines the top-level navigation graph for the application.
  *
  * This composable is responsible for:
- * - Creating and remembering a single NavController instance for the app.
- *      - TODO: consider moving to KeepingStockApp when Scaffold is added
  * - Selecting the start destination based on debug configuration flags.
  * - Registering all routes and mapping them to their corresponding screens.
  * - Wiring navigation callbacks between screens, including argument passing and back stack
@@ -60,7 +58,8 @@ fun AppNavGraph(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues,
-    onTopBarChange: (TopBarConfig) -> Unit
+    onTopBarChange: (TopBarConfig) -> Unit,
+    showSnackbar: (String) -> Unit = {}
 ) {
     var lastContainerId by rememberSaveable { mutableStateOf<String?>(null) }
     val startDestination =
@@ -439,6 +438,9 @@ fun AppNavGraph(
                 onOpenPhotoDemo = {
                     val demo = android.net.Uri.parse("content://media/external/images/media/1")
                     navController.navigate(NavRoute.Photo.createRoute(demo))
+                },
+                onShowSnackbarDemo = {
+                    showSnackbar("This is a demo snackbar message!")
                 }
             )
         }
