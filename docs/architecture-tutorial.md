@@ -193,6 +193,80 @@ Essentially, if you see actual navigation stuff in your screen, it's a sign that
 
 ## Part 3 - State & ViewModels
 
+So far, this document has dealth with how screens are reached (navigation), this part is how screens get the data to display. It's the middle layer between ui and data layers, the ViewModel in Model-View-ViewModel (MVVM) architecture. It acts as a converter, handling data formatting, validation, and command logic.
+
+So the responsibilities are as follows:
+
+#### UI Screens:
+- Draw UI only
+- Emit user intent using callbacks
+- Receive state as input
+- Do not fetch data or mutate state directly
+
+#### ViewModels:
+- Own the current state for a screen
+- Decide how that state changes over time
+- Handle user actions
+- Survive recomposition and configuration changes
+
+#### UiState:
+- Simply put, _what the screen should look like at any given time_
+- Includes loading, empty, error, and ready states (as in, indicates what the screen should display for each state)
+- Is all the UI needs to render the screen
+
+#### Repositories/Database (Under Construction):
+- Provide data (items, containers)
+- Only accessed by ViewModels
+- Not touched by UI/navigation
+
+### Unidirectional Data Flow
+
+One of the core ideas we have to remember for our app is that data is meant to flow only one direction. Data flows down, from ViewModel -> UiState -> Screen, and events are what flow up, from Screen -> callbacks -> ViewModel. So remember the ViewModel owns the UiState, and the UI _observes_ that state. When the state changes, Jetpack Compose automatically recomposes the screen for us, we don't have to trigger anything, and the screen will automatically redraw itself based on the new state.
+
+Screen doesn't ask why or make decisions about the state, it just renders what it's given. State and ViewModels decide what screens show and how they behave.
+
+As for events flowing up, this follows from the callbacks provided to the UI. When the user interacts with the UI (e.g. taps a button, selects an item, edits a field, refreshes, etc), the screen just calls a callback and hands control back to the ViewModel, it doesn't change state, load data, or navigate on its own.
+
+> **Extra Info:**
+>
+> Early on, our screens may still receive raw parameters, call navigation callbacks directly, and have temporary logic in the screen. This is transitory and temporary, and it's fine, but remember that our target model architecture will eventually eliminate these aspects of the UI
+
+### What exactly is 'State'
+
+This is one of those terms that keeps popping up as though we should know what it means. 
+
+When we say that a screen has "state", we're not just talking about the data it shows. State is the bigger idea of *"If this screen were drawn right now, what should it look like?"* This means more than just data, but also what the current situation is with that data (e.g. is it loading? is it missing? is there an error?).
+
+It helps to separate the types of information that often get mixed together. We have the domain data, which is the actual inventory information, like containers, items, tags, photos, and the relationship between them all. This data, including the reletionship between each type, lives in the database. Domain data = what exists in the database.
+
+The other type of data is UI state, which represents what a specific screen needs in order to render itself. It IS screen specific, so each screen gets it's own UiState. It includes loading, empty, and error cases. It might reshape or simplify domain data and it exists only to support the UI itself. So while UI observes the state, state is telling the UI things like:
+
+- "Yo, we're still loading items for this container"
+- "This container is empty"
+- "The item wasn't found"
+- "Show this list of items"
+- "Disable the save button while saving so we don't get a bunch of save callbacks over and over again."
+
+So why state and not just the raw data? Why can't we just send raw lists or objects directly into a screen? Well, it's not that we can't, the approach is just very messy and breaks down (especially in the face of how Android does recomposition).
+
+Passing state instead of raw data helps to centralize loading and error handling instead of having each screen inventing their own rules - we want screens following the same patterns and we want loading, error, empty, and ready all to be explicit definitions. We don't want the screens checking for nulls, deciding whether the data it sees is 'valid', or enabling or disabling UI based on all sorts of opaque rules unique to each screen. UiState moves these decisions away from the screen.
+
+UiState is not a sequence of steps, it's a snapshot of the screen at any moment of time. A container browser screen might move through states of "Loading -> Empty",  "Loading -> Ready", and "Loading -> Error", but we don't care about how that happens, only what the current state is. So the UI logic becomes simple as a result: 
+
+- If state is loading, show a spinner.
+- If state is empty, show an empty message
+- If state is ready, show list of sub-containers/items
+- If state is error, show the error.
+
+So ultimately, every screen will have it's own UiState type, even if two screens show similar data. This will probably live in a package like `ui.screens.<feature>.<ScreenName>UiState.kt`
+
+> **TODO:**
+>
+> Add a UiState type for every screen type
+
+### 
+
+
 ### **THIS SECTION IS CURRENTLY IN PROGRESS**
 
 Here is an example of how the `ItemDetails` composable in the `AppNavGraph` will probably end up changing when we add ViewModels and UiState, best I can figure (we'll need to review these concepts more to get them right, they've been one of my biggest sources of frustration).
