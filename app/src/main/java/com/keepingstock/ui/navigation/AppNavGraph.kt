@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -80,6 +81,16 @@ fun AppNavGraph(
 
         // Register the ItemBrowser destination: when route == "item_browser", show ItemBrowserScreen
         composable(route = NavRoute.ItemBrowser.route) {
+
+            LaunchedEffect(Unit) {
+                onTopBarChange(
+                    TopBarConfig(
+                        title = "All Items",
+                        showBack = false
+                    )
+                )
+            }
+
             ItemBrowserScreen(
                 onOpenItem = { itemId ->
                     navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
