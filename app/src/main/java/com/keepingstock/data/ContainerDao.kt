@@ -26,38 +26,42 @@ interface ContainerDao {
     @Delete
     suspend fun delete(container: ContainerEntity)
 
+    /* ---------- delete a container by its ID ---------- */
     @Query("DELETE FROM containers WHERE containerId = :containerId")
     suspend fun deleteById(containerId: Long)
 
-    /* ---------- get root containers ---------- */
+    /* ---------- observe containers with no parent ---------- */
     @Query("""
         SELECT * FROM containers
         WHERE parentContainerId IS NULL
         ORDER BY createdDate DESC
     """ )
-    suspend fun getRootContainers(): Flow<List<ContainerEntity>>
+    fun getRootContainers(): Flow<List<ContainerEntity>>
 
-    /* ---------- get child containers ---------- */
+    /* ---------- observe direct child containers of current container ---------- */
     @Query("""
         SELECT * FROM containers
-        WHERE parentContainerId = :containerId
+        WHERE parentContainerId = :currentContainerId
         ORDER BY createdDate DESC
     """ )
-    suspend fun getChildContainers(containerId: Long): Flow<List<ContainerEntity>>
+    fun getChildContainers(currentContainerId: Long): Flow<List<ContainerEntity>>
 
-    /* ---------- count child containers ---------- */
+    /* ---------- count direct child containers of current container ---------- */
     @Query("""
         SELECT COUNT(*) FROM containers
-        WHERE parentContainerId = :containerId
+        WHERE parentContainerId = :currentContainerId
     """ )
-    suspend fun countChildContainers(containerId: Long): Long
+    suspend fun countChildContainers(currentContainerId: Long): Long
 
-    /* ---------- search child containers ---------- */
+    /* ---------- search direct child containers by name ---------- */
     @Query("""
         SELECT * FROM containers
-        WHERE parentContainerId = :parentId
+        WHERE parentContainerId = :currentContainerId
             AND name LIKE '%' || :query || '%'
         ORDER BY createdDate DESC
     """ )
-    suspend fun searchChildContainers(parentId: Long, query: String): Flow<List<ContainerEntity>>
+    fun searchChildContainers(
+        currentContainerId: Long,
+        query: String
+    ): Flow<List<ContainerEntity>>
 }

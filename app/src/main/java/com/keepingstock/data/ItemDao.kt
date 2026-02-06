@@ -21,11 +21,13 @@ interface ItemDao {
     @Insert
     suspend fun insert(item: ItemEntity): Long
 
-    /* ---------- update ---------- */
     @Update
     suspend fun update(item: ItemEntity)
 
-    /* ---------- update status only ---------- */
+    @Delete
+    suspend fun delete(item: ItemEntity)
+
+    /* ---------- update item status and manage checkout date ---------- */
     @Query("""
         UPDATE items
         SET
@@ -43,7 +45,7 @@ interface ItemDao {
         checkoutDate: Date?
     )
 
-    /* ---------- update container only ---------- */
+    /* ---------- move item to a container and reset status to STORED ---------- */
     @Query("""
         UPDATE items
         SET
@@ -57,39 +59,37 @@ interface ItemDao {
         containerId: Long
     )
 
-    @Delete
-    suspend fun delete(item: ItemEntity)
-
+    /* ---------- delete item by ID ---------- */
     @Query("DELETE FROM items WHERE itemId = :itemId")
     suspend fun deleteById(itemId: Long)
 
-    /* ---------- get all items ---------- */
+    /* ---------- observe all items ---------- */
     @Query("""
         SELECT * FROM items
         ORDER BY createdDate DESC
     """ )
-    suspend fun getItems(): Flow<List<ItemEntity>>
+    fun getItems(): Flow<List<ItemEntity>>
 
-    /* ---------- get items inside a container ---------- */
+    /* ---------- observe items inside a specific container ---------- */
     @Query("""
         SELECT * FROM items
         WHERE containerId = :containerId
         ORDER BY createdDate DESC
     """ )
-    suspend fun getItemsInContainer(containerId: Long): Flow<List<ItemEntity>>
+    fun getItemsInContainer(containerId: Long): Flow<List<ItemEntity>>
 
-    /* ---------- get items that are unsorted ---------- */
+    /* ---------- observe items where containers are null ---------- */
     @Query("""
         SELECT * FROM items
         WHERE containerId IS NULL
         ORDER BY createdDate DESC
     """ )
-    suspend fun getItemsUnsorted(): Flow<List<ItemEntity>>
+    fun getItemsUnsorted(): Flow<List<ItemEntity>>
 
-    /* ---------- count items in a container ---------- */
+    /* ---------- count items inside a container ---------- */
     @Query("""
         SELECT COUNT(*) FROM items
         WHERE containerId = :containerId
     """ )
-    suspend fun countItemsIinContainer(containerId: Long): Long
+    suspend fun countItemsInContainer(containerId: Long): Long
 }

@@ -23,6 +23,10 @@ interface TagDao {
     @Update
     suspend fun update(tag: TagEntity)
 
+    @Delete
+    suspend fun delete(container: TagEntity)
+
+    /* ---------- update tag name by tag ID ---------- */
     @Query("""
         UPDATE tags
         SET name = :newName
@@ -30,21 +34,20 @@ interface TagDao {
     """)
     suspend fun updateName(tagId: Long, newName: String)
 
-    @Delete
-    suspend fun delete(container: ContainerEntity)
-
+    /* ---------- delete tag by ID ---------- */
     @Query("DELETE FROM tags WHERE tagId = :tagId")
     suspend fun deleteById(tagId: Long)
 
+    /* ---------- delete tag by name ---------- */
     @Query("DELETE FROM tags WHERE name = :name")
     suspend fun deleteByName(name: String)
 
-    /* ---------- get all tags ---------- */
+    /* ---------- observe all tags ---------- */
     @Query("""
         SELECT * FROM tags
         ORDER BY name ASC
     """ )
-    suspend fun getTags(): Flow<List<TagEntity>>
+    fun getTags(): Flow<List<TagEntity>>
 
     /* ---------- get tag by name ---------- */
     @Query("""
@@ -61,4 +64,11 @@ interface TagDao {
     """ )
     suspend fun getTagById(tagId: Long): TagEntity?
 
+    /* ---------- observe tags by name ---------- */
+    @Query("""
+        SELECT * FROM tags
+        WHERE name LIKE '%' || :query || '%'
+        ORDER BY name ASC
+    """ )
+    fun searchTags(query: String): Flow<List<TagEntity>>
 }

@@ -16,13 +16,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ItemWithTagsDao {
+    /* ---------- observe all items with their associated tags ---------- */
     @Transaction
     @Query("""
         SELECT * FROM items
     """)
     fun getAllItemsWithTags(): Flow<List<ItemWithTags>>
 
-    /* ---------- get items in a specific container with tags ---------- */
+    /* ---------- observe items in a specific container with associated tags ---------- */
     @Transaction
     @Query("""
         SELECT * FROM items
@@ -30,7 +31,7 @@ interface ItemWithTagsDao {
     """)
     fun getItemsInContainerWithTags(containerId: Long): Flow<List<ItemWithTags>>
 
-    /* ---------- search by item or tag name ---------- */
+    /* ---------- observe items with name or tag matches the query ---------- */
     @Transaction
     @Query("""
         SELECT DISTINCT items.* FROM items
@@ -41,7 +42,7 @@ interface ItemWithTagsDao {
     """)
     fun searchByItemOrTagName(query: String): Flow<List<ItemWithTags>>
 
-    /* ---------- search by item or tag name in a container ---------- */
+    /* ---------- observe items in a container with name or tag matches the query ---------- */
     @Transaction
     @Query("""
         SELECT DISTINCT items.* FROM items
@@ -56,19 +57,20 @@ interface ItemWithTagsDao {
         query: String
     ): Flow<List<ItemWithTags>>
 
-    /* ---------- search items by a tag ---------- */
+    /* ---------- observe items associated with a specific tag ---------- */
     @Transaction
     @Query("""
         SELECT DISTINCT items.* FROM items
         INNER JOIN item_tag ON items.itemId = item_tag.itemId
         LEFT JOIN tags ON item_tag.tagId = tags.tagId
         WHERE item_tag.tagId = :tagId
+        ORDER BY items.createdDate DESC
     """)
-    fun SearchItemsByTag(
+    fun searchItemsByTag(
         tagId: Long,
     ): Flow<List<ItemWithTags>>
 
-    /* ---------- get items by a tag in a container ---------- */
+    /* ---------- observe items in a container associated with a specific tag ---------- */
     @Transaction
     @Query("""
         SELECT DISTINCT items.* FROM items
@@ -76,6 +78,7 @@ interface ItemWithTagsDao {
         LEFT JOIN tags ON item_tag.tagId = tags.tagId
         WHERE items.containerId = :containerId
             AND item_tag.tagId = :tagId
+        ORDER BY items.createdDate DESC
     """)
     fun getItemsByTagInContainer(
         containerId: Long,

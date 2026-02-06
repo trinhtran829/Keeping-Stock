@@ -17,21 +17,23 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ItemTagDao {
+    /* ---------- link an item to a tag ---------- */
     @Insert
     suspend fun insert(itemTag: ItemTagEntity)
 
+    /* ---------- unlink a tag from an item ---------- */
     @Query("""
         DELETE FROM item_tag
         WHERE itemId = :itemId AND tagId = :tagId
     """)
     suspend fun delete(itemId: Long, tagId: Long)
 
-    /* ---------- delete for all items ---------- */
+    /* ---------- remove all tag association for a single item ---------- */
     @Query("""
         DELETE FROM item_tag
         WHERE itemId = :itemId
     """)
-    suspend fun deleteForAllItems(itemId: Long)
+    suspend fun deleteAllTagsForItem(itemId: Long)
 
     /* ---------- count items with a tag ---------- */
     @Query("""
@@ -40,10 +42,10 @@ interface ItemTagDao {
     """)
     suspend fun countItemsWithTag(tagId: Long): Long
 
-    /* ---------- get tag ids from an item ---------- */
+    /* ---------- observe all tag ids associated with an item ---------- */
     @Query("""
         SELECT tagId FROM item_tag
         WHERE itemId = :itemId
     """)
-    suspend fun getTagIdsFromItem(itemId: Long): Flow<List<Long>>
+    fun getTagIdsFromItem(itemId: Long): Flow<List<Long>>
 }
