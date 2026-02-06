@@ -1,4 +1,4 @@
-package com.keepingstock.ui.navigation.destinations
+package com.keepingstock.ui.navigation.destinations.container
 
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder

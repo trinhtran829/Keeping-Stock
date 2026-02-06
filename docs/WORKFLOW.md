@@ -184,6 +184,10 @@ Except it's actually "when this route is encountered, show this screen and build
   - Open the ui.navigation.AppNavGraph file
   - Register your new route near the bottom under **CUSTOM SCREEN - TO BE FORMALIZED**
 
+#### **NEW** Step 3.5: Create your destination function
+
+This step has been added because AppNavGraph was becoming monolithic and unwieldy, so all the `NavGraphBuilder` functions within the NavHost block were simply refactored into their own function files. Ultimately, this just means you need to create a `<ScreenName>Destination` file inside of `ui.navigation.destinations`. See the other files for the basic set-up of a desitination composable function. Remember, imitating these functions means you're creating a function for `NavGraphBuilder`!
+
 The route registration takes the form of `composable(route = NavRoute.YourNavRouteName.route)`, where YourNavRouteName is the name of the route you wrote in the NavRoute section (for example, `object ItemBrowser` would have ItemBrowser as the NavRoute name).
 
   **Advanced step:**  

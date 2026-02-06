@@ -10,17 +10,17 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.keepingstock.core.contracts.Routes
-import com.keepingstock.ui.navigation.destinations.addAddEditContainerDestination
-import com.keepingstock.ui.navigation.destinations.addAddEditItemDestination
-import com.keepingstock.ui.navigation.destinations.addCameraDestination
-import com.keepingstock.ui.navigation.destinations.addContainerBrowserDestination
-import com.keepingstock.ui.navigation.destinations.addContainerDetailsDestination
-import com.keepingstock.ui.navigation.destinations.addDebugGalleryDestination
-import com.keepingstock.ui.navigation.destinations.addGalleryDestination
-import com.keepingstock.ui.navigation.destinations.addItemBrowserDestination
-import com.keepingstock.ui.navigation.destinations.addItemDetailsDestination
-import com.keepingstock.ui.navigation.destinations.addPhotoViewerDestination
-import com.keepingstock.ui.navigation.destinations.addQRScanDestination
+import com.keepingstock.ui.navigation.destinations.container.addAddEditContainerDestination
+import com.keepingstock.ui.navigation.destinations.item.addAddEditItemDestination
+import com.keepingstock.ui.navigation.destinations.media.addCameraDestination
+import com.keepingstock.ui.navigation.destinations.container.addContainerBrowserDestination
+import com.keepingstock.ui.navigation.destinations.container.addContainerDetailsDestination
+import com.keepingstock.ui.navigation.destinations.debug.addDebugGalleryDestination
+import com.keepingstock.ui.navigation.destinations.media.addGalleryDestination
+import com.keepingstock.ui.navigation.destinations.item.addItemBrowserDestination
+import com.keepingstock.ui.navigation.destinations.item.addItemDetailsDestination
+import com.keepingstock.ui.navigation.destinations.media.addPhotoViewerDestination
+import com.keepingstock.ui.navigation.destinations.media.addQRScanDestination
 import com.keepingstock.ui.scaffold.TopBarConfig
 
 /**

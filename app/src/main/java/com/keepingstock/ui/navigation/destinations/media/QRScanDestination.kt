@@ -1,4 +1,4 @@
-package com.keepingstock.ui.navigation.destinations
+package com.keepingstock.ui.navigation.destinations.media
 
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
@@ -6,7 +6,7 @@ import androidx.navigation.compose.composable
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.scaffold.TopBarConfig
-import com.keepingstock.ui.screens.qr.QRScanScreen
+import com.keepingstock.ui.screens.media.QRScanScreen
 
 internal fun NavGraphBuilder.addQRScanDestination(
     deps: NavDeps

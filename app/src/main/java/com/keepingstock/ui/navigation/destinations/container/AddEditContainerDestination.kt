@@ -1,4 +1,4 @@
-package com.keepingstock.ui.navigation.destinations
+package com.keepingstock.ui.navigation.destinations.container
 
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
@@ -9,42 +9,42 @@ import com.keepingstock.core.contracts.Routes
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.scaffold.TopBarConfig
-import com.keepingstock.ui.screens.item.AddEditItemScreen
+import com.keepingstock.ui.screens.container.AddEditContainerScreen
 
-internal fun NavGraphBuilder.addAddEditItemDestination(
+internal fun NavGraphBuilder.addAddEditContainerDestination(
     deps: NavDeps
 ) {
     composable(
-        route = NavRoute.AddEditItem.route,
+        route = NavRoute.AddEditContainer.route,
         arguments = listOf(
-            navArgument(Routes.Args.ITEM_ID) {
+            navArgument(Routes.Args.CONTAINER_ID) {
                 type = NavType.StringType
                 nullable = true
                 defaultValue = null
             },
-            navArgument(Routes.Args.CONTAINER_ID) {
+            navArgument(Routes.Args.PARENT_CONTAINER_ID) {
                 type = NavType.StringType
                 nullable = true
                 defaultValue = null
             }
         )
     ) { backStackEntry ->
-        val itemId = backStackEntry.arguments?.getString(Routes.Args.ITEM_ID)
         val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
+        val parentContainerId = backStackEntry.arguments?.getString(Routes.Args.PARENT_CONTAINER_ID)
 
-        LaunchedEffect(itemId, containerId) {
+        LaunchedEffect(containerId, parentContainerId) {
             deps.onTopBarChange(
                 TopBarConfig(
-                    title = if (itemId == null) "Add Item" else "Edit Item: $itemId",
+                    title = if (containerId == null) "Add Container" else "Edit Container $containerId",
                     showBack = true
                 )
             )
         }
 
         // TODO: onSave action not implemented yet
-        AddEditItemScreen(
-            itemId = itemId,
+        AddEditContainerScreen(
             containerId = containerId,
+            parentContainerId = parentContainerId,
             onSave = { deps.navController.popBackStack() },
             onCancel = { deps.navController.popBackStack() }
         )

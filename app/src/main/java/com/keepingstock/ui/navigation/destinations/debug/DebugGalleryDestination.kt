@@ -1,5 +1,6 @@
-package com.keepingstock.ui.navigation.destinations
+package com.keepingstock.ui.navigation.destinations.debug
 
+import android.net.Uri
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -34,7 +35,7 @@ internal fun NavGraphBuilder.addDebugGalleryDestination(
 
             // TODO: placeholder URI. Swap with real demo photo Uri later
             onOpenPhotoDemo = {
-                val demo = android.net.Uri.parse("content://media/external/images/media/1")
+                val demo = Uri.parse("content://media/external/images/media/1")
                 deps.navController.navigate(NavRoute.Photo.createRoute(demo))
             },
             onShowSnackbarDemo = {
