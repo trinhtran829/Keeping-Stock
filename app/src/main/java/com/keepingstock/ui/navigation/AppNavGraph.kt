@@ -72,6 +72,10 @@ fun AppNavGraph(
         modifier = modifier.padding(contentPadding)
     ) {
 
+        // TODO: AppNavGraph is becoming monolithic and unwieldy, too many lines of code;
+        //      refactor to reduce length by moving destinations to individual
+        //      NavGraphBuilder functions.
+
         // ----------------------
         // Register Core Browsers
         // ----------------------
