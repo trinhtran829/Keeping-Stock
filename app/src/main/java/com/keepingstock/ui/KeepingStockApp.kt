@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.keepingstock.ui.navigation.AppNavGraph
 import com.keepingstock.ui.scaffold.TopBarConfig
 
@@ -24,6 +25,8 @@ import com.keepingstock.ui.scaffold.TopBarConfig
 @Preview(showSystemUi = false, showBackground = true)
 @Composable
 fun KeepingStockApp() {
+    // The navigation manager that tracks current screen and back stack
+    val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
 
     var topBarConfig by remember {
@@ -46,10 +49,10 @@ fun KeepingStockApp() {
         }
     ) { innerPadding ->
         AppNavGraph(
+            navController = navController,
             modifier = Modifier,
             contentPadding = innerPadding,
             onTopBarChange = { topBarConfig = it }
         )
     }
-
 }

@@ -2,6 +2,8 @@ package com.keepingstock.ui.navigation
 
 import com.keepingstock.core.DebugFlags
 import android.net.Uri
+import android.net.http.SslCertificate.restoreState
+import android.net.http.SslCertificate.saveState
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -11,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -57,12 +60,11 @@ import com.keepingstock.ui.screens.qr.QRScanScreen
  */
 @Composable
 fun AppNavGraph(
+    navController: NavHostController,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues,
     onTopBarChange: (TopBarConfig) -> Unit
 ) {
-    // The navigation manager that tracks current screen and back stack
-    val navController = rememberNavController()
     var lastContainerId by rememberSaveable { mutableStateOf<String?>(null) }
     val startDestination =
         if (DebugFlags.ENABLE_DEBUG_GALLERY) Routes.DEBUG_GALLERY else Routes.CONTAINER_BROWSER
