@@ -4,7 +4,6 @@ import com.keepingstock.core.DebugFlags
 import android.net.Uri
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -121,6 +120,21 @@ fun AppNavGraph(
             backStackEntry ->
             val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
 
+            // TODO: Display container name in title instead of id
+            LaunchedEffect(containerId) {
+                onTopBarChange(
+                    TopBarConfig(
+                        title = (
+                            if (containerId == null)
+                                "Root Container Browser"
+                            else
+                                "Container $containerId Browser"
+                        ),
+                        showBack = containerId != null
+                    )
+                )
+            }
+
             lastContainerId = containerId
 
             ContainerBrowserScreen(
@@ -170,6 +184,16 @@ fun AppNavGraph(
             val itemId = backStackEntry.arguments?.getString(Routes.Args.ITEM_ID)
                 ?: error("Missing itemId")
 
+            // TODO: Display item name in title instead of id
+            LaunchedEffect(itemId) {
+                onTopBarChange(
+                    TopBarConfig(
+                        title = "Item Details: $itemId",
+                        showBack = true
+                    )
+                )
+            }
+
             ItemDetailsScreen(
                 itemId = itemId,
                 onBack = { navController.popBackStack()},
@@ -190,6 +214,15 @@ fun AppNavGraph(
         ) { backStackEntry ->
             val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
                 ?: error("Missing containerId")
+
+            LaunchedEffect(containerId) {
+                onTopBarChange(
+                    TopBarConfig(
+                        title = "Container $containerId Details",
+                        showBack = true
+                    )
+                )
+            }
 
             ContainerDetailScreen(
                 containerId = containerId,
@@ -222,6 +255,15 @@ fun AppNavGraph(
             val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
             val parentContainerId = backStackEntry.arguments?.getString(Routes.Args.PARENT_CONTAINER_ID)
 
+            LaunchedEffect(containerId, parentContainerId) {
+                onTopBarChange(
+                    TopBarConfig(
+                        title = if (containerId == null) "Add Container" else "Edit Container $containerId",
+                        showBack = true
+                    )
+                )
+            }
+
             // TODO: onSave action not implemented yet
             AddEditContainerScreen(
                 containerId = containerId,
@@ -249,6 +291,15 @@ fun AppNavGraph(
             val itemId = backStackEntry.arguments?.getString(Routes.Args.ITEM_ID)
             val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
 
+            LaunchedEffect(itemId, containerId) {
+                onTopBarChange(
+                    TopBarConfig(
+                        title = if (itemId == null) "Add Item" else "Edit Item: $itemId",
+                        showBack = true
+                    )
+                )
+            }
+
             // TODO: onSave action not implemented yet
             AddEditItemScreen(
                 itemId = itemId,
@@ -263,6 +314,15 @@ fun AppNavGraph(
         // -----------------------
 
         composable(route = NavRoute.QRScan.route) {
+            LaunchedEffect(Unit) {
+                onTopBarChange(
+                    TopBarConfig(
+                        title = "Scan QR",
+                        showBack = true
+                    )
+                )
+            }
+
             QRScanScreen(
                 onScannedContainer = { scannedContainerId ->
                     navController.popBackStack()
@@ -278,6 +338,15 @@ fun AppNavGraph(
         // -----------------------
 
         composable(route = NavRoute.Camera.route) {
+            LaunchedEffect(Unit) {
+                onTopBarChange(
+                    TopBarConfig(
+                        title = "Camera",
+                        showBack = true
+                    )
+                )
+            }
+
             CameraScreen(
                 onOpenGallery = {
                     navController.navigate(NavRoute.Gallery.route)
@@ -289,6 +358,15 @@ fun AppNavGraph(
         }
 
         composable(route = NavRoute.Gallery.route) {
+            LaunchedEffect(Unit) {
+                onTopBarChange(
+                    TopBarConfig(
+                        title = "Gallery",
+                        showBack = true
+                    )
+                )
+            }
+
             GalleryScreen(
                 onPhotoSelected = { uri ->
                     navController.navigate(NavRoute.Photo.createRoute(uri))
@@ -310,6 +388,16 @@ fun AppNavGraph(
 
             val photoUri = Uri.parse(Uri.decode(encoded))
 
+            // TODO: Add photo name to title?
+            LaunchedEffect(encoded) {
+                onTopBarChange(
+                    TopBarConfig(
+                        title = "Photo",
+                        showBack = true
+                    )
+                )
+            }
+
             PhotoScreen(
                 photoUri = photoUri,
                 onBack = { navController.popBackStack() }
@@ -328,6 +416,15 @@ fun AppNavGraph(
         // ----------------------
 
         composable(route = NavRoute.DebugGallery.route) {
+            LaunchedEffect(Unit) {
+                onTopBarChange(
+                    TopBarConfig(
+                        title = "Debug Gallery",
+                        showBack = false
+                    )
+                )
+            }
+
             DebugGalleryScreen(
                 onOpenContainerBrowser = {
                     navController.navigate(NavRoute.ContainerBrowser.createRoute(null))
