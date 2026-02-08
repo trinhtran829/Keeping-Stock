@@ -1,4 +1,4 @@
-package com.keepingstock.core.contracts.uistates
+package com.keepingstock.core.contracts.uistates.container
 
 import com.keepingstock.ui.models.ContainerSummaryUi
 import com.keepingstock.ui.models.ItemSummaryUi

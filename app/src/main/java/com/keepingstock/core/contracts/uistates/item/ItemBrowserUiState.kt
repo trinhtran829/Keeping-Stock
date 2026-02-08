@@ -1,11 +1,11 @@
-package com.keepingstock.core.contracts.uistates
+package com.keepingstock.core.contracts.uistates.item
 
 import com.keepingstock.ui.models.ItemSummaryUi
 
 /**
  * UI state for the Item Browser screen.
  *
- * This state is intentionally UI-oriented and does not expose Room entities.
+ * This state is intentionally UI-oriented and does not expose Room entities to UI.
  * ViewModels are responsible for mapping persistence/domain models into UI models.
  *
  * Notes:
