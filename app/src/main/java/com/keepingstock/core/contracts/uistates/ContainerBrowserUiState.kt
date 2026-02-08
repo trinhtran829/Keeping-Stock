@@ -17,11 +17,15 @@ import com.keepingstock.ui.models.ItemSummaryUi
  */
 sealed interface ContainerBrowserUiState {
 
-    // Container contents are being loaded
+    /**
+     * Container contents are being loaded
+     */
     data object Loading : ContainerBrowserUiState
 
-    // Container contents successfully loaded and ready for display.
-    // Both subcontainer and item lists are empty = display "empty container" msg
+    /**
+     * Container contents successfully loaded and ready for display.
+     * Both subcontainer and item lists are empty = display "empty container" msg
+    */
     data class Ready(
         val containerId: Long?,         // null represents root container
         val containerName: String,
@@ -29,7 +33,9 @@ sealed interface ContainerBrowserUiState {
         val items: List<ItemSummaryUi>
     ) : ContainerBrowserUiState
 
-    // An error occurred while loading container contents
-    // TODO: consider a retry option?
+    /**
+     * An error occurred while loading container contents
+     * TODO: consider a retry option?
+     */
     data class Error(val message: String) : ContainerBrowserUiState
 }
