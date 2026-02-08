@@ -1,26 +1,18 @@
 package com.keepingstock.core.contracts.uistates
 
+import com.keepingstock.ui.models.ContainerSummaryUi
+import com.keepingstock.ui.models.ItemSummaryUi
+
+
 sealed interface ContainerBrowserUiState {
     data object Loading : ContainerBrowserUiState
 
     data class Ready(
-        val containerId: String?,
+        val containerId: Long?,
         val containerName: String,
-        val subcontainers: List<ContainerRowUi>,
-        val items: List<ItemRowUi>
+        val subcontainers: List<ContainerSummaryUi>,
+        val items: List<ItemSummaryUi>
     ) : ContainerBrowserUiState
 
-    data class Error(
-        val message: String
-    ) : ContainerBrowserUiState
+    data class Error(val message: String) : ContainerBrowserUiState
 }
-
-data class ContainerRowUi(
-    val id: String,
-    val name: String
-)
-
-data class ItemRowUi(
-    val id: String,
-    val name: String
-)
