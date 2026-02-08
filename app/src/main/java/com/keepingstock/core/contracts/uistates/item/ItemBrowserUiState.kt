@@ -28,9 +28,10 @@ sealed interface ItemBrowserUiState {
      * Items successfully loaded for the current query.
      * When items is empty, the screen should show an "empty results" UI.
      */
-    data class Ready(
+    data class Success(
         val query: String = "",
-        val items: List<Item> = emptyList()
+        val items: List<Item> = emptyList(),
+        val containerId: String? = null
     ) : ItemBrowserUiState
 
     /**
@@ -38,6 +39,7 @@ sealed interface ItemBrowserUiState {
      */
     data class Error(
         val query: String = "",
-        val message: String
+        val message: String,
+        val cause: Throwable? = null
     ) : ItemBrowserUiState
 }

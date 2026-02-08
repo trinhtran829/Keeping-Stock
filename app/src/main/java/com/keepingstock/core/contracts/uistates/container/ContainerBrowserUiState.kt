@@ -37,5 +37,8 @@ sealed interface ContainerBrowserUiState {
      * An error occurred while loading container contents
      * TODO: consider a retry option?
      */
-    data class Error(val message: String) : ContainerBrowserUiState
+    data class Error(
+        val message: String,
+        val cause: Throwable? = null
+    ) : ContainerBrowserUiState
 }
