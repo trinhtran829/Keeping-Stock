@@ -1,7 +1,7 @@
 package com.keepingstock.core.contracts.uistates.container
 
-import com.keepingstock.ui.models.ContainerSummaryUi
-import com.keepingstock.ui.models.ItemSummaryUi
+import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.Item
 
 /**
  * UI state for the Container Browser screen.
@@ -29,8 +29,8 @@ sealed interface ContainerBrowserUiState {
     data class Ready(
         val containerId: Long?,         // null represents root container
         val containerName: String,
-        val subcontainers: List<ContainerSummaryUi>,
-        val items: List<ItemSummaryUi>
+        val subcontainers: List<Container>,
+        val items: List<Item>
     ) : ContainerBrowserUiState
 
     /**

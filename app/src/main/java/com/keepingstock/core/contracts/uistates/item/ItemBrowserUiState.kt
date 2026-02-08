@@ -1,6 +1,6 @@
 package com.keepingstock.core.contracts.uistates.item
 
-import com.keepingstock.ui.models.ItemSummaryUi
+import com.keepingstock.core.contracts.Item
 
 /**
  * UI state for the Item Browser screen.
@@ -30,7 +30,7 @@ sealed interface ItemBrowserUiState {
      */
     data class Ready(
         val query: String = "",
-        val items: List<ItemSummaryUi> = emptyList()
+        val items: List<Item> = emptyList()
     ) : ItemBrowserUiState
 
     /**
