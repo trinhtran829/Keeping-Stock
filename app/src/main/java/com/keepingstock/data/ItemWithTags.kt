@@ -14,8 +14,8 @@ import androidx.room.Relation
 data class ItemWithTags (
     @Embedded val item: ItemEntity,
     @Relation(
-        parentColumn = "id",
-        entityColumn = "id",
+        parentColumn = "itemId",
+        entityColumn = "tagId",
         associateBy = Junction(
             value = ItemTagEntity::class,
             parentColumn = "itemId",
