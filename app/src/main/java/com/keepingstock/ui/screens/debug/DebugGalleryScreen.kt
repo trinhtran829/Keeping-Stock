@@ -23,7 +23,8 @@ fun DebugGalleryScreen(
     onOpenQrScan: () -> Unit,
     onOpenCamera: () -> Unit,
     onOpenGallery: () -> Unit,
-    onOpenPhotoDemo: () -> Unit
+    onOpenPhotoDemo: () -> Unit,
+    onShowSnackbarDemo: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -59,7 +60,7 @@ fun DebugGalleryScreen(
         DebugButton("Photo (demo)", onOpenPhotoDemo)
 
         // Add debug buttons to custom screens here
-
+        DebugButton("Snackbar Message Demo", onShowSnackbarDemo)
     }
 }
 
@@ -87,7 +88,8 @@ private fun DebugGalleryScreenPreview() {
             onOpenQrScan = {},
             onOpenCamera = {},
             onOpenGallery = {},
-            onOpenPhotoDemo = {}
+            onOpenPhotoDemo = {},
+            onShowSnackbarDemo = {}
         )
     }
 }
