@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun QRScanScreen(
-    modifier: Modifier = Modifier.Companion,
+    modifier: Modifier = Modifier,
     onScannedContainer: (containerId: String) -> Unit = {},
     onCancel: () -> Unit = {}
 ) {
@@ -19,14 +19,14 @@ fun QRScanScreen(
 
         Button(
             onClick = { onScannedContainer("02") },
-            modifier = Modifier.Companion.padding(top = 12.dp)
+            modifier = Modifier.padding(top = 12.dp)
         ) {
             Text("Simulate scan: container 02")
         }
 
         Button(
             onClick = onCancel,
-            modifier = Modifier.Companion.padding(top = 12.dp)
+            modifier = Modifier.padding(top = 12.dp)
         ) {
             Text("Cancel")
         }
