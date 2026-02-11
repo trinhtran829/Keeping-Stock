@@ -1,7 +1,4 @@
-package com.keepingstock.data
-
-import androidx.room.TypeConverter
-import java.util.Date
+package com.keepingstock.data.database
 
 /*
 * This code was generated with the help of Android Basics with Compose course.
@@ -9,6 +6,10 @@ import java.util.Date
 * https://developer.android.com/training/data-storage/room/referencing-data
 * documents the sample code that led to my code.
 */
+
+import androidx.room.TypeConverter
+import com.keepingstock.data.entities.ItemStatus
+import java.util.Date
 
 class Converter {
     @TypeConverter

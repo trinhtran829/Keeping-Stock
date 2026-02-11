@@ -1,9 +1,4 @@
-package com.keepingstock.data
-
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
-import java.util.Date
+package com.keepingstock.data.entities
 
 /*
 * This code was generated with the help of Android Basics with Compose course.
@@ -13,16 +8,23 @@ import java.util.Date
 * document the sample code that led to my code.
 */
 
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import java.util.Date
+
 @Entity(
-    tableName = "containers",
-    indices = [Index("parentContainerId")]
+    tableName = "items",
+    indices = [Index("containerId")]
 )
-data class ContainerEntity (
+data class ItemEntity (
     @PrimaryKey(autoGenerate = true)
-    val containerId: Long = 0,
+    val itemId: Long = 0,
     val name: String,
     val description: String? = null,
     val imageUri: String? = null,
-    val parentContainerId: Long? = null,
-    val createdDate: Date = Date()
+    val containerId: Long? = null,
+    val status: ItemStatus,
+    val createdDate: Date = Date(),
+    val checkoutDate: Date? = null
 )
