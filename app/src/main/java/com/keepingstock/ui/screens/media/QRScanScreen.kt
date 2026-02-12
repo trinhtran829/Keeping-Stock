@@ -1,4 +1,4 @@
-package com.keepingstock.ui.screens.qr
+package com.keepingstock.ui.screens.media
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
