@@ -1,4 +1,4 @@
-package com.keepingstock.data
+package com.keepingstock.data.daos
 
 /*
 * This code was generated with the help of Android Basics with Compose course.
@@ -13,6 +13,8 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.data.entities.ItemEntity
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 

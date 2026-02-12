@@ -1,4 +1,4 @@
-package com.keepingstock.data
+package com.keepingstock.data.daos
 
 /*
 * This code was generated with the help of Android Basics with Compose course.
@@ -9,10 +9,9 @@ package com.keepingstock.data
 */
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Update
+import com.keepingstock.data.entities.ItemTagEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

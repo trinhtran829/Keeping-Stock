@@ -1,8 +1,4 @@
-package com.keepingstock.data
-
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
+package com.keepingstock.data.entities
 
 /*
 * This code was generated with the help of Android Basics with Compose course.
@@ -12,12 +8,13 @@ import androidx.room.PrimaryKey
 * document the sample code that led to my code.
 */
 
+import androidx.room.Entity
+
 @Entity(
-    tableName = "tags",
-    indices = [Index(value = ["name"], unique = true)]
+    tableName = "item_tag",
+    primaryKeys = ["itemId", "tagId"]
 )
-data class TagEntity (
-    @PrimaryKey(autoGenerate = true)
-    val tagId: Long = 0,
-    val name: String
+data class ItemTagEntity (
+    val itemId: Long,
+    val tagId: Long
 )

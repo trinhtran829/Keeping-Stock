@@ -1,4 +1,4 @@
-package com.keepingstock.data
+package com.keepingstock.data.entities
 
 /*
 * This code was generated with the help of Android Basics with Compose course.
