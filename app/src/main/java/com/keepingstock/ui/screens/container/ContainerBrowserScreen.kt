@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
+import com.keepingstock.data.entities.ItemStatus
 
 /**
  *
@@ -266,4 +267,31 @@ private fun ItemSummaryRow(
     onClick: () -> Unit
 ) {
 
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Preview_ContainerSummaryRow() {
+    ContainerSummaryRow(
+        modifier = Modifier,
+        onClick = {},
+        container = Container(1L, "Garage")
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Preview_ItemSummaryRow() {
+    ItemSummaryRow(
+        modifier = Modifier,
+        onClick = {},
+        item = Item(
+            id = 100L,
+            name = "Impact Driver",
+            description = "DeWalt Brand 18V brushless",
+            imagePath = null,
+            status = ItemStatus.STORED,
+            containerId = 1L
+        )
+    )
 }
