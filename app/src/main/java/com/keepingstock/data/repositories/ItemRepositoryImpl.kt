@@ -1,10 +1,13 @@
 package com.keepingstock.data.repositories
 
 import com.keepingstock.data.daos.ItemDao
+import com.keepingstock.data.daos.ItemWithTagsDao
 import com.keepingstock.data.entities.ItemEntity
 import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.data.entities.ItemWithTags
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import java.util.Date
 
 /**
  * This code was generated with the help of the following links
@@ -25,7 +28,10 @@ import kotlinx.coroutines.flow.flowOf
  * work on these logic.
  */
 
-class ItemRepositoryImpl(private val itemDao: ItemDao) : ItemRepository {
+class ItemRepositoryImpl(
+    private val itemDao: ItemDao,
+    private val itemWithTagsDao: ItemWithTagsDao,
+    ) : ItemRepository {
     /**
      * Create an item
      * Upon creation, depends on containerId, status and checkoutDate
@@ -59,6 +65,30 @@ class ItemRepositoryImpl(private val itemDao: ItemDao) : ItemRepository {
     }
 
     /**
+     * Delete
+     */
+    override suspend fun deleteItem(item: ItemEntity) {
+        // Placeholder: do nothing for now
+    }
+
+    /**
+     * Get item by Id
+     */
+    override suspend fun getItemById(itemId: Long): ItemEntity? {
+        // Placeholder: return a dummy ItemEntity
+        return ItemEntity(
+            itemId = itemId,
+            name = "Placeholder Item",
+            description = "Placeholder description",
+            imageUri = null,
+            containerId = null,
+            status = ItemStatus.TAKEN_OUT,
+            createdDate = Date(),
+            checkoutDate = Date()
+        )
+    }
+
+    /**
      * Observe all items
      */
     override fun observeItem(): Flow<List<ItemEntity>> {
@@ -83,9 +113,10 @@ class ItemRepositoryImpl(private val itemDao: ItemDao) : ItemRepository {
     }
 
     /**
-     * Delete
+     * Search items where query match item's or tag's name
      */
-    override suspend fun deleteItem(item: ItemEntity) {
-        // Placeholder: do nothing for now
+    override fun searchItemsByNameOrTag(query: String): Flow<List<ItemWithTags>> {
+        // Placeholder: return empty list
+        return flowOf(emptyList())
     }
 }

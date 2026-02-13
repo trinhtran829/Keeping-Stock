@@ -1,8 +1,11 @@
 package com.keepingstock.data.repositories
 
+import com.keepingstock.data.entities.ContainerEntity
 import com.keepingstock.data.entities.ItemEntity
 import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.data.entities.ItemWithTags
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 /**
 * This code was generated with the help of the following links
@@ -50,6 +53,16 @@ interface ItemRepository {
     )
 
     /**
+     * Delete
+     */
+    suspend fun deleteItem(item: ItemEntity)
+
+    /**
+     * Get item by Id
+     */
+    suspend fun getItemById(itemId: Long): ItemEntity?
+
+    /**
      * Observe all items
      */
     fun observeItem(): Flow<List<ItemEntity>>
@@ -65,7 +78,7 @@ interface ItemRepository {
     fun observeItemUnsorted(): Flow<List<ItemEntity>>
 
     /**
-     * Delete
+     * Search items where query match item's or tag's name
      */
-    suspend fun deleteItem(item: ItemEntity)
+    fun searchItemsByNameOrTag(query: String): Flow<List<ItemWithTags>>
 }
