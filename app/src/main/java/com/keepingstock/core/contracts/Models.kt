@@ -4,13 +4,14 @@ import android.os.Bundle
 import com.keepingstock.data.entities.ItemStatus
 
 // Moved to using @JvmInLine for type safety and for overloading toNavString
-// Old values:
-// typealias ItemId = Long
-// typealias ContainerId = Long
 @JvmInline value class ContainerId(val value: Long)
 @JvmInline value class ItemId(val value: Long)
+@JvmInline value class TagId(val value: Long)
 
-data class Tag(val name: String)
+data class Tag(
+    val id: TagId,
+    val name: String
+)
 
 data class Item(
     val id: ItemId,
