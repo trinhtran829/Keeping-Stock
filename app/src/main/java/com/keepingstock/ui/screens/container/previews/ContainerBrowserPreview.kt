@@ -68,8 +68,16 @@ private fun Preview_ContainerBrowser_EmptyReady() {
 @Composable
 private fun Preview_ContainerBrowser_PopulatedReady() {
     val subcontainers = listOf(
-        Container(ContainerId(10L), "Tool Chest", ContainerId(1L)),
-        Container(ContainerId(11L), "Garage Box 1", ContainerId(1L))
+        Container(
+            id = ContainerId(10L),
+            name = "Tool Chest",
+            parentContainerId = ContainerId(1L)
+        ),
+        Container(
+            id = ContainerId(11L),
+            name = "Garage Box 1",
+            parentContainerId = ContainerId(1L)
+        )
     )
     val items = listOf(
         Item(
