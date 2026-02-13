@@ -1,5 +1,6 @@
 package com.keepingstock.ui.screens.container
 
+import android.R.attr.onClick
 import android.R.attr.top
 import android.widget.Space
 import androidx.compose.foundation.clickable
@@ -22,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -250,7 +252,35 @@ private fun EmptyState(
     onAddContainer: () -> Unit,
     onAddItem: () -> Unit
 ) {
+    Box(
+        modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(24.dp)
+        ) {
+            Text(
+                text = "Nothing here yet",
+                style = MaterialTheme.typography.titleMedium
+            )
 
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = "Add a container or item to get started.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(onClick = onAddContainer) { Text("Add container") }
+
+                OutlinedButton(onClick = onAddItem) { Text("Add item") }
+            }
+        }
+    }
 }
 
 /**
