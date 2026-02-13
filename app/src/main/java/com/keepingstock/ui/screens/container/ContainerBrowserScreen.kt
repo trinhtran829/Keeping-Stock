@@ -9,19 +9,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 
 @Composable
 fun ContainerBrowserScreen(
-    containerId: String?,
     modifier: Modifier = Modifier,
+    uiState: ContainerBrowserUiState,
     onOpenSubcontainer: (containerId: String) -> Unit = {},
     onOpenItem: (itemId: String) -> Unit = {},
     onOpenContainerInfo: (containerId: String) -> Unit = {},
     onAddContainer: (parentContainerId: String?) -> Unit = {},
-    onAddItem: (containerId: String?) -> Unit = {},
-    onGoToItemBrowser: () -> Unit = {},
-    onScanQr: () -> Unit = {}
+    onAddItem: (containerId: String?) -> Unit = {}
 ) {
+    /*
     Column(modifier = modifier.padding(16.dp)) {
         Text("Container Browser Screen (placeholder)")
         Text("containerId = ${containerId ?: "ROOT"}")
@@ -89,4 +89,6 @@ fun ContainerBrowserScreen(
         }
 
     }
+    */
 }
+
