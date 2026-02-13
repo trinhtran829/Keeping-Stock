@@ -158,7 +158,7 @@ private fun ContainerSummaryRow(
 }
 
 /**
- * 
+ *
  */
 @Composable
 private fun ItemSummaryRow(

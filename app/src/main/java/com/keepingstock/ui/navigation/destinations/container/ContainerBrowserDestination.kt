@@ -48,6 +48,7 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
         // Track the last visited container for "Return to Containers" behavior.
         lastContainerIdState.value = containerId
 
+        /*
         ContainerBrowserScreen(
             containerId = containerId,
             onOpenSubcontainer = { subId ->
@@ -59,13 +60,6 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
             onOpenContainerInfo = { id ->
                 deps.navController.navigate(NavRoute.ContainerDetail.createRoute(id))
             },
-            onGoToItemBrowser = {
-                deps.navController.navigate(NavRoute.ItemBrowser.route) {
-                    popUpTo(Routes.CONTAINER_BROWSER) { saveState = true }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            },
             onAddContainer = { parentId ->
                 deps.navController.navigate(
                     NavRoute.AddEditContainer.createRoute(parentContainerId = parentId)
@@ -73,10 +67,8 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
             },
             onAddItem = { cid ->
                 deps.navController.navigate(NavRoute.AddEditItem.createRoute(containerId = cid))
-            },
-            onScanQr = {
-                deps.navController.navigate(NavRoute.QRScan.route)
             }
         )
+         */
     }
 }
