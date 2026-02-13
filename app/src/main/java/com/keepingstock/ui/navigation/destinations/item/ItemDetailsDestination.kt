@@ -22,7 +22,8 @@ internal fun NavGraphBuilder.addItemDetailsDestination(
             navArgument(Routes.Args.ITEM_ID) { type = NavType.StringType }
         )
     ) { backStackEntry ->
-        val itemId = backStackEntry.arguments?.getString(Routes.Args.ITEM_ID)
+        val itemId =
+            backStackEntry.arguments?.getString(Routes.Args.ITEM_ID)?.toLongOrNull()
             ?: error("Missing itemId")
 
         // TODO: Display item name in title instead of id

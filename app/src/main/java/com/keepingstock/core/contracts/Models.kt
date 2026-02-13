@@ -1,5 +1,6 @@
 package com.keepingstock.core.contracts
 
+import android.os.Bundle
 import com.keepingstock.data.entities.ItemStatus
 
 // TODO migrate to @JvmInline value class for stronger type-safety

@@ -26,7 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
+import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
 
@@ -37,11 +39,11 @@ import com.keepingstock.data.entities.ItemStatus
 fun ContainerBrowserScreen(
     modifier: Modifier = Modifier,
     uiState: ContainerBrowserUiState,
-    onOpenSubcontainer: (containerId: Long) -> Unit = {},
-    onOpenItem: (itemId: Long) -> Unit = {},
-    onOpenContainerInfo: (containerId: Long) -> Unit = {},
-    onAddContainer: (parentContainerId: Long?) -> Unit = {},
-    onAddItem: (containerId: Long?) -> Unit = {}
+    onOpenSubcontainer: (containerId: ContainerId) -> Unit = {},
+    onOpenItem: (itemId: ItemId) -> Unit = {},
+    onOpenContainerInfo: (containerId: ContainerId) -> Unit = {},
+    onAddContainer: (parentContainerId: ContainerId?) -> Unit = {},
+    onAddItem: (containerId: ContainerId?) -> Unit = {}
 ) {
     when (uiState) {
         ContainerBrowserUiState.Loading -> LoadingContent(modifier)
@@ -170,15 +172,15 @@ private fun ErrorContent(
 @Composable
 private fun ReadyContent(
     modifier: Modifier,
-    containerId: Long?,
+    containerId: ContainerId?,
     containerName: String,
     subcontainers: List<Container>,
     items: List<Item>,
-    onOpenSubcontainer: (containerId: Long) -> Unit = {},
-    onOpenItem: (itemId: Long) -> Unit = {},
-    onOpenContainerInfo: (containerId: Long) -> Unit = {},
-    onAddContainer: (parentContainerId: Long?) -> Unit = {},
-    onAddItem: (containerId: Long?) -> Unit = {}
+    onOpenSubcontainer: (containerId: ContainerId) -> Unit = {},
+    onOpenItem: (itemId: ItemId) -> Unit = {},
+    onOpenContainerInfo: (containerId: ContainerId) -> Unit = {},
+    onAddContainer: (parentContainerId: ContainerId?) -> Unit = {},
+    onAddItem: (containerId: ContainerId?) -> Unit = {}
 ) {
     // TODO: Refactor for grid-view option
     Column() {

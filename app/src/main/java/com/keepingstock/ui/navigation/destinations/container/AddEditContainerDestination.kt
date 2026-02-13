@@ -20,17 +20,19 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
             navArgument(Routes.Args.CONTAINER_ID) {
                 type = NavType.StringType
                 nullable = true
-                defaultValue = null
+                defaultValue = -1L
             },
             navArgument(Routes.Args.PARENT_CONTAINER_ID) {
                 type = NavType.StringType
                 nullable = true
-                defaultValue = null
+                defaultValue = -1L
             }
         )
     ) { backStackEntry ->
-        val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
-        val parentContainerId = backStackEntry.arguments?.getString(Routes.Args.PARENT_CONTAINER_ID)
+        val containerId =
+            backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)?.toLongOrNull()
+        val parentContainerId =
+            backStackEntry.arguments?.getString(Routes.Args.PARENT_CONTAINER_ID)?.toLongOrNull()
 
         LaunchedEffect(containerId, parentContainerId) {
             deps.onTopBarChange(

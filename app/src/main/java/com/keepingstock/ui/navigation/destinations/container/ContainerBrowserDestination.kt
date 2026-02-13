@@ -6,6 +6,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
@@ -14,7 +15,7 @@ import com.keepingstock.ui.screens.container.ContainerBrowserScreen
 
 internal fun NavGraphBuilder.addContainerBrowserDestination(
     deps: NavDeps,
-    lastContainerIdState: MutableState<String?>
+    lastContainerIdState: MutableState<ContainerId?>
 ) {
     // Register the ContainerBrowser destination: when route == "container_browser" with or
     // without the containerId, show ContainerBrowser of that container (or root)
@@ -28,7 +29,8 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
             }
         )
     ) { backStackEntry ->
-        val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
+        val containerId =
+            backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)?.toLongOrNull()
 
         // TODO: Display container name in title instead of id
         LaunchedEffect(containerId) {

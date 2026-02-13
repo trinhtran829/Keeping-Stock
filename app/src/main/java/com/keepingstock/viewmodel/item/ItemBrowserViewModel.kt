@@ -1,7 +1,8 @@
-package com.keepingstock.ui.viewmodel.item
+package com.keepingstock.viewmodel.item
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemRepository
 import com.keepingstock.core.contracts.UiState
@@ -12,7 +13,7 @@ import kotlinx.coroutines.launch
 // Data needed to render the item browser UI
 data class ItemBrowserUiData(
     val items: List<Item> = emptyList(),
-    val containerId: String? = null
+    val containerId: ContainerId? = null
 )
 
 @OptIn(FlowPreview::class)
@@ -25,7 +26,7 @@ class ItemBrowserViewModel(
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     // Optional filter to only show items in current container
-    private val _activeContainerId = MutableStateFlow<String?>(null)
+    private val _activeContainerId = MutableStateFlow<ContainerId?>(null)
 
     // Exposed UI state (Loading, Success, or Error)
     private val _uiState = MutableStateFlow<UiState<ItemBrowserUiData>>(UiState.Loading)
@@ -55,12 +56,12 @@ class ItemBrowserViewModel(
     }
 
     // Filter by container
-    fun setContainer(containerId: String?) {
+    fun setContainer(containerId: ContainerId?) {
         _activeContainerId.value = containerId
     }
 
     // Get items from repository based on current filters
-    private suspend fun loadItems(query: String, containerId: String?) {
+    private suspend fun loadItems(query: String, containerId: ContainerId?) {
         _uiState.value = UiState.Loading
         try {
             val items = when {

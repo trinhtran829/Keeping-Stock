@@ -7,11 +7,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.keepingstock.core.contracts.ContainerId
 
 @Composable
 fun AddEditContainerScreen(
-    containerId: String?,
-    parentContainerId: String?,
+    containerId: ContainerId?,
+    parentContainerId: ContainerId?,
     modifier: Modifier = Modifier,
     onSave: () -> Unit = {},
     onCancel: () -> Unit = {}

@@ -10,10 +10,10 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ContainerDetailScreen(
-    containerId: String,
+    containerId: Long,
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
-    onEdit: (containerId: String) -> Unit = {}
+    onEdit: (containerId: Long) -> Unit = {}
 ) {
     Column(modifier = modifier.padding(16.dp)) {
         Text("Container Detail Screen (placeholder)")

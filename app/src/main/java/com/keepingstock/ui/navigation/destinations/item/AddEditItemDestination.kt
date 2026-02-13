@@ -29,8 +29,10 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
             }
         )
     ) { backStackEntry ->
-        val itemId = backStackEntry.arguments?.getString(Routes.Args.ITEM_ID)
-        val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
+        val itemId =
+            backStackEntry.arguments?.getString(Routes.Args.ITEM_ID)?.toLongOrNull()
+        val containerId =
+            backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)?.toLongOrNull()
 
         LaunchedEffect(itemId, containerId) {
             deps.onTopBarChange(

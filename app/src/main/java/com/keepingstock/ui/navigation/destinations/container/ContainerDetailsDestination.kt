@@ -22,7 +22,8 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
             navArgument(Routes.Args.CONTAINER_ID) { type = NavType.StringType }
         )
     ) { backStackEntry ->
-        val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
+        val containerId =
+            backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)?.toLong()
             ?: error("Missing containerId")
 
         LaunchedEffect(containerId) {
