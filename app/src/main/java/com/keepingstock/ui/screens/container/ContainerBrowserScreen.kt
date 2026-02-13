@@ -1,6 +1,7 @@
 package com.keepingstock.ui.screens.container
 
 import android.R.attr.top
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -9,16 +10,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 
+/**
+ *
+ */
 @Composable
 fun ContainerBrowserScreen(
     modifier: Modifier = Modifier,
     uiState: ContainerBrowserUiState,
-    onOpenSubcontainer: (containerId: String) -> Unit = {},
-    onOpenItem: (itemId: String) -> Unit = {},
-    onOpenContainerInfo: (containerId: String) -> Unit = {},
-    onAddContainer: (parentContainerId: String?) -> Unit = {},
+    onOpenSubcontainer: (containerId: Long) -> Unit = {},
+    onOpenItem: (itemId: Long) -> Unit = {},
+    onOpenContainerInfo: (containerId: Long) -> Unit = {},
+    onAddContainer: (parentContainerId: Long?) -> Unit = {},
     onAddItem: (containerId: String?) -> Unit = {}
 ) {
     /*
@@ -92,3 +98,73 @@ fun ContainerBrowserScreen(
     */
 }
 
+/**
+ *
+ */
+@Composable
+private fun LoadingContent(modifier: Modifier) {
+
+}
+
+/**
+ *
+ */
+@Composable
+private fun ErrorContent(modifier: Modifier) {
+
+}
+
+/**
+ *
+ */
+@Composable
+private fun ReadyContent(
+    modifier: Modifier,
+    containerId: Long?,
+    containerName: String,
+    subcontainers: List<Container>,
+    items: List<Item>,
+    onOpenSubcontainer: (containerId: Long) -> Unit = {},
+    onOpenItem: (itemId: Long) -> Unit = {},
+    onOpenContainerInfo: (containerId: Long) -> Unit = {},
+    onAddContainer: (parentContainerId: Long?) -> Unit = {},
+    onAddItem: (containerId: String?) -> Unit = {}
+) {
+
+}
+
+/**
+ *
+ */
+@Composable
+private fun EmptyState(
+    modifier: Modifier,
+    onAddContaienr: () -> Unit,
+    onAddItem: () -> Unit
+) {
+
+}
+
+/**
+ *
+ */
+@Composable
+private fun ContainerSummaryRow(
+    modifier: Modifier,
+    container: Container,
+    onClick: () -> Unit
+) {
+
+}
+
+/**
+ * 
+ */
+@Composable
+private fun ItemSummaryRow(
+    modifier: Modifier,
+    item: Item,
+    onClick: () -> Unit
+) {
+
+}
