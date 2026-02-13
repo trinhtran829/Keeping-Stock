@@ -2,6 +2,7 @@ package com.keepingstock.core.contracts
 
 import android.os.Bundle
 import com.keepingstock.data.entities.ItemStatus
+import java.util.Date
 
 // Moved to using @JvmInLine for type safety and for overloading toNavString
 @JvmInline value class ContainerId(val value: Long)
@@ -17,14 +18,18 @@ data class Item(
     val id: ItemId,
     val name: String,
     val description: String? = null,
-    val containerId: ContainerId? = null,
-    val tags: List<Tag> = emptyList(),
     val imagePath: String? = null,
-    val status: ItemStatus
+    val containerId: ContainerId? = null,
+    val status: ItemStatus,
+    val createdDate: Date = Date(),
+    val checkoutDate: Date? = null,
+    val tags: List<Tag> = emptyList(),
 )
 
 data class Container(
     val id: ContainerId,
     val name: String,
-    val parentContainerId: ContainerId? = null
+    val imageUri: String? = null,
+    val parentContainerId: ContainerId? = null,
+    val createdDate: Date = Date()
 )
