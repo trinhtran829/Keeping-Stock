@@ -5,6 +5,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Grass
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -20,7 +26,36 @@ fun ContainerThumbnail(
     modifier: Modifier = Modifier,
     imagePath: String?
 ) {
+    ThumbnailBase(
+        modifier = modifier,
+        imagePath = imagePath,
+        fallbackIcon = {
+            Icon(
+                imageVector = Icons.Filled.Inventory,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    )
+}
 
+
+@Composable
+fun ItemThumbnail(
+    imagePath: String?,
+    modifier: Modifier = Modifier,
+) {
+    ThumbnailBase(
+        modifier = modifier,
+        imagePath = imagePath,
+        fallbackIcon = {
+            Icon(
+                imageVector = Icons.Filled.Grass,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    )
 }
 
 @Composable
