@@ -149,6 +149,7 @@ private fun ReadyContent(
                 onAddContainer = { onAddContainer(containerId) },
                 onAddItem = { onAddItem(containerId) }
             )
+            return
         }
 
         // Populated state
