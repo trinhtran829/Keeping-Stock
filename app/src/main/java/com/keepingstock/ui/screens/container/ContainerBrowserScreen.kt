@@ -1,8 +1,5 @@
 package com.keepingstock.ui.screens.container
 
-import android.R.attr.onClick
-import android.R.attr.top
-import android.widget.Space
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,6 +21,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,76 +71,6 @@ fun ContainerBrowserScreen(
             onAddItem = onAddItem
         )
     }
-    /*
-    // TODO: OLD PLACEHOLDER UI - DELETE AFTER REFACTOR OF SCREEN
-    Column(modifier = modifier.padding(16.dp)) {
-        Text("Container Browser Screen (placeholder)")
-        Text("containerId = ${containerId ?: "ROOT"}")
-
-        Button(
-            onClick = { onOpenSubcontainer("02") },
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text("Open example subcontainer 02")
-        }
-
-        Button(
-            onClick = { onOpenItem("01") },
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text("Open example item 01")
-        }
-
-        Button(
-            onClick = { if (containerId != null) onOpenContainerInfo(containerId) },
-            enabled = containerId != null,
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text("Open container info")
-        }
-
-        Button(
-            onClick = { onAddContainer(containerId) },
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text(
-                if (containerId == null) {
-                    "Add container"
-                } else {
-                    "Add subcontainer"
-                }
-            )
-        }
-
-        Button(
-            onClick = { onAddItem(containerId) },
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text(
-                if (containerId == null) {
-                    "Add item (choose container later)"
-                } else {
-                    "Add item to this container"
-                }
-            )
-        }
-
-        Button(
-            onClick = onGoToItemBrowser,
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text("Go to Item Browser")
-        }
-
-        Button(
-            onClick = onScanQr,
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text("Scan QR")
-        }
-
-    }
-    */
 }
 
 /**
@@ -196,9 +123,21 @@ private fun ReadyContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            val counts = "${subcontainers.size} containers • ${items.size} items"
+            Text(
+                text = counts,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
 
+            if (containerId != null) {
+                TextButton(onClick = { onOpenContainerInfo(containerId) }) {
+                    Text("Info")
+                }
+            }
         }
 
         HorizontalDivider()
@@ -222,8 +161,12 @@ private fun ReadyContent(
                 item {
                     Text("Containers", style = MaterialTheme.typography.titleMedium)
                 }
-                items(subcontainers, key = { it.id }) { c ->
-
+                items(subcontainers, key = { it.id.value }) { c ->
+                    ContainerSummaryRow(
+                        modifier = Modifier,
+                        container = c,
+                        onClick = { onOpenSubcontainer(c.id) }
+                    )
                 }
                 item { Spacer(Modifier.height(8.dp)) }
             }
@@ -232,8 +175,12 @@ private fun ReadyContent(
                 item {
                     Text("Items", style = MaterialTheme.typography.titleMedium)
                 }
-                items(items, key = { it.id }) { i ->
-
+                items(items, key = { it.id.value }) { i ->
+                    ItemSummaryRow(
+                        modifier = Modifier,
+                        item = i,
+                        onClick = { onOpenItem(i.id) }
+                    )
                 }
             }
 

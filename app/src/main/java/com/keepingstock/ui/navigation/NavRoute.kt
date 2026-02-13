@@ -32,7 +32,7 @@ sealed interface NavRoute {
 
         // Function to build the actual route string; uses query param
         fun createRoute(containerId: ContainerId? = null): String =
-            containerId?.let { "${Routes.CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}=$it" }
+            containerId?.let { "${Routes.CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}=${it.value}" }
                 ?: Routes.CONTAINER_BROWSER
     }
 

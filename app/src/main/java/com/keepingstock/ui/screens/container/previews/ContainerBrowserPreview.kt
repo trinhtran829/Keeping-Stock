@@ -77,21 +77,22 @@ private fun Preview_ContainerBrowser_PopulatedReady() {
         Container(
             id = ContainerId(11L),
             name = "Garage Box 1",
-            description = "The ugly cardboard one in the corner - replace later",
+            description = "The ugly cardboard one in the corner that should be replaced later - " +
+                    "remember to update the blah blah (overflow test)",
             parentContainerId = ContainerId(1L)
         )
     )
     val items = listOf(
         Item(
             id = ItemId(100L),
-                name = "Impact Driver",
-                description = "DeWalt Brand 18V brushless",
-                imagePath = null,
-                status = ItemStatus.STORED,
-                containerId = ContainerId(1L)
-            ),
+            name = "Impact Driver",
+            description = "DeWalt Brand 18V brushless",
+            imagePath = null,
+            status = ItemStatus.STORED,
+            containerId = ContainerId(1L)
+        ),
         Item(
-            id = ItemId(101L),
+            id = ItemId(102L),
             name = "Reciprocating Saw",
             description = "Ryobi Brand",
             imagePath = null,

@@ -1,6 +1,5 @@
 package com.keepingstock.core.contracts
 
-import android.os.Bundle
 import com.keepingstock.data.entities.ItemStatus
 import java.util.Date
 
