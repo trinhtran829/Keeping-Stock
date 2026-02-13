@@ -21,12 +21,12 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
             navArgument(Routes.Args.CONTAINER_ID) {
                 type = NavType.StringType
                 nullable = true
-                defaultValue = -1L
+                defaultValue = null
             },
             navArgument(Routes.Args.PARENT_CONTAINER_ID) {
                 type = NavType.StringType
                 nullable = true
-                defaultValue = -1L
+                defaultValue = null
             }
         )
     ) { backStackEntry ->
