@@ -27,6 +27,27 @@ fun ContainerBrowserScreen(
     onAddContainer: (parentContainerId: Long?) -> Unit = {},
     onAddItem: (containerId: String?) -> Unit = {}
 ) {
+    when (uiState) {
+        ContainerBrowserUiState.Loading -> LoadingContent(modifier)
+
+        is ContainerBrowserUiState.Error -> ErrorContent(
+            modifier = modifier,
+            message = uiState.message
+        )
+
+        is ContainerBrowserUiState.Ready -> ReadyContent(
+            modifier = modifier,
+            containerId = uiState.containerId,
+            containerName = uiState.containerName,
+            subcontainers = uiState.subcontainers,
+            items = uiState.items,
+            onOpenSubcontainer = onOpenSubcontainer,
+            onOpenItem = onOpenItem,
+            onOpenContainerInfo = onOpenContainerInfo,
+            onAddContainer = onAddContainer,
+            onAddItem = onAddItem
+        )
+    }
     /*
     Column(modifier = modifier.padding(16.dp)) {
         Text("Container Browser Screen (placeholder)")
@@ -110,7 +131,11 @@ private fun LoadingContent(modifier: Modifier) {
  *
  */
 @Composable
-private fun ErrorContent(modifier: Modifier) {
+private fun ErrorContent(
+    modifier: Modifier,
+    message: String,
+    cause: Throwable? = null
+) {
 
 }
 
