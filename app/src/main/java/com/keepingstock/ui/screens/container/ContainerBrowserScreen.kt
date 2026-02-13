@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -134,7 +135,7 @@ private fun LoadingContent(modifier: Modifier) {
 }
 
 /**
- *
+ * TODO: Consult with Rich on his intended purpose of cause Throwable
  */
 @Composable
 private fun ErrorContent(
@@ -142,7 +143,12 @@ private fun ErrorContent(
     message: String,
     cause: Throwable? = null
 ) {
-
+    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
 }
 
 /**

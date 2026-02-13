@@ -24,6 +24,19 @@ private fun Preview_ContainerBrowser_Loading() {
 
 @Preview(showBackground = true)
 @Composable
+private fun Preview_ContainerBrowser_Error() {
+    ContainerBrowserScreen(
+        uiState = ContainerBrowserUiState.Error("Failed to load container."),
+        onOpenSubcontainer = {},
+        onOpenItem = {},
+        onOpenContainerInfo = {},
+        onAddContainer = {},
+        onAddItem = {},
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
 private fun Preview_ContainerBrowser_EmptyReady() {
 
 }
@@ -31,11 +44,5 @@ private fun Preview_ContainerBrowser_EmptyReady() {
 @Preview(showBackground = true)
 @Composable
 private fun Preview_ContainerBrowser_PopulatedReady() {
-
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun Preview_ContainerBrowser_Error() {
 
 }
