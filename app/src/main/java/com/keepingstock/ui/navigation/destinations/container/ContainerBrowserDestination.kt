@@ -1,6 +1,5 @@
 package com.keepingstock.ui.navigation.destinations.container
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,6 +37,14 @@ import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
 
+/**
+ * Temporary demo modes for the Container Browser destination.
+ *
+ * These exist to allow manual toggling between UI states (Ready populated/empty, Loading, Error)
+ * before the real ContainerBrowserViewModel is implemented.
+ *
+ * TODO(REMOVE): Delete this enum when the ContainerBrowserViewModel provides real UiState.
+ */
 private enum class DemoMode {
     POPULATED,
     EMPTY,
@@ -45,6 +52,23 @@ private enum class DemoMode {
     ERROR
 }
 
+/**
+ * Registers the Container Browser destination in AppNavGraph.
+ *
+ * If no containerId arg is provided, root container is displayed, otherwise container's contents
+ * are displayed
+ *
+ * Current temporary behavior:
+ * - Uses a demo UiState generator (demoContainerBrowserReadyState) and a DemoMode toggle row.
+ *   This allows the screen to be demonstrated without a ViewModel.
+ *
+ * :param deps: Shared navigation dependencies
+ * :param lastContainerIdState: Mutable state used by app shell to remember the last visited
+ *                          container.
+ *
+ * TODO: Replace demoMode + demo UiState with a real
+ *  ViewModel: val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+ */
 internal fun NavGraphBuilder.addContainerBrowserDestination(
     deps: NavDeps,
     lastContainerIdState: MutableState<ContainerId?>
@@ -61,14 +85,25 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
             }
         )
     ) { backStackEntry ->
+        // current container to display, where null = root container
         val containerId =
             backStackEntry.arguments?.containerIdOrNull(Routes.Args.CONTAINER_ID)
 
-        // TODO: remove at launch?
+        /*
+         * Stored with rememberSaveable so it survives recomposition and basic process recreation.
+         * Keyed by containerId so each container can have its own demo mode selection.
+         *
+         * TODO(REMOVE): Demo-only state toggle.
+         */
         var demoMode by rememberSaveable(containerId?.value) { // key per container
             mutableStateOf(DemoMode.POPULATED)
         }
 
+        /*
+         * Temporary UiState provider for demonstration purposes.
+         *
+         * TODO(REMOVE): Replace with ViewModel-provided UiState.
+         */
         val uiState = remember(containerId, demoMode) {
             when (demoMode) {
                 DemoMode.LOADING -> ContainerBrowserUiState.Loading
@@ -77,17 +112,25 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
                 DemoMode.POPULATED -> demoContainerBrowserReadyState(containerId, empty = false)
             }
         }
+
+        // Build TopBarConfig from current UiState
         val topBarConfig = remember(uiState) { containerBrowserTopBarConfig(uiState) }
 
-        LaunchedEffect(containerId) {
+        // Push top bar updates to scaffold
+        LaunchedEffect(topBarConfig) {
             deps.onTopBarChange(topBarConfig)
         }
 
         // Track the last visited container for "Return to Containers" behavior.
         lastContainerIdState.value = containerId
 
-        // TODO: temporary column of rows for togglable demo of states. remove when ViewModel
-        //      is implemented.
+        /*
+         * Kept in the destination (not the screen) so ContainerBrowserScreen stays production-like
+         * and purely state-driven.
+         *
+         * TODO(REMOVE): Demo-mode toggle UI. Remove when ViewModel is implemented and render
+         *      screen directly instead.
+         */
         Column (Modifier.fillMaxSize()) {
             DemoModeToggleRow(
                 selected = demoMode,
@@ -98,8 +141,6 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
                 modifier = Modifier.fillMaxSize(),
                 uiState = uiState,
                 onOpenSubcontainer = { subId ->
-                    val route = NavRoute.ContainerBrowser.createRoute(subId)
-                    Log.d("Nav", "Navigating to: $route")
                     deps.navController.navigate(NavRoute.ContainerBrowser.createRoute(subId))
                 },
                 onOpenItem = { itemId ->
@@ -122,7 +163,18 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
 }
 
 /**
+ * Builds the TopBarConfig for the Container Browser destination from UiState.
  *
+ * Titles:
+ * - Ready: uses the containerName from UiState
+ * - Loading: "Loading…"
+ * - Error: generic "Containers" // TODO: refine error title later
+ *
+ * Back button:
+ * - Shown only when browsing a non-root container (containerId != null) // TODO: correct behavior?
+ *
+ * :param uiState: The current UI state for the Container Browser screen.
+ * :return: TopBarConfig used by the app scaffold's top bar.
  */
 private fun containerBrowserTopBarConfig(uiState: ContainerBrowserUiState): TopBarConfig {
     val title = when (uiState) {
@@ -137,15 +189,24 @@ private fun containerBrowserTopBarConfig(uiState: ContainerBrowserUiState): TopB
 }
 
 /**
+ * Demo Ready-state builder for the Container Browser. Produces sample data so the UI can be
+ * tested/rendered without a ViewModel.
+ *
+ * :param containerId: Current container to simulate; null represents root.
+ * :param empty: When true, returns a Ready state with empty subcontainers/items.
+ * :return: A Ready UiState with predictable demo data.
+ *
  * ---
  * GenAI usage citation:
  * This example UiState was generated with the assistance of ChatGPT.
+ *
+ * TODO(REMOVE): Delete when ContainerBrowserViewModel exists.
  */
 private fun demoContainerBrowserReadyState(
     containerId: ContainerId?,
     empty: Boolean
 ): ContainerBrowserUiState.Ready {
-    // Simple deterministic demo data based on whether we're at root or inside a container.
+    // Simple demo data based on whether we're at root or inside a container.
     return if (containerId == null) {
         ContainerBrowserUiState.Ready(
             containerId = null,
@@ -204,6 +265,17 @@ private fun demoContainerBrowserReadyState(
     }
 }
 
+/**
+ * Demo-only UI for selecting which UiState the Container Browser should display.
+ *
+ * This is rendered here in the destination instead of the screen to keep the screen state-driven.
+ *
+ * :param selected: Currently selected demo mode.
+ * :param onSelect: Callback invoked when user selects a new demo mode.
+ * :param modifier: Optional modifier for layout/styling.
+ *
+ * TODO(REMOVE): Delete once the ViewModel exists.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DemoModeToggleRow(
@@ -244,6 +316,15 @@ private fun DemoModeToggleRow(
     }
 }
 
+/**
+ * Demo-only chip used by DemoModeToggleRow.
+ *
+ * :param label: Visible label for the chip.
+ * :param selected: Whether this chip is currently selected.
+ * :param onClick: Click handler that selects this mode.
+ *
+ * TODO(REMOVE): Delete once the demo toggle UI is removed.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DemoChip(
