@@ -2,7 +2,10 @@ package com.keepingstock.ui.screens.container.previews
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
+import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
 
 /**
@@ -38,11 +41,64 @@ private fun Preview_ContainerBrowser_Error() {
 @Preview(showBackground = true)
 @Composable
 private fun Preview_ContainerBrowser_EmptyReady() {
-
+    ContainerBrowserScreen(
+        uiState = ContainerBrowserUiState.Ready(
+            containerId = 1L,
+            containerName = "Garage",
+            subcontainers = emptyList(),
+            items = emptyList()
+        ),
+        onOpenSubcontainer = {},
+        onOpenItem = {},
+        onOpenContainerInfo = {},
+        onAddContainer = {},
+        onAddItem = {},
+    )
 }
 
+/**
+ *
+ * ---
+ * GenAI usage citation:
+ * Sample Items and Containers auto-generated with the help of ChatGPT.
+ */
 @Preview(showBackground = true)
 @Composable
 private fun Preview_ContainerBrowser_PopulatedReady() {
+    val subcontainers = listOf(
+        Container(10L, "Tool Chest", 1L),
+        Container(11L, "Garage Box 1", 1L)
+    )
+    val items = listOf(
+        Item(
+            id = 100L,
+            name = "Impact Driver",
+            description = "DeWalt Brand 18V brushless",
+            imagePath = null,
+            status = ItemStatus.STORED,
+            containerId = 1L
+        ),
+        Item(
+            id = 101L,
+            name = "Reciprocating Saw",
+            description = "Ryobi Brand",
+            imagePath = null,
+            status = ItemStatus.STORED,
+            containerId = 1L
+        )
+    )
 
+    ContainerBrowserScreen(
+        uiState = ContainerBrowserUiState.Ready(
+            containerId = 1L,
+            containerName = "Garage",
+            subcontainers = subcontainers,
+            items = items
+        ),
+        onOpenSubcontainer = {},
+        onOpenItem = {},
+        onOpenContainerInfo = {},
+        onAddContainer = {},
+        onAddItem = {},
+    )
 }

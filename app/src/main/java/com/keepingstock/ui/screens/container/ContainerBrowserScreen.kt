@@ -146,7 +146,8 @@ private fun ErrorContent(
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(
             text = message,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.error
         )
     }
 }
