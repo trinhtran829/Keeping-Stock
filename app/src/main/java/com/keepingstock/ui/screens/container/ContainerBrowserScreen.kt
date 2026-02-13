@@ -2,6 +2,7 @@ package com.keepingstock.ui.screens.container
 
 import android.R.attr.top
 import android.widget.Space
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,17 +13,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.Container
@@ -256,7 +260,38 @@ private fun ContainerSummaryRow(
     container: Container,
     onClick: () -> Unit
 ) {
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier
+                .clickable(onClick = onClick)
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // TODO: Current placeholder for thumbnail/icon
+            Box(Modifier.size(40.dp))
 
+            Spacer(Modifier.width(12.dp))
+
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = container.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                container.description?.takeIf { it.isNotBlank() }?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -268,7 +303,56 @@ private fun ItemSummaryRow(
     item: Item,
     onClick: () -> Unit
 ) {
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier
+                .clickable(onClick = onClick)
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // TODO: Current placeholder for thumbnail/icon
+            Box(Modifier.size(40.dp))
 
+            Spacer(Modifier.width(12.dp))
+
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = item.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                val subtitle = buildString {
+                    append(item.status.name)
+                    if (!item.description.isNullOrBlank()) {
+                        if (isNotEmpty()) append(" • ")
+                        append(item.description)
+                    }
+                }
+
+                if (subtitle.isNotBlank()) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                if (item.tags.isNotEmpty()) {
+                    Text(
+                        text = item.tags.joinToString(prefix = "#", separator = " #"),
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)
@@ -277,7 +361,11 @@ private fun Preview_ContainerSummaryRow() {
     ContainerSummaryRow(
         modifier = Modifier,
         onClick = {},
-        container = Container(ContainerId(1L), "Garage")
+        container = Container(
+            id = ContainerId(1L),
+            name = "Garage",
+            description = "Garage Description goes here"
+        )
     )
 }
 

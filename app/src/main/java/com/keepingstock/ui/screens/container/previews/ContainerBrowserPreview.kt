@@ -70,12 +70,14 @@ private fun Preview_ContainerBrowser_PopulatedReady() {
     val subcontainers = listOf(
         Container(
             id = ContainerId(10L),
-            name = "Tool Chest",
+            name = "Tool Chest Main",
+            description = "My favorite red one.",
             parentContainerId = ContainerId(1L)
         ),
         Container(
             id = ContainerId(11L),
             name = "Garage Box 1",
+            description = "The ugly cardboard one in the corner - replace later",
             parentContainerId = ContainerId(1L)
         )
     )
