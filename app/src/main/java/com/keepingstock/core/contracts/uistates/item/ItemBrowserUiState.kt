@@ -1,5 +1,6 @@
 package com.keepingstock.core.contracts.uistates.item
 
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 
 /**
@@ -31,7 +32,7 @@ sealed interface ItemBrowserUiState {
     data class Success(
         val query: String = "",
         val items: List<Item> = emptyList(),
-        val containerId: String? = null
+        val containerId: ContainerId? = null
     ) : ItemBrowserUiState
 
     /**

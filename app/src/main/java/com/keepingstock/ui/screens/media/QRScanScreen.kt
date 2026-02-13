@@ -16,13 +16,15 @@ fun QRScanScreen(
     onCancel: () -> Unit = {}
 ) {
     Column(modifier = modifier.padding(16.dp)) {
+        val containerId = ContainerId(2L)
+
         Text("QR Scan Screen (placeholder)")
 
         Button(
-            onClick = { onScannedContainer(2L) },
+            onClick = { onScannedContainer(containerId) },
             modifier = Modifier.Companion.padding(top = 12.dp)
         ) {
-            Text("Simulate scan: container 02")
+            Text("Simulate scan: container $containerId")
         }
 
         Button(

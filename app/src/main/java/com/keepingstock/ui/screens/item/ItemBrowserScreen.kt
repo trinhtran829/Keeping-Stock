@@ -22,7 +22,7 @@ fun ItemBrowserScreen(
     onOpenItem: (itemId: ItemId) -> Unit = {},
     onOpenContainerBrowser: () -> Unit = {}
 ) {
-
+    val exampleItemId = ItemId(1L)
 
     Column(modifier = modifier.padding(16.dp)) {
         // Show state info, will refactor with real UI later.
@@ -39,10 +39,10 @@ fun ItemBrowserScreen(
         }
         // Button to test item navigation
         Button(
-            onClick = { onOpenItem(1L) },
+            onClick = { onOpenItem(exampleItemId) },
             modifier = Modifier.padding(top = 12.dp)
         ) {
-            Text("Open Example Item 01")
+            Text("Open Example Item $exampleItemId")
         }
         // Navigate to container browser screen
         Button(

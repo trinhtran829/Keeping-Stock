@@ -1,6 +1,7 @@
 package com.keepingstock.core.contracts.uistates.container
 
 import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 
 /**
@@ -27,7 +28,7 @@ sealed interface ContainerBrowserUiState {
      * Both subcontainer and item lists are empty = display "empty container" msg
     */
     data class Ready(
-        val containerId: Long?,         // null represents root container
+        val containerId: ContainerId?,         // null represents root container
         val containerName: String,
         val subcontainers: List<Container>,
         val items: List<Item>

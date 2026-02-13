@@ -3,9 +3,12 @@ package com.keepingstock.core.contracts
 import android.os.Bundle
 import com.keepingstock.data.entities.ItemStatus
 
-// TODO migrate to @JvmInline value class for stronger type-safety
-typealias ItemId = Long
-typealias ContainerId = Long
+// Moved to using @JvmInLine for type safety and for overloading toNavString
+// Old values:
+// typealias ItemId = Long
+// typealias ContainerId = Long
+@JvmInline value class ContainerId(val value: Long)
+@JvmInline value class ItemId(val value: Long)
 
 data class Tag(val name: String)
 

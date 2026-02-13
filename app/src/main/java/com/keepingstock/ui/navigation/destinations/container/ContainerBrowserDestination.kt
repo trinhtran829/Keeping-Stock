@@ -10,6 +10,7 @@ import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
+import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
 
@@ -30,7 +31,7 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
         )
     ) { backStackEntry ->
         val containerId =
-            backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)?.toLongOrNull()
+            backStackEntry.arguments?.containerIdOrNull(Routes.Args.CONTAINER_ID)
 
         // TODO: Display container name in title instead of id
         LaunchedEffect(containerId) {

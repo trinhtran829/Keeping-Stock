@@ -277,7 +277,7 @@ private fun Preview_ContainerSummaryRow() {
     ContainerSummaryRow(
         modifier = Modifier,
         onClick = {},
-        container = Container(1L, "Garage")
+        container = Container(ContainerId(1L), "Garage")
     )
 }
 
@@ -288,12 +288,12 @@ private fun Preview_ItemSummaryRow() {
         modifier = Modifier,
         onClick = {},
         item = Item(
-            id = 100L,
+            id = ItemId(100L),
             name = "Impact Driver",
             description = "DeWalt Brand 18V brushless",
             imagePath = null,
             status = ItemStatus.STORED,
-            containerId = 1L
+            containerId = ContainerId(1L)
         )
     )
 }
