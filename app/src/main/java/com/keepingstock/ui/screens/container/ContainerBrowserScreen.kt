@@ -35,6 +35,8 @@ import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.ui.components.thumbnail.ContainerThumbnail
+import com.keepingstock.ui.components.thumbnail.ItemThumbnail
 
 /**
  *
@@ -270,7 +272,7 @@ private fun ContainerSummaryRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // TODO: Current placeholder for thumbnail/icon
-            Box(Modifier.size(40.dp))
+            ContainerThumbnail(imagePath = container.imageUri)
 
             Spacer(Modifier.width(12.dp))
 
@@ -313,7 +315,7 @@ private fun ItemSummaryRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // TODO: Current placeholder for thumbnail/icon
-            Box(Modifier.size(40.dp))
+            ItemThumbnail(imagePath = item.imagePath)
 
             Spacer(Modifier.width(12.dp))
 
