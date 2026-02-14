@@ -1,6 +1,5 @@
 package com.keepingstock.ui.screens.container
 
-import android.R.attr.onClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
 import com.keepingstock.ui.components.thumbnail.ContainerThumbnail
+import com.keepingstock.ui.screens.shared.DetailRow
 import com.keepingstock.ui.screens.shared.ErrorContent
 import com.keepingstock.ui.screens.shared.LoadingContent
 
@@ -191,27 +191,5 @@ private fun ReadyContent(
                 ) { Text("Back") }
             }
         }
-    }
-}
-
-@Composable
-private fun DetailRow(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.weight(1f)
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium
-        )
     }
 }
