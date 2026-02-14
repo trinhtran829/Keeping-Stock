@@ -111,7 +111,17 @@ private fun ReadyContent(
         ElevatedCard(
             modifier = Modifier.fillMaxWidth()
         ) {
-
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                DetailRow(
+                    label = "Container ID",
+                    value = containerId.value.toString()
+                )
+            }
         }
 
         // Actions card
@@ -145,4 +155,26 @@ private fun ReadyContent(
         onClick = { onDelete(containerId) },
         modifier = Modifier.padding(top = 12.dp)
     ) { Text("Delete") }
+}
+
+@Composable
+private fun DetailRow(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
 }
