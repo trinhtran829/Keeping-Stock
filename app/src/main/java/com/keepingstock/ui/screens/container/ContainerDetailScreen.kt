@@ -79,6 +79,21 @@ private fun ReadyContent(
         ElevatedCard(
             modifier = Modifier.fillMaxWidth()
         ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                }
+
+                
+            }
+            /*
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -108,6 +123,7 @@ private fun ReadyContent(
                         }
                 }
             }
+             */
         }
 
         // Metadata card: parent + counts + delete rule
