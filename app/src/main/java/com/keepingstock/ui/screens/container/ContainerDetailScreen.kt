@@ -19,6 +19,22 @@ fun ContainerDetailScreen(
     onMove: (ContainerId) -> Unit = {},
     onDelete: (ContainerId) -> Unit = {}
 ) {
+    Column(modifier = modifier.padding(16.dp)) {
+        when (uiState) {
+            ContainerDetailUiState.Loading -> {
+                Text("Loading container details...")
+            }
+
+            is ContainerDetailUiState.Error -> {
+                Text("Error: ${uiState.message}")
+            }
+
+            is ContainerDetailUiState.Ready -> {
+                
+            }
+        }
+    }
+
     /*
     // PLACEHOLDER SCREEN
     Column(modifier = modifier.padding(16.dp)) {
