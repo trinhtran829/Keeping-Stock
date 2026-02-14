@@ -100,7 +100,17 @@ private fun containerDetailTopBarConfig(uiState: ContainerDetailUiState): TopBar
  * TODO(REMOVE): Demo-only Ready state builder.
  */
 private fun demoContainerDetailReadyState(containerId: ContainerId): ContainerDetailUiState.Ready {
-
+    return ContainerDetailUiState.Ready(
+        containerId = containerId,
+        name = "Container ${containerId.value}",
+        description = "Example container detail description.",
+        imageUri = null,
+        parentContainerId = null,
+        subcontainerCount = 2,
+        itemCount = 5,
+        canDelete = false,
+        deleteBlockedReason = "Container must be empty to delete."
+    )
 }
 
 /**
