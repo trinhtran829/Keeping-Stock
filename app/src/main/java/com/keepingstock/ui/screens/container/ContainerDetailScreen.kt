@@ -8,14 +8,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
 
 @Composable
 fun ContainerDetailScreen(
-    containerId: ContainerId,
     modifier: Modifier = Modifier,
+    uiState: ContainerDetailUiState,
     onBack: () -> Unit = {},
-    onEdit: (containerId: ContainerId) -> Unit = {}
+    onEdit: (ContainerId) -> Unit = {},
+    onMove: (ContainerId) -> Unit = {},
+    onDelete: (ContainerId) -> Unit = {}
 ) {
+    /*
+    // PLACEHOLDER SCREEN
     Column(modifier = modifier.padding(16.dp)) {
         Text("Container Detail Screen (placeholder)")
         Text("containerId = $containerId")
@@ -32,4 +37,5 @@ fun ContainerDetailScreen(
             Text("Edit")
         }
     }
+     */
 }
