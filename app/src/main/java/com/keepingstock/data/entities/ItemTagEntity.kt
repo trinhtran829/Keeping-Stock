@@ -9,10 +9,12 @@ package com.keepingstock.data.entities
 */
 
 import androidx.room.Entity
+import androidx.room.Index
 
 @Entity(
     tableName = "item_tag",
-    primaryKeys = ["itemId", "tagId"]
+    primaryKeys = ["itemId", "tagId"],
+    indices = [Index("tagId")]
 )
 data class ItemTagEntity (
     val itemId: Long,

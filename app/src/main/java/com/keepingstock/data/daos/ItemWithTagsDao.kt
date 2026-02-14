@@ -1,6 +1,6 @@
 package com.keepingstock.data.daos
 
-/*
+/**
 * This code was generated with the help of Android Basics with Compose course.
 * The following links
 * https://developer.android.com/codelabs/basic-android-kotlin-compose-persisting-data-room?authuser=1&continue=https%3A%2F%2Fdeveloper.android.com%2Fcourses%2Fpathways%2Fandroid-basics-compose-unit-6-pathway-2%3Fauthuser%3D1%23codelab-https%3A%2F%2Fdeveloper.android.com%2Fcodelabs%2Fbasic-android-kotlin-compose-persisting-data-room#5
@@ -21,6 +21,7 @@ interface ItemWithTagsDao {
     @Transaction
     @Query("""
         SELECT * FROM items
+        ORDER BY items.createdDate DESC
     """)
     fun getAllItemsWithTags(): Flow<List<ItemWithTags>>
 
@@ -29,6 +30,7 @@ interface ItemWithTagsDao {
     @Query("""
         SELECT * FROM items
         WHERE containerId = :containerId
+        ORDER BY items.createdDate DESC
     """)
     fun getItemsInContainerWithTags(containerId: Long): Flow<List<ItemWithTags>>
 
@@ -63,7 +65,6 @@ interface ItemWithTagsDao {
     @Query("""
         SELECT DISTINCT items.* FROM items
         INNER JOIN item_tag ON items.itemId = item_tag.itemId
-        LEFT JOIN tags ON item_tag.tagId = tags.tagId
         WHERE item_tag.tagId = :tagId
         ORDER BY items.createdDate DESC
     """)
@@ -75,8 +76,7 @@ interface ItemWithTagsDao {
     @Transaction
     @Query("""
         SELECT DISTINCT items.* FROM items
-        LEFT JOIN item_tag ON items.itemId = item_tag.itemId
-        LEFT JOIN tags ON item_tag.tagId = tags.tagId
+        INNER JOIN item_tag ON items.itemId = item_tag.itemId
         WHERE items.containerId = :containerId
             AND item_tag.tagId = :tagId
         ORDER BY items.createdDate DESC
