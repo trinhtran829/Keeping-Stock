@@ -3,6 +3,7 @@ package com.keepingstock.ui.navigation.destinations.container
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -74,22 +75,32 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
             }
         }
 
-        LaunchedEffect(containerId) {
-            deps.onTopBarChange(
-                TopBarConfig(
-                    title = "Container $containerId Details",
-                    showBack = true
-                )
-            )
+        val topBarConfig = remember(uiState) { containerDetailTopBarConfig(uiState) }
+
+        LaunchedEffect(topBarConfig) {
+            deps.onTopBarChange(topBarConfig)
         }
 
-        ContainerDetailScreen(
-            containerId = containerId,
-            onBack = { deps.navController.popBackStack() },
-            onEdit = { id ->
-                deps.navController.navigate(NavRoute.AddEditContainer.createRoute(containerId = id))
-            }
-        )
+        Column(Modifier.fillMaxSize()) {
+            // TODO(REMOVE): demo-only UI controls.
+            DemoModeToggleRow(
+                selected = demoMode,
+                onSelect = { demoMode = it }
+            )
+
+            ContainerDetailScreen(
+                modifier = Modifier.fillMaxSize(),
+                uiState = uiState,
+                onBack = { deps.navController.popBackStack() },
+                onEdit = { id ->
+                    deps.navController.navigate(
+                        NavRoute.AddEditContainer.createRoute(containerId = id)
+                    )
+                },
+                onMove = { /* TODO: hook up when Move flow exists */ },
+                onDelete = { /* TODO: hook up when Delete flow exists */ }
+            )
+        }
     }
 }
 
