@@ -17,7 +17,7 @@ data class Item(
     val id: ItemId,
     val name: String,
     val description: String? = null,
-    val imagePath: String? = null,
+    val imageUri: String? = null,
     val containerId: ContainerId? = null,
     val status: ItemStatus,
     val createdDate: Date = Date(),

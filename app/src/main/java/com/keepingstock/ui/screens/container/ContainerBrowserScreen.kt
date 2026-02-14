@@ -354,7 +354,7 @@ private fun ItemSummaryRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // ItemThumbnail handles image vs fallback icon internally.
-            ItemThumbnail(imagePath = item.imagePath)
+            ItemThumbnail(imagePath = item.imageUri)
 
             Spacer(Modifier.width(12.dp))
 
@@ -426,7 +426,7 @@ private fun Preview_ItemSummaryRow() {
             id = ItemId(100L),
             name = "Impact Driver",
             description = "DeWalt Brand 18V brushless",
-            imagePath = null,
+            imageUri = null,
             status = ItemStatus.STORED,
             containerId = ContainerId(1L)
         )
