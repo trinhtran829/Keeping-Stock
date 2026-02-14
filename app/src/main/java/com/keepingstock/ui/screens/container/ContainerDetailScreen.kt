@@ -77,199 +77,204 @@ private fun ReadyContent(
     onMove: (ContainerId) -> Unit = {},
     onDelete: (ContainerId) -> Unit = {}
 ) {
-    val containerId = uiState.containerId
-
-    Column(
+    LazyColumn(
         modifier = modifier
             .padding(16.dp)
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Header card: thumbnail + name/description
-        // TODO: Copied from ContainerBrowserScreen; needs updating
-        ElevatedCard(
+        item {
+            ContainerDetailHeaderCard(uiState)
+        }
+
+        item {
+            ContainerDetailMetadataCard(uiState)
+        }
+
+        item {
+            ContainerDetailActionsCard(
+                containerId = uiState.containerId,
+                canDelete = uiState.canDelete,
+                onBack = onBack,
+                onEdit = onEdit,
+                onMove = onMove,
+                onDelete = onDelete
+            )
+        }
+    }
+}
+
+@Composable
+private fun ContainerDetailHeaderCard(
+    uiState: ContainerDetailUiState.Ready
+) {
+    // Header card: thumbnail + name/description
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Type icon + container name
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Inventory2,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(28.dp)
-                    )
-
-                    Spacer(Modifier.width(12.dp))
-
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            text = uiState.containerName,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        Text(
-                            text = "Container",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                // Container Image (only when present)
-                // Hero Image
-                if (!uiState.imageUri.isNullOrBlank()) {
-                    val model: Any = when (uiState.imageUri) {
-                        "demo" -> R.drawable.demo_img_cat
-                        "demo2" -> R.drawable.demo_img_llama
-                        else -> Uri.parse(uiState.imageUri)
-                    }
-
-                    HorizontalDivider()
-
-                    AsyncImage(
-                        model = model,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(16f / 9f)
-                            .clip(RoundedCornerShape(12.dp)),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-
-                // Full description
-                val description = uiState.description?.trim().orEmpty()
-                if (description.isNotBlank()) {
-                    HorizontalDivider()
-                    Text(
-                        text = description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp)
-                    )
-                }
-            }
-            /*
+            // Type icon + container name
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                ContainerThumbnail(imagePath = uiState.imageUri)
+                Icon(
+                    imageVector = Icons.Filled.Inventory2,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(28.dp)
+                )
 
                 Spacer(Modifier.width(12.dp))
 
                 Column(Modifier.weight(1f)) {
                     Text(
                         text = uiState.containerName,
-                        style = MaterialTheme.typography.titleLarge,
-                        maxLines = 1
+                        style = MaterialTheme.typography.titleLarge
                     )
-
-                    uiState.description
-                        ?.takeIf { it.isNotBlank() }
-                        ?.let {
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                text = it,
-                                style = MaterialTheme.typography.bodyMedium,
-                                maxLines = 3
-                            )
-                        }
+                    Text(
+                        text = "Container",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
-             */
-        }
 
-        // Metadata card: parent + counts + delete rule
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                DetailRow(
-                    label = "Container ID",
-                    value = containerId.value.toString()
-                )
-
-                DetailRow(
-                    label = "Parent",
-                    value = uiState.parentContainerName ?: "Root"
-                )
+            // Container Image (only when present)
+            // Hero Image
+            if (!uiState.imageUri.isNullOrBlank()) {
+                val model: Any = when (uiState.imageUri) {
+                    "demo" -> R.drawable.demo_img_cat
+                    "demo2" -> R.drawable.demo_img_llama
+                    else -> Uri.parse(uiState.imageUri)
+                }
 
                 HorizontalDivider()
 
-                DetailRow(
-                    label = "Subcontainers",
-                    value = uiState.subcontainerCount.toString()
+                AsyncImage(
+                    model = model,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop
                 )
+            }
 
-                DetailRow(
-                    label = "Items",
-                    value = uiState.itemCount.toString()
+            // Full description
+            val description = uiState.description?.trim().orEmpty()
+            if (description.isNotBlank()) {
+                HorizontalDivider()
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp)
                 )
-
-                if (!uiState.canDelete) {
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = uiState.deleteBlockedReason ?: "This container cannot be deleted.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
             }
         }
+    }
+}
 
-        // Actions card
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth()
+@Composable
+private fun ContainerDetailMetadataCard(
+    uiState: ContainerDetailUiState.Ready
+) {
+    // Metadata card: parent + counts + delete rule
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Button(
-                        onClick = { onEdit(containerId) },
-                        modifier = Modifier.weight(1f)
-                    ) { Text("Edit") }
+            DetailRow(
+                label = "Container ID",
+                value = uiState.containerId.value.toString()
+            )
 
-                    OutlinedButton(
-                        onClick = { onMove(containerId) },
-                        modifier = Modifier.weight(1f)
-                    ) { Text("Move") }
-                }
+            DetailRow(
+                label = "Parent",
+                value = uiState.parentContainerName ?: "Root"
+            )
 
-                Button(
-                    onClick = { onDelete(containerId) },
-                    enabled = uiState.canDelete,
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("Delete") }
+            HorizontalDivider()
 
-                // TODO: Use top-bar back navigation instead?
-                OutlinedButton(
-                    onClick = onBack,
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("Back") }
+            DetailRow(
+                label = "Subcontainers",
+                value = uiState.subcontainerCount.toString()
+            )
+
+            DetailRow(
+                label = "Items",
+                value = uiState.itemCount.toString()
+            )
+
+            if (!uiState.canDelete) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = uiState.deleteBlockedReason ?: "This container cannot be deleted.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun ContainerDetailActionsCard(
+    containerId: ContainerId,
+    canDelete: Boolean,
+    onBack: () -> Unit = {},
+    onEdit: (ContainerId) -> Unit = {},
+    onMove: (ContainerId) -> Unit = {},
+    onDelete: (ContainerId) -> Unit = {}
+) {
+    // Actions card
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = { onEdit(containerId) },
+                    modifier = Modifier.weight(1f)
+                ) { Text("Edit") }
+
+                OutlinedButton(
+                    onClick = { onMove(containerId) },
+                    modifier = Modifier.weight(1f)
+                ) { Text("Move") }
+            }
+
+            Button(
+                onClick = { onDelete(containerId) },
+                enabled = canDelete,
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("Delete") }
+
+            // TODO: Use top-bar back navigation instead?
+            OutlinedButton(
+                onClick = onBack,
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("Back") }
         }
     }
 }
