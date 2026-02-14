@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
@@ -30,9 +30,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.keepingstock.R
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
-import com.keepingstock.ui.components.thumbnail.ContainerThumbnail
 import com.keepingstock.ui.screens.shared.DetailRow
 import com.keepingstock.ui.screens.shared.ErrorContent
 import com.keepingstock.ui.screens.shared.LoadingContent
@@ -123,12 +123,18 @@ private fun ReadyContent(
                 }
 
                 // Container Image (only when present)
-                // Uses recommended aspect ratio of 16/9
+                // Hero Image
                 if (!uiState.imageUri.isNullOrBlank()) {
+                    val model: Any = when (uiState.imageUri) {
+                        "demo" -> R.drawable.demo_img_cat
+                        "demo2" -> R.drawable.demo_img_llama
+                        else -> Uri.parse(uiState.imageUri)
+                    }
+
                     HorizontalDivider()
 
                     AsyncImage(
-                        model = Uri.parse(uiState.imageUri),
+                        model = model,
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth()

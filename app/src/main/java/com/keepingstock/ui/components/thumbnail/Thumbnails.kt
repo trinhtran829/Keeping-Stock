@@ -110,6 +110,7 @@ private fun ThumbnailBase(
         } else {
             val model: Any = when (imagePath) {
                 "demo" -> R.drawable.demo_img_cat
+                "demo2" -> R.drawable.demo_img_llama
                 else -> Uri.parse(imagePath)
             }
 

@@ -128,7 +128,7 @@ private fun demoContainerDetailReadyState(containerId: ContainerId): ContainerDe
         containerId = containerId,
         containerName = "Container ${containerId.value}",
         description = "Example container detail description.",
-        imageUri = null,
+        imageUri = "demo",
         parentContainerId = null,
         parentContainerName = null,
         subcontainerCount = 2,
