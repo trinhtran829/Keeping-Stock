@@ -26,6 +26,20 @@ import com.keepingstock.ui.components.navigation.ChipOption
 import com.keepingstock.ui.components.navigation.DemoMode
 import com.keepingstock.ui.components.navigation.DemoModeToggleRow
 
+
+/**
+ * Stupid name because Android Studio kept constantly forgetting that this exists and kept
+ * trying to use the ContainerBrowserDestination's DemoMode enum. Renaming was easier than
+ * diagnosing the underlying issue, especially since it is meant to be temporary.
+ *
+ * TODO(REMOVE): Demo-only state toggles. Delete when ContainerDetailViewModel is implemented.
+ */
+private enum class DemoMode_ConDeets {
+    READY,
+    LOADING,
+    ERROR
+}
+
 internal fun NavGraphBuilder.addContainerDetailsDestination(
     deps: NavDeps
 ) {
