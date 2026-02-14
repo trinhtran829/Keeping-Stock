@@ -21,6 +21,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
+/**
+ * Thumbnail renderer for a container summary row/tile. If imagePath is null, renders a fallback
+ * icon, otherwise, attempts to load the referenced image.
+ *
+ * Notes:
+ * - For best reliability, imagePath should be a URI string (content:// or file://). If we want
+ *      to store raw filesystem paths, we should consider converting to a File model instead.
+ * - Doesn't request permissions or persist URI grants.
+ *
+ * :param modifier: Optional modifier applied before internal sizing/shape.
+ * :param imagePath: Optional image reference string; expected to parse as a Uri.
+ */
 @Composable
 fun ContainerThumbnail(
     modifier: Modifier = Modifier,
@@ -39,7 +51,14 @@ fun ContainerThumbnail(
     )
 }
 
-
+/**
+ * Thumbnail renderer for an item summary row/tile.
+ *
+ * Sames notes as container thumbnail
+ *
+ * :param imagePath: Optional image reference string; expected to parse as a Uri.
+ * :param modifier: Optional modifier applied before internal sizing/shape.
+ */
 @Composable
 fun ItemThumbnail(
     imagePath: String?,
@@ -58,6 +77,18 @@ fun ItemThumbnail(
     )
 }
 
+/**
+ * Shared thumbnail implementation used by both container and item thumbnails.
+ *
+ * Renders a fixed-size rounded rectangle surface (40dp) that either shows a centered fallback
+ * icon, or displays a loaded image.
+ *
+ * TODO: If we decide to store raw file paths instead of Uri strings, we'll need to update
+ *
+ * :param modifier: Optional modifier applied before internal sizing/shape.
+ * :param imagePath: Optional image reference string; expected to parse as a Uri.
+ * :param fallbackIcon: Composable shown when imagePath is null/blank.
+ */
 @Composable
 private fun ThumbnailBase(
     modifier: Modifier = Modifier,
