@@ -1,8 +1,13 @@
 package com.keepingstock.ui.screens.container
 
+import android.R.attr.onClick
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -34,8 +39,7 @@ fun ContainerDetailScreen(
 
             is ContainerDetailUiState.Ready -> ReadyContent(
                 modifier = modifier,
-                containerId = uiState.containerId,
-                containerName = uiState.containerName,
+                uiState = uiState,
                 onBack = onBack,
                 onEdit = onEdit,
                 onMove = onMove,
@@ -48,16 +52,43 @@ fun ContainerDetailScreen(
 @Composable
 private fun ReadyContent(
     modifier: Modifier,
-    containerId: ContainerId,
-    containerName: String,
+    uiState: ContainerDetailUiState.Ready,
     onBack: () -> Unit = {},
     onEdit: (ContainerId) -> Unit = {},
     onMove: (ContainerId) -> Unit = {},
     onDelete: (ContainerId) -> Unit = {}
 ) {
+    val containerId = uiState.containerId
+
+    Column(
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Header card: thumbnail + name/description
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+        }
+
+        // Metadata card: parent + counts + delete rule
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+        }
+
+        // Actions card
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+    }
+
     Text("Container Detail Screen (placeholder)")
-    Text("containerId = ${containerId.value}")
-    Text("name = $containerName")
+    Text("containerId = ${uiState.containerId.value}")
+    Text("name = ${uiState.containerName}")
 
     Button(
         onClick = onBack,
