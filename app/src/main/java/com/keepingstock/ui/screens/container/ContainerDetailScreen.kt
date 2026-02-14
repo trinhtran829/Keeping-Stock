@@ -2,13 +2,13 @@ package com.keepingstock.ui.screens.container
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
+import com.keepingstock.ui.screens.shared.LoadingContent
 
 @Composable
 fun ContainerDetailScreen(
@@ -21,9 +21,7 @@ fun ContainerDetailScreen(
 ) {
     Column(modifier = modifier.padding(16.dp)) {
         when (uiState) {
-            ContainerDetailUiState.Loading -> {
-                Text("Loading container details...")
-            }
+            ContainerDetailUiState.Loading -> LoadingContent(modifier)
 
             is ContainerDetailUiState.Error -> {
                 Text("Error: ${uiState.message}")
