@@ -127,7 +127,7 @@ private fun ReadyContent(
 
                 DetailRow(
                     label = "Parent",
-                    value = uiState.parentContainerId?.value?.toString() ?: "Root"
+                    value = uiState.parentContainerName ?: "Root"
                 )
 
                 HorizontalDivider()
