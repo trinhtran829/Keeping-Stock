@@ -84,12 +84,12 @@ private fun Preview_ContainerBrowser_PopulatedReady() {
     val items = listOf(
         Item(
             id = ItemId(100L),
-            name = "Impact Driver",
-            description = "DeWalt Brand 18V brushless",
-            imageUri = null,
-            status = ItemStatus.STORED,
-            containerId = ContainerId(1L)
-        ),
+                name = "Impact Driver",
+                description = "DeWalt Brand 18V brushless",
+                imageUri = null,
+                status = ItemStatus.STORED,
+                containerId = ContainerId(1L)
+            ),
         Item(
             id = ItemId(102L),
             name = "Reciprocating Saw",
