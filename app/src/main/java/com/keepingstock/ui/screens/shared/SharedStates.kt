@@ -1,7 +1,10 @@
 package com.keepingstock.ui.screens.shared
 
+import android.R.attr.label
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -44,6 +47,35 @@ fun ErrorContent(
             text = message,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.error
+        )
+    }
+}
+
+/**
+ * Generic Detail Row composable for displaying a key:value pair
+ *
+ * :param modifier: Optional modifier applied to the row container.
+ * :param label: The text of the label shown to the user.
+ * :param value: The text of the value shown to the user.
+ */
+@Composable
+fun DetailRow(
+    modifier: Modifier = Modifier,
+    label: String,
+    value: String
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }
