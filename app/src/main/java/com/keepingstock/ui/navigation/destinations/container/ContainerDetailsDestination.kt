@@ -88,7 +88,12 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
  * Builds top bar title/back behavior from ContainerDetailUiState.
  */
 private fun containerDetailTopBarConfig(uiState: ContainerDetailUiState): TopBarConfig {
-
+    val title = when (uiState) {
+        is ContainerDetailUiState.Ready -> uiState.name
+        is ContainerDetailUiState.Loading -> "Loading…"
+        is ContainerDetailUiState.Error -> "Container details"
+    }
+    return TopBarConfig(title = title, showBack = true)
 }
 
 /**
@@ -121,5 +126,5 @@ private fun DemoChip(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
-    
+
 }
