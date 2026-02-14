@@ -30,7 +30,7 @@ fun ContainerDetailScreen(
             }
 
             is ContainerDetailUiState.Ready -> {
-                
+
             }
         }
     }
