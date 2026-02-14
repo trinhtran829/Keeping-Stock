@@ -1,10 +1,13 @@
 package com.keepingstock.data.repositories
 
+import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.Item
+import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.Tag
+import com.keepingstock.core.contracts.TagId
 import com.keepingstock.data.daos.ItemTagDao
 import com.keepingstock.data.daos.ItemWithTagsDao
 import com.keepingstock.data.daos.TagDao
-import com.keepingstock.data.entities.ItemWithTags
-import com.keepingstock.data.entities.TagEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -29,29 +32,32 @@ class TagRepositoryImpl(
     /**
      * Create tag
      */
-    override suspend fun createTag(name: String): Long {
-        // Placeholder: return dummy id
-        return 0L
+    override suspend fun createTag(name: String): Tag {
+        // Placeholder: return dummy Tag
+        return Tag(
+            id = TagId(1L),
+            name = name
+        )
     }
 
     /**
      * Update tag
      */
-    override suspend fun updateTag(tag: TagEntity) {
+    override suspend fun updateTag(tag: Tag) {
         // Placeholder: do nothing for now
     }
 
     /**
      * Delete tag
      */
-    override suspend fun deleteTag(tag: TagEntity) {
+    override suspend fun deleteTag(tag: Tag) {
         // Placeholder: do nothing for now
     }
 
     /**
      * Observe all tags
      */
-    override fun observeAllTags(): Flow<List<TagEntity>> {
+    override fun observeAllTags(): Flow<List<Tag>> {
         // Placeholder: return empty list
         return flowOf(emptyList())
     }
@@ -59,7 +65,7 @@ class TagRepositoryImpl(
     /**
      * Search tags
      */
-    override fun searchTags(query: String): Flow<List<TagEntity>> {
+    override fun searchTags(query: String): Flow<List<Tag>> {
         // Placeholder: return empty list
         return flowOf(emptyList())
     }
@@ -67,22 +73,22 @@ class TagRepositoryImpl(
     /**
      * Get tag by name
      */
-    override suspend fun getTagByName(name: String): TagEntity? {
+    override suspend fun getTagByName(name: String): Tag? {
         // Placeholder: return dummy TagEntity
-        return TagEntity(
-            tagId = 1L,
-            name = "Placeholder Tag"
+        return Tag(
+            id = TagId(2L),
+            name = name
         )
     }
 
     /**
      * Get tag by Id
      */
-    override suspend fun getTagById(tagId: Long): TagEntity? {
+    override suspend fun getTagById(tagId: TagId): Tag? {
         // Placeholder: return dummy TagEntity
-        return TagEntity(
-            tagId = tagId,
-            name = "Placeholder Tag"
+        return Tag(
+            id = tagId,
+            name = "Placeholder Tag Name"
         )
     }
 
@@ -91,28 +97,28 @@ class TagRepositoryImpl(
     /**
      * Link tag to an item
      */
-    override suspend fun linkTagToItem(itemId: Long, tagId: Long) {
+    override suspend fun linkTagToItem(itemId: ItemId, tagId: TagId) {
         // Placeholder: do nothing for now
     }
 
     /**
      * Unlink/remove tag from an item
      */
-    override suspend fun unlinkTagFromItem(itemId: Long, tagId: Long) {
+    override suspend fun unlinkTagFromItem(itemId: ItemId, tagId: TagId) {
         // Placeholder: do nothing for now
     }
 
     /**
      * Unlink/remove all tags from item
      */
-    override suspend fun unlinkAllTagsFromItem(itemId: Long) {
+    override suspend fun unlinkAllTagsFromItem(itemId: ItemId) {
         // Placeholder: do nothing for now
     }
 
     /**
      * Observe items by a tag
      */
-    override suspend fun observeItemsByTag(tagId: Long): Flow<List<ItemWithTags>> {
+    override suspend fun observeItemsByTag(tagId: TagId): Flow<List<Item>> {
         // Placeholder: return empty list
         return flowOf(emptyList())
     }
@@ -121,9 +127,9 @@ class TagRepositoryImpl(
      * Observe items by a tag in a container
      */
     override suspend fun observeItemsByTagInContainer(
-        tagId: Long,
-        containerId: Long
-    ): Flow<List<ItemWithTags>> {
+        tagId: TagId,
+        containerId: ContainerId
+    ): Flow<List<Item>> {
         // Placeholder: return empty list
         return flowOf(emptyList())
     }

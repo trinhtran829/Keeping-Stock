@@ -1,7 +1,8 @@
 package com.keepingstock.data.repositories
 
+import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.data.daos.ContainerDao
-import com.keepingstock.data.entities.ContainerEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import java.util.Date
@@ -28,37 +29,44 @@ class ContainerRepositoryImpl(private val containerDao: ContainerDao) : Containe
         name: String,
         description: String?,
         imageUri: String?,
-        parentContainerId:Long?
-    ): Long {
-        // Placeholder: return dummy value
-        return 0L
+        parentContainerId: ContainerId?
+    ): Container {
+        // Placeholder: return dummy Container
+        return Container(
+            id = ContainerId(0L),
+            name = name,
+            description = description,
+            imageUri = imageUri,
+            parentContainerId = parentContainerId,
+            createdDate = Date()
+        )
     }
 
     /**
      * Update
      */
-    override suspend fun updateContainer(container: ContainerEntity) {
+    override suspend fun updateContainer(container: Container) {
         // Placeholder: do nothing for now
     }
 
     /**
      * Delete
      */
-    override suspend fun deleteContainer(container: ContainerEntity) {
+    override suspend fun deleteContainer(container: Container) {
         // Placeholder: do nothing for now
     }
 
     /**
      * Get container by Id
      */
-    override suspend fun getContainerById(containerId: Long): ContainerEntity? {
-        // Placeholder: return a dummy ContainerEntity
-        return ContainerEntity(
-            containerId = containerId,
+    override suspend fun getContainerById(containerId: ContainerId): Container? {
+        // Placeholder: return a dummy Container
+        return Container(
+            id = containerId,
             name = "Placeholder Container",
             description = "Placeholder description",
-            parentContainerId = null,
             imageUri = null,
+            parentContainerId = null,
             createdDate = Date()
         )
     }
@@ -66,7 +74,7 @@ class ContainerRepositoryImpl(private val containerDao: ContainerDao) : Containe
     /**
      * Observe containers with no parents
      */
-    override suspend fun observeRootContainers(): Flow<List<ContainerEntity>> {
+    override fun observeRootContainers(): Flow<List<Container>> {
         // Placeholder: return empty list
         return flowOf(emptyList())
     }
@@ -74,9 +82,9 @@ class ContainerRepositoryImpl(private val containerDao: ContainerDao) : Containe
     /**
      * Observe direct child containers
      */
-    override suspend fun observeChildContainers(
-        parentContainerId: Long
-    ): Flow<List<ContainerEntity>> {
+    override fun observeChildContainers(
+        parentContainerId: ContainerId
+    ): Flow<List<Container>> {
         // Placeholder: return empty list
         return flowOf(emptyList())
     }
@@ -84,10 +92,10 @@ class ContainerRepositoryImpl(private val containerDao: ContainerDao) : Containe
     /**
      * Search child containers by name
      */
-    override suspend fun searchChildContainers(
-        parentContainerId: Long,
+    override fun searchChildContainers(
+        parentContainerId: ContainerId,
         query: String
-    ): Flow<List<ContainerEntity>> {
+    ): Flow<List<Container>> {
         // Placeholder: return empty list
         return flowOf(emptyList())
     }

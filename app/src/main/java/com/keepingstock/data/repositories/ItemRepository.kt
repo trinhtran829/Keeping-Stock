@@ -1,11 +1,10 @@
 package com.keepingstock.data.repositories
 
-import com.keepingstock.data.entities.ContainerEntity
-import com.keepingstock.data.entities.ItemEntity
+import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.Item
+import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.data.entities.ItemStatus
-import com.keepingstock.data.entities.ItemWithTags
 import kotlinx.coroutines.flow.Flow
-import java.util.Date
 
 /**
 * This code was generated with the help of the following links
@@ -36,49 +35,49 @@ interface ItemRepository {
         name: String,
         description: String?,
         imageUri: String? = null,
-        containerId:Long? = null
-    ): Long
+        containerId: ContainerId? = null
+    ): Item
 
     /**
      * Full item update
      */
-    suspend fun updateItem(item: ItemEntity)
+    suspend fun updateItem(item: Item)
 
     /**
      * Update only status
      */
     suspend fun updateItemStatus(
-        itemId: Long,
+        itemId: ItemId,
         status: ItemStatus
     )
 
     /**
      * Delete
      */
-    suspend fun deleteItem(item: ItemEntity)
+    suspend fun deleteItem(item: Item)
 
     /**
      * Get item by Id
      */
-    suspend fun getItemById(itemId: Long): ItemEntity?
+    suspend fun getItemById(itemId: ItemId): Item?
 
     /**
      * Observe all items
      */
-    fun observeItem(): Flow<List<ItemEntity>>
+    fun observeItem(): Flow<List<Item>>
 
     /**
      * Observe items in a container
      */
-    fun observeItemInContainer(containerId: Long): Flow<List<ItemEntity>>
+    fun observeItemInContainer(containerId: ContainerId): Flow<List<Item>>
 
     /**
      * Observe items NOT in a container (unsorted)
      */
-    fun observeItemUnsorted(): Flow<List<ItemEntity>>
+    fun observeItemUnsorted(): Flow<List<Item>>
 
     /**
      * Search items where query match item's or tag's name
      */
-    fun searchItemsByNameOrTag(query: String): Flow<List<ItemWithTags>>
+    fun searchItemsByNameOrTag(query: String): Flow<List<Item>>
 }

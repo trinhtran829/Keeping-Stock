@@ -1,13 +1,15 @@
 package com.keepingstock.data.repositories
 
+import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.Item
+import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.data.daos.ItemDao
 import com.keepingstock.data.daos.ItemWithTagsDao
-import com.keepingstock.data.entities.ItemEntity
 import com.keepingstock.data.entities.ItemStatus
-import com.keepingstock.data.entities.ItemWithTags
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import java.util.Date
+import kotlin.collections.emptyList
 
 /**
  * This code was generated with the help of the following links
@@ -41,57 +43,65 @@ class ItemRepositoryImpl(
         name: String,
         description: String?,
         imageUri: String?,
-        containerId:Long?
-    ): Long {
-        // placeholder: return dummy ID
-        return 0L
+        containerId: ContainerId?
+    ): Item {
+        // placeholder: return dummy Item
+        return Item(
+            id = ItemId(0L),
+            name = name,
+            description = description,
+            imageUri = imageUri,
+            containerId = containerId,
+            status = ItemStatus.TAKEN_OUT,
+            createdDate = Date(),
+            checkoutDate = null,
+            tags = emptyList()
+        )
     }
 
     /**
      * Full item update
      */
-    override suspend fun updateItem(item: ItemEntity){
+    override suspend fun updateItem(item: Item){
         // Placeholder: do nothing for now
     }
 
     /**
      * Update only status
      */
-    override suspend fun updateItemStatus(
-        itemId: Long,
-        status: ItemStatus
-    ) {
+    override suspend fun updateItemStatus(itemId: ItemId, status: ItemStatus) {
         // Placeholder: do nothing for now
     }
 
     /**
      * Delete
      */
-    override suspend fun deleteItem(item: ItemEntity) {
+    override suspend fun deleteItem(item: Item) {
         // Placeholder: do nothing for now
     }
 
     /**
      * Get item by Id
      */
-    override suspend fun getItemById(itemId: Long): ItemEntity? {
+    override suspend fun getItemById(itemId: ItemId): Item? {
         // Placeholder: return a dummy ItemEntity
-        return ItemEntity(
-            itemId = itemId,
+        return Item(
+            id = itemId,
             name = "Placeholder Item",
             description = "Placeholder description",
             imageUri = null,
             containerId = null,
             status = ItemStatus.TAKEN_OUT,
             createdDate = Date(),
-            checkoutDate = Date()
+            checkoutDate = Date(),
+            tags = emptyList()
         )
     }
 
     /**
      * Observe all items
      */
-    override fun observeItem(): Flow<List<ItemEntity>> {
+    override fun observeItem(): Flow<List<Item>> {
         // Placeholder: return empty list
         return flowOf(emptyList())
     }
@@ -99,7 +109,7 @@ class ItemRepositoryImpl(
     /**
      * Observe items in a container
      */
-    override fun observeItemInContainer(containerId: Long): Flow<List<ItemEntity>> {
+    override fun observeItemInContainer(containerId: ContainerId): Flow<List<Item>> {
         // Placeholder: return empty list
         return flowOf(emptyList())
     }
@@ -107,7 +117,7 @@ class ItemRepositoryImpl(
     /**
      * Observe items NOT in a container (unsorted)
      */
-    override fun observeItemUnsorted(): Flow<List<ItemEntity>> {
+    override fun observeItemUnsorted(): Flow<List<Item>> {
         // Placeholder: return empty list
         return flowOf(emptyList())
     }
@@ -115,7 +125,7 @@ class ItemRepositoryImpl(
     /**
      * Search items where query match item's or tag's name
      */
-    override fun searchItemsByNameOrTag(query: String): Flow<List<ItemWithTags>> {
+    override fun searchItemsByNameOrTag(query: String): Flow<List<Item>> {
         // Placeholder: return empty list
         return flowOf(emptyList())
     }

@@ -1,6 +1,7 @@
 package com.keepingstock.data.repositories
 
-import com.keepingstock.data.entities.ContainerEntity
+import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.ContainerId
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -31,39 +32,39 @@ interface ContainerRepository {
         name: String,
         description: String? = null,
         imageUri: String? = null,
-        parentContainerId:Long? = null
-    ): Long
+        parentContainerId:ContainerId? = null
+    ): Container
 
     /**
      * Update
      */
-    suspend fun updateContainer(container: ContainerEntity)
+    suspend fun updateContainer(container: Container)
 
     /**
      * Delete
      */
-    suspend fun deleteContainer(container: ContainerEntity)
+    suspend fun deleteContainer(container: Container)
 
     /**
      * Get container by Id
      */
-    suspend fun getContainerById(containerId: Long): ContainerEntity?
+    suspend fun getContainerById(containerId: ContainerId): Container?
 
     /**
      * Observe containers with no parents
      */
-    suspend fun observeRootContainers(): Flow<List<ContainerEntity>>
+    fun observeRootContainers(): Flow<List<Container>>
 
     /**
      * Observe direct child containers
      */
-    suspend fun observeChildContainers(parentContainerId: Long): Flow<List<ContainerEntity>>
+    fun observeChildContainers(parentContainerId: ContainerId): Flow<List<Container>>
 
     /**
      * Search child containers by name
      */
-    suspend fun searchChildContainers(
-        parentContainerId: Long,
+    fun searchChildContainers(
+        parentContainerId: ContainerId,
         query: String
-    ): Flow<List<ContainerEntity>>
+    ): Flow<List<Container>>
 }
