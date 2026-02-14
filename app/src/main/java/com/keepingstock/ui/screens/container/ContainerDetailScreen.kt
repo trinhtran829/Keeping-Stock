@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,6 +74,7 @@ private fun ReadyContent(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Header card: thumbnail + name/description
+        // TODO: Copied from ContainerBrowserScreen; needs updating
         ElevatedCard(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -121,6 +123,32 @@ private fun ReadyContent(
                     label = "Container ID",
                     value = containerId.value.toString()
                 )
+
+                DetailRow(
+                    label = "Parent",
+                    value = uiState.parentContainerId?.value?.toString() ?: "Root"
+                )
+
+                HorizontalDivider()
+
+                DetailRow(
+                    label = "Subcontainers",
+                    value = uiState.subcontainerCount.toString()
+                )
+
+                DetailRow(
+                    label = "Items",
+                    value = uiState.itemCount.toString()
+                )
+
+                if (!uiState.canDelete) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = uiState.deleteBlockedReason ?: "This container cannot be deleted.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         }
 
