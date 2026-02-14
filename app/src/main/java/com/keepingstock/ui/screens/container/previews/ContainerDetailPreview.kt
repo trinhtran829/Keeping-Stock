@@ -48,7 +48,7 @@ private fun Preview_ContainerDetail_Ready_CanDelete() {
             containerId = ContainerId(1L),
             containerName = "Garage",
             description = "Tools, hardware, and project materials.",
-            imageUri = null,
+            imageUri = "demo", //dummy flag - use demo img
             parentContainerId = null,
             parentContainerName = null,
             subcontainerCount = 0,

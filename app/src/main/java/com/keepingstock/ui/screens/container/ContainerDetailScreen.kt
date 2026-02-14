@@ -8,10 +8,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -82,16 +87,36 @@ private fun ReadyContent(
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
+                // Type icon + container name
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Icon(
+                        imageVector = Icons.Filled.Inventory2,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(28.dp)
+                    )
 
+                    Spacer(Modifier.width(12.dp))
+
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            text = uiState.containerName,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Text(
+                            text = "Container",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
 
-                
+
             }
             /*
             Row(
