@@ -1,6 +1,5 @@
 package com.keepingstock.ui.screens.container.previews
 
-import android.R.attr.name
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.keepingstock.core.contracts.Container
