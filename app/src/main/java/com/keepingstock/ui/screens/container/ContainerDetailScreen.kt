@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -156,33 +157,41 @@ private fun ReadyContent(
         ElevatedCard(
             modifier = Modifier.fillMaxWidth()
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Button(
+                        onClick = { onEdit(containerId) },
+                        modifier = Modifier.weight(1f)
+                    ) { Text("Edit") }
 
+                    OutlinedButton(
+                        onClick = { onMove(containerId) },
+                        modifier = Modifier.weight(1f)
+                    ) { Text("Move") }
+                }
+
+                Button(
+                    onClick = { onDelete(containerId) },
+                    enabled = uiState.canDelete,
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Delete") }
+
+                // TODO: Use top-bar back navigation instead?
+                OutlinedButton(
+                    onClick = onBack,
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Back") }
+            }
         }
     }
-
-    Text("Container Detail Screen (placeholder)")
-    Text("containerId = ${uiState.containerId.value}")
-    Text("name = ${uiState.containerName}")
-
-    Button(
-        onClick = onBack,
-        modifier = Modifier.padding(top = 12.dp)
-    ) { Text("Back") }
-
-    Button(
-        onClick = { onEdit(containerId) },
-        modifier = Modifier.padding(top = 12.dp)
-    ) { Text("Edit") }
-
-    Button(
-        onClick = { onMove(containerId) },
-        modifier = Modifier.padding(top = 12.dp)
-    ) { Text("Move") }
-
-    Button(
-        onClick = { onDelete(containerId) },
-        modifier = Modifier.padding(top = 12.dp)
-    ) { Text("Delete") }
 }
 
 @Composable
