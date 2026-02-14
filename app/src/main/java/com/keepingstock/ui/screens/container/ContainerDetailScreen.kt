@@ -116,7 +116,25 @@ private fun ReadyContent(
                     }
                 }
 
+                // Container Image (only when present)
+                if (!uiState.imageUri.isNullOrBlank()) {
+                    HorizontalDivider()
 
+
+                }
+
+                // Full description
+                val description = uiState.description?.trim().orEmpty()
+                if (description.isNotBlank()) {
+                    HorizontalDivider()
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp)
+                    )
+                }
             }
             /*
             Row(
