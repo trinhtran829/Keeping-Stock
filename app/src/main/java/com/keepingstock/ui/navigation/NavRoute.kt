@@ -32,7 +32,8 @@ sealed interface NavRoute {
 
         // Function to build the actual route string; uses query param
         fun createRoute(containerId: ContainerId? = null): String =
-            containerId?.let { "${Routes.CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}=${it.value}" }
+            containerId?.let {
+                "${Routes.CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}=${it.value}" }
                 ?: Routes.CONTAINER_BROWSER
     }
 
@@ -45,7 +46,7 @@ sealed interface NavRoute {
 
         // Function to build the actual route string; uses path param
         fun createRoute(itemId: ItemId): String =
-            "${Routes.ITEM_DETAIL}/$itemId"
+            "${Routes.ITEM_DETAIL}/${itemId.value}"
     }
 
     object ContainerDetail : NavRoute {
@@ -53,7 +54,8 @@ sealed interface NavRoute {
             "${Routes.CONTAINER_DETAIL}/{${Routes.Args.CONTAINER_ID}}"
 
         // Function to build the actual route string; uses path param
-        fun createRoute(containerId: ContainerId): String = "${Routes.CONTAINER_DETAIL}/$containerId"
+        fun createRoute(containerId: ContainerId): String =
+            "${Routes.CONTAINER_DETAIL}/${containerId.value}"
     }
 
     // ----------------
@@ -75,8 +77,9 @@ sealed interface NavRoute {
         ): String {
             val base = Routes.ADD_EDIT_CONTAINER
             val params = buildList {
-                if (containerId != null) add("${Routes.Args.CONTAINER_ID}=$containerId")
-                if (parentContainerId != null) add("${Routes.Args.PARENT_CONTAINER_ID}=$parentContainerId")
+                if (containerId != null) add("${Routes.Args.CONTAINER_ID}=${containerId.value}")
+                if (parentContainerId != null)
+                    add("${Routes.Args.PARENT_CONTAINER_ID}=${parentContainerId.value}")
             }
             return if (params.isEmpty()) base else base + "?" + params.joinToString("&")
         }
@@ -97,8 +100,8 @@ sealed interface NavRoute {
             val base = Routes.ADD_EDIT_ITEM
 
             val params = buildList {
-                if (itemId != null) add("${Routes.Args.ITEM_ID}=$itemId")
-                if (containerId != null) add("${Routes.Args.CONTAINER_ID}=$containerId")
+                if (itemId != null) add("${Routes.Args.ITEM_ID}=${itemId.value}")
+                if (containerId != null) add("${Routes.Args.CONTAINER_ID}=${containerId.value}")
             }
             return if (params.isEmpty()) base else base + "?" + params.joinToString("&")
         }
