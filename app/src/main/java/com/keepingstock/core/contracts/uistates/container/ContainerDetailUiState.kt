@@ -19,7 +19,7 @@ sealed interface ContainerDetailUiState {
      */
     data class Ready(
         val containerId: ContainerId,
-        val name: String,
+        val containerName: String,
         val description: String?,
         val imageUri: String?,
         val parentContainerId: ContainerId?,

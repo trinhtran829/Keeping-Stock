@@ -46,7 +46,7 @@ private fun Preview_ContainerDetail_Ready_CanDelete() {
     ContainerDetailScreen(
         uiState = ContainerDetailUiState.Ready(
             containerId = ContainerId(1L),
-            name = "Garage",
+            containerName = "Garage",
             description = "Tools, hardware, and project materials.",
             imageUri = null,
             parentContainerId = null,
@@ -74,7 +74,7 @@ private fun Preview_ContainerDetail_Ready_DeleteBlocked() {
     ContainerDetailScreen(
         uiState = ContainerDetailUiState.Ready(
             containerId = ContainerId(10L),
-            name = "Tool Chest Main",
+            containerName = "Tool Chest Main",
             description = "My favorite red one. Contains frequently used hand tools.",
             imageUri = null,
             parentContainerId = ContainerId(1L),
