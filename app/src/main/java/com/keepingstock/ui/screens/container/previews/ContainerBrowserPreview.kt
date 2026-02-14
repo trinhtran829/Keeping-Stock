@@ -84,7 +84,7 @@ private fun Preview_ContainerBrowser_PopulatedReady() {
             id = ItemId(100L),
                 name = "Impact Driver",
                 description = "DeWalt Brand 18V brushless",
-                imagePath = null,
+                imageUri = null,
                 status = ItemStatus.STORED,
                 containerId = ContainerId(1L)
             ),
@@ -92,7 +92,7 @@ private fun Preview_ContainerBrowser_PopulatedReady() {
             id = ItemId(101L),
             name = "Reciprocating Saw",
             description = "Ryobi Brand",
-            imagePath = null,
+            imageUri = null,
             status = ItemStatus.STORED,
             containerId = ContainerId(1L)
         )

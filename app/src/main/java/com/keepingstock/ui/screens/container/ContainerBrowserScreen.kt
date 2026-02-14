@@ -1,7 +1,5 @@
 package com.keepingstock.ui.screens.container
 
-import android.R.attr.top
-import android.widget.Space
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,9 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -291,7 +287,7 @@ private fun Preview_ItemSummaryRow() {
             id = ItemId(100L),
             name = "Impact Driver",
             description = "DeWalt Brand 18V brushless",
-            imagePath = null,
+            imageUri = null,
             status = ItemStatus.STORED,
             containerId = ContainerId(1L)
         )
