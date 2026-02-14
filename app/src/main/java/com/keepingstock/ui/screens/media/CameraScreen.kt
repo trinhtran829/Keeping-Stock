@@ -12,24 +12,12 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,9 +30,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
 import com.keepingstock.core.media.takePhoto
+import com.keepingstock.core.ml.getImageLabels
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.keepingstock.ui.viewmodel.media.CameraViewModel
+import kotlinx.coroutines.launch
+
 @Composable
 fun CameraScreen(
     viewModel: CameraViewModel = viewModel(),
@@ -54,8 +45,8 @@ fun CameraScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var hasCameraPermission by remember { mutableStateOf(false) }
-    //var lastPhotoUri by remember { mutableStateOf<Uri?>(null) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     val permissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             hasCameraPermission = granted
@@ -63,10 +54,7 @@ fun CameraScreen(
     LaunchedEffect(Unit) { permissionLauncher.launch(Manifest.permission.CAMERA) }
 
     if (!hasCameraPermission) {
-        Box(
-            modifier = Modifier.Companion.fillMaxSize(),
-            contentAlignment = Alignment.Companion.Center
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("Camera permission required")
         }
         return
@@ -74,12 +62,13 @@ fun CameraScreen(
 
     val imageCapture = remember { ImageCapture.Builder().build() }
 
-    Box(modifier = Modifier.Companion.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Camera preview
         AndroidView(
-            modifier = Modifier.Companion.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             factory = { ctx ->
                 val previewView = PreviewView(ctx)
-                val cameraProviderFuture = ProcessCameraProvider.Companion.getInstance(ctx)
+                val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
                 cameraProviderFuture.addListener({
                     val cameraProvider = cameraProviderFuture.get()
                     val preview = Preview.Builder().build().also {
@@ -98,37 +87,47 @@ fun CameraScreen(
             }
         )
 
-        // Bottom row with thumbnail, capture button
+        // Labels/tags display
+        Column(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+        ) {
+            uiState.labels.takeIf { it.isNotEmpty() }?.let { labels ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    labels.forEach { label ->
+                        Text(
+                            text = label,
+                            color = Color.White,
+                            modifier = Modifier
+                                .background(Color.DarkGray, shape = RoundedCornerShape(8.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        // Bottom row with gallery thumbnail and capture button
         Row(
-            modifier = Modifier.Companion
-                .align(Alignment.Companion.BottomCenter)
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .padding(bottom = 48.dp, start = 24.dp, end = 24.dp),
-            verticalAlignment = Alignment.Companion.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Gallery thumbnail
             Box(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .size(60.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color.Companion.DarkGray)
+                    .background(Color.DarkGray)
                     .clickable { onOpenGallery() },
-                contentAlignment = Alignment.Companion.Center
+                contentAlignment = Alignment.Center
             ) {
-                /*if (lastPhotoUri != null) {
-                    Image(
-                        painter = rememberAsyncImagePainter(lastPhotoUri),
-                        contentDescription = "Gallery",
-                        modifier = Modifier.Companion.fillMaxSize(),
-                        contentScale = ContentScale.Companion.Crop
-                    )
-                } else {
-                    Text(
-                        "Gallery",
-                        color = Color.Companion.White,
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                }*/
                 uiState.lastPhotoUri?.let { uri ->
                     Image(
                         painter = rememberAsyncImagePainter(uri),
@@ -143,15 +142,25 @@ fun CameraScreen(
                 )
             }
 
+            // Define coroutine scope at the start of your @Composable
+            val coroutineScope = rememberCoroutineScope()
+
+            // Inside capture button:
             Button(onClick = {
                 takePhoto(context, imageCapture) { uri ->
-                    //lastPhotoUri = uri
-                    viewModel.onPhotoCaptured(uri)
                     onPhotoCaptured(uri)
+                    // Immediately update last photo
+                    viewModel.onPhotoCaptured(uri)
+
+                    // Launch coroutine to generate labels
+                    coroutineScope.launch {
+                        val labels = getImageLabels(context, uri)
+                        viewModel.onPhotoCaptured(uri, labels)
+                    }
                 }
             }) { Text("Capture") }
 
-            Spacer(modifier = Modifier.Companion.size(60.dp))
+            Spacer(modifier = Modifier.size(60.dp))
         }
     }
 }
