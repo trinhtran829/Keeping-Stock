@@ -1,5 +1,6 @@
 package com.keepingstock.ui.screens.item
 
+import android.R.attr.top
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -10,17 +11,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.UiState
-import com.keepingstock.ui.viewmodel.item.ItemBrowserViewModel
+import com.keepingstock.viewmodel.item.ItemBrowserViewModel
 
 @Composable
 fun ItemBrowserScreen(
     viewModel: ItemBrowserViewModel? = null,
     modifier: Modifier = Modifier,
-    onOpenItem: (itemId: String) -> Unit = {},
+    onOpenItem: (itemId: ItemId) -> Unit = {},
     onOpenContainerBrowser: () -> Unit = {}
 ) {
-
+    val exampleItemId = ItemId(1L)
 
     Column(modifier = modifier.padding(16.dp)) {
         // Show state info, will refactor with real UI later.
@@ -37,10 +39,10 @@ fun ItemBrowserScreen(
         }
         // Button to test item navigation
         Button(
-            onClick = { onOpenItem("01") },
+            onClick = { onOpenItem(exampleItemId) },
             modifier = Modifier.padding(top = 12.dp)
         ) {
-            Text("Open Example Item 01")
+            Text("Open Example Item $exampleItemId")
         }
         // Navigate to container browser screen
         Button(

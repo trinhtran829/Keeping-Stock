@@ -8,6 +8,7 @@ import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
+import com.keepingstock.ui.navigation.itemIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.item.ItemDetailsScreen
 
@@ -22,7 +23,8 @@ internal fun NavGraphBuilder.addItemDetailsDestination(
             navArgument(Routes.Args.ITEM_ID) { type = NavType.StringType }
         )
     ) { backStackEntry ->
-        val itemId = backStackEntry.arguments?.getString(Routes.Args.ITEM_ID)
+        val itemId =
+            backStackEntry.arguments?.itemIdOrNull(Routes.Args.ITEM_ID)
             ?: error("Missing itemId")
 
         // TODO: Display item name in title instead of id

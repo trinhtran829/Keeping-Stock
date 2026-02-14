@@ -9,6 +9,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.ui.navigation.destinations.container.addAddEditContainerDestination
 import com.keepingstock.ui.navigation.destinations.item.addAddEditItemDestination
@@ -54,7 +55,7 @@ fun AppNavGraph(
     onTopBarChange: (TopBarConfig) -> Unit,
     showSnackbar: (String) -> Unit = {}
 ) {
-    val lastContainerIdState = rememberSaveable { mutableStateOf<String?>(null) }
+    val lastContainerIdState = rememberSaveable { mutableStateOf<ContainerId?>(null) }
     val startDestination =
         if (DebugFlags.ENABLE_DEBUG_GALLERY) Routes.DEBUG_GALLERY else Routes.CONTAINER_BROWSER
 

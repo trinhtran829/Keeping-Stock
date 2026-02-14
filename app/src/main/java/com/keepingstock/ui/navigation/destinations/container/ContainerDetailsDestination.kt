@@ -8,6 +8,7 @@ import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
+import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.container.ContainerDetailScreen
 
@@ -22,7 +23,8 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
             navArgument(Routes.Args.CONTAINER_ID) { type = NavType.StringType }
         )
     ) { backStackEntry ->
-        val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
+        val containerId =
+            backStackEntry.arguments?.containerIdOrNull(Routes.Args.CONTAINER_ID)
             ?: error("Missing containerId")
 
         LaunchedEffect(containerId) {
