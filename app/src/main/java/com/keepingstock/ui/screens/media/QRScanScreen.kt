@@ -17,7 +17,7 @@ import com.keepingstock.ui.viewmodel.media.QrScanUiData
 @Composable
 fun QRScanScreen(
     uiState: UiState<QrScanUiData>,
-    modifier: Modifier = Modifier.Companion,
+    modifier: Modifier = Modifier,
     onScan: () -> Unit = {},
     onOpenScannedContainer: (containerId: ContainerId) -> Unit = {},
     onCancel: () -> Unit = {}
