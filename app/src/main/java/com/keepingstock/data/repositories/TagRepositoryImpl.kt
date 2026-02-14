@@ -118,7 +118,7 @@ class TagRepositoryImpl(
     /**
      * Observe items by a tag
      */
-    override suspend fun observeItemsByTag(tagId: TagId): Flow<List<Item>> {
+    override fun observeItemsByTag(tagId: TagId): Flow<List<Item>> {
         // Placeholder: return empty list
         return flowOf(emptyList())
     }
@@ -126,7 +126,7 @@ class TagRepositoryImpl(
     /**
      * Observe items by a tag in a container
      */
-    override suspend fun observeItemsByTagInContainer(
+    override fun observeItemsByTagInContainer(
         tagId: TagId,
         containerId: ContainerId
     ): Flow<List<Item>> {

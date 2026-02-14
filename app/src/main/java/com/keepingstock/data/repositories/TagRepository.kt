@@ -76,12 +76,12 @@ interface TagRepository {
     /**
      * Observe items by a tag
      */
-    suspend fun observeItemsByTag(tagId: TagId): Flow<List<Item>>
+    fun observeItemsByTag(tagId: TagId): Flow<List<Item>>
 
     /**
      * Observe items by a tag in a container
      */
-    suspend fun observeItemsByTagInContainer(
+    fun observeItemsByTagInContainer(
         tagId: TagId,
         containerId: ContainerId
     ): Flow<List<Item>>
