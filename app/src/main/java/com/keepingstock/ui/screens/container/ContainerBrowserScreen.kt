@@ -38,7 +38,18 @@ import com.keepingstock.ui.components.thumbnail.ContainerThumbnail
 import com.keepingstock.ui.components.thumbnail.ItemThumbnail
 
 /**
+ * Screen for browsing container contents. Render based on ContainerBrowserUiState.
  *
+ * TODO: Add addContainer and addItem buttons
+ * TODO: Search/Filter/Sort feature
+ *
+ * :param modifier: Optional modifier for the top-level screen container.
+ * :param uiState: Current state of loading, error, or container contents.
+ * :param onOpenSubcontainer: User intent to open a subcontainer.
+ * :param onOpenItem: User intent to open an item detail screen.
+ * :param onOpenContainerInfo: User intent to open the current container's info/detail screen.
+ * :param onAddContainer: User intent to create a container under the current container.
+ * :param onAddItem: User intent to create an item under the current container.
  */
 @Composable
 fun ContainerBrowserScreen(
@@ -56,6 +67,7 @@ fun ContainerBrowserScreen(
         is ContainerBrowserUiState.Error -> ErrorContent(
             modifier = modifier,
             message = uiState.message
+            // TODO: uiState.cause not displayed yet
         )
 
         is ContainerBrowserUiState.Ready -> ReadyContent(
@@ -74,7 +86,9 @@ fun ContainerBrowserScreen(
 }
 
 /**
+ * LoadingState UI for the Container Browser. Just uses a basic CircularProgressIndicator
  *
+ * :param modifier: Optional modifier applied to the full-screen container.
  */
 @Composable
 private fun LoadingContent(modifier: Modifier) {
@@ -84,7 +98,16 @@ private fun LoadingContent(modifier: Modifier) {
 }
 
 /**
- * TODO: Consult with Rich on his intended purpose of cause Throwable
+ * ErrorState UI for the Container Browser. Currently just displays an error message.
+ *
+ * TODO: Decide whether the UiState's throwable cause should be:
+ *  - logged only (ViewModel/repository responsibility), or
+ *  - shown in UI for debugging, or
+ *  - Other?
+ *
+ * :param modifier: Optional modifier applied to the full-screen container.
+ * :param message: Error message shown to user.
+ * :param cause: Optional Throwable (not currently displayed).
  */
 @Composable
 private fun ErrorContent(
@@ -102,7 +125,26 @@ private fun ErrorContent(
 }
 
 /**
+ * Ready-state UI for the Container Browser. Does the heavy-lifting
  *
+ * - Shows a small header with counts and an optional "Info" action.
+ * - If both lists are empty, shows the empty-state call-to-action.
+ * - Otherwise, renders subcontainers and items in a single scrolling list.
+ * - Container name shows in the global top bar right now, so owned by destination.
+ *
+ * TODO(FUTURE): Add a grid/tile layout option. Keep row composables reusable by both layouts.
+ *
+ * :param modifier: Optional modifier for the screen container.
+ * :param containerId: The currently displayed container (null = root).
+ * :param containerName: The current container display name (currently not used/used by topbar in
+ *                 destination).
+ * :param subcontainers: List of subcontainers.
+ * :param items: List of items in this container.
+ * :param onOpenSubcontainer: User intent to open a subcontainer.
+ * :param onOpenItem: User intent to open an item detail view.
+ * :param onOpenContainerInfo: User intent to open container info/detail for containerId.
+ * :param onAddContainer: User intent to add a subcontainer under containerId.
+ * :param onAddItem: User intent to add an item under containerId.
  */
 @Composable
 private fun ReadyContent(
@@ -117,9 +159,8 @@ private fun ReadyContent(
     onAddContainer: (parentContainerId: ContainerId?) -> Unit = {},
     onAddItem: (containerId: ContainerId?) -> Unit = {}
 ) {
-    // TODO: Refactor for grid-view option
     Column() {
-        // Content header
+        // Content header; mainly counts and info button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -135,14 +176,14 @@ private fun ReadyContent(
 
             if (containerId != null) {
                 TextButton(onClick = { onOpenContainerInfo(containerId) }) {
-                    Text("Info")
+                    Text("Info") // TODO: info Icon?
                 }
             }
         }
 
         HorizontalDivider()
 
-        // Empty state
+        // Empty state; not it's own state variant
         if (subcontainers.isEmpty() && items.isEmpty()) {
             EmptyState(
                 modifier = Modifier.fillMaxSize(),
@@ -152,7 +193,7 @@ private fun ReadyContent(
             return
         }
 
-        // Populated state
+        // Populated state; scrolling list with individual sections for subcontainers/items
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
@@ -192,7 +233,11 @@ private fun ReadyContent(
 }
 
 /**
+ * Empty-state UI shown when a container has no subcontainers and no items.
  *
+ * :param modifier Modifier applied to the full-size empty-state container.
+ * :param onAddContainer Invoked when user chooses to add a container.
+ * :param onAddItem Invoked when user chooses to add an item.
  */
 @Composable
 private fun EmptyState(
@@ -232,7 +277,16 @@ private fun EmptyState(
 }
 
 /**
+ * Row UI for a subcontainer entry in the Container Browser list. Uses a thumbnail (image when
+ * available, icon fallback otherwise) and basic text fields.
  *
+ * TODO: thumbnail needs testing.
+ *
+ * TODO(FUTURE): Consider adding a overflow menu for actions like rename, move, delete
+ *
+ * :param modifier: Modifier applied to the card container.
+ * :param container: The container to display.
+ * :param onClick: Invoked when user selects this container.
  */
 @Composable
 private fun ContainerSummaryRow(
@@ -249,7 +303,7 @@ private fun ContainerSummaryRow(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // TODO: Current placeholder for thumbnail/icon
+            // ContainerThumbnail handles image vs fallback icon
             ContainerThumbnail(imagePath = container.imageUri)
 
             Spacer(Modifier.width(12.dp))
@@ -275,7 +329,14 @@ private fun ContainerSummaryRow(
 }
 
 /**
+ * Row UI for an item entry in the Container Browser list.
  *
+ * Displays a thumbnail, name, and a subtitle built from item status and description.
+ * If tags exist, they're supposed to be displayed in a hashtag-like format. Not tested.
+ *
+ * :param modifier: Modifier applied to the card container.
+ * :param item: The item to display.
+ * :param onClick: Called when user selects this item.
  */
 @Composable
 private fun ItemSummaryRow(
@@ -292,7 +353,7 @@ private fun ItemSummaryRow(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // TODO: Current placeholder for thumbnail/icon
+            // ItemThumbnail handles image vs fallback icon internally.
             ItemThumbnail(imagePath = item.imagePath)
 
             Spacer(Modifier.width(12.dp))
@@ -335,6 +396,9 @@ private fun ItemSummaryRow(
     }
 }
 
+/**
+ * Preview of ContainerSummaryRow using sample container data.
+ */
 @Preview(showBackground = true)
 @Composable
 private fun Preview_ContainerSummaryRow() {
@@ -349,6 +413,9 @@ private fun Preview_ContainerSummaryRow() {
     )
 }
 
+/**
+ * Preview of ItemSummaryRow using sample item data.
+ */
 @Preview(showBackground = true)
 @Composable
 private fun Preview_ItemSummaryRow() {
