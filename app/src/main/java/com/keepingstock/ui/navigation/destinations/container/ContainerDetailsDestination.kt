@@ -118,6 +118,10 @@ private fun containerDetailTopBarConfig(uiState: ContainerDetailUiState): TopBar
 
 /**
  * TODO(REMOVE): Demo-only Ready state builder.
+ * ---
+ * GenAI usage citation:
+ * Sample container detail data auto-generated with the help of ChatGPT.
+ * Prompt: "Please generate data for a sample object with the following class signature:"
  */
 private fun demoContainerDetailReadyState(containerId: ContainerId): ContainerDetailUiState.Ready {
     return ContainerDetailUiState.Ready(
@@ -126,6 +130,7 @@ private fun demoContainerDetailReadyState(containerId: ContainerId): ContainerDe
         description = "Example container detail description.",
         imageUri = null,
         parentContainerId = null,
+        parentContainerName = null,
         subcontainerCount = 2,
         itemCount = 5,
         canDelete = false,

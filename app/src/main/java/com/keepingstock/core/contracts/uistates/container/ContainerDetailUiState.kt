@@ -23,6 +23,7 @@ sealed interface ContainerDetailUiState {
         val description: String?,
         val imageUri: String?,
         val parentContainerId: ContainerId?,
+        val parentContainerName: String?,
         val subcontainerCount: Int,
         val itemCount: Int,
         val canDelete: Boolean,
