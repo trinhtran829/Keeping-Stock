@@ -109,7 +109,7 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
  */
 private fun containerDetailTopBarConfig(uiState: ContainerDetailUiState): TopBarConfig {
     val title = when (uiState) {
-        is ContainerDetailUiState.Ready -> uiState.containerName
+        is ContainerDetailUiState.Ready ->  "Container Details"//uiState.containerName + " Details"
         is ContainerDetailUiState.Loading -> "Loading…"
         is ContainerDetailUiState.Error -> "Container details"
     }
