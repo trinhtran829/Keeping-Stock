@@ -59,7 +59,6 @@ private fun Preview_ContainerBrowser_EmptyReady() {
 }
 
 /**
- *
  * ---
  * GenAI usage citation:
  * Sample Items and Containers auto-generated with the help of ChatGPT.
@@ -70,12 +69,15 @@ private fun Preview_ContainerBrowser_PopulatedReady() {
     val subcontainers = listOf(
         Container(
             id = ContainerId(10L),
-            name = "Tool Chest",
+            name = "Tool Chest Main",
+            description = "My favorite red one.",
             parentContainerId = ContainerId(1L)
         ),
         Container(
             id = ContainerId(11L),
             name = "Garage Box 1",
+            description = "The ugly cardboard one in the corner that should be replaced later - " +
+                    "remember to update the blah blah (overflow test)",
             parentContainerId = ContainerId(1L)
         )
     )
@@ -89,7 +91,7 @@ private fun Preview_ContainerBrowser_PopulatedReady() {
                 containerId = ContainerId(1L)
             ),
         Item(
-            id = ItemId(101L),
+            id = ItemId(102L),
             name = "Reciprocating Saw",
             description = "Ryobi Brand",
             imageUri = null,
