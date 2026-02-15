@@ -3,7 +3,11 @@ package com.keepingstock.ui
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.QrCode2
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -162,19 +166,19 @@ private fun KeepingStockBottomBar(
         NavigationBarItem(
             selected = currentDestination?.hierarchy?.any { it.route == NavRoute.ContainerBrowser.route } == true,
             onClick = onGoContainers,
-            icon = { Icon(Icons.Default.Home, contentDescription = "Containers") },
+            icon = { Icon(Icons.Default.Inventory, contentDescription = "Containers") },
             label = { Text("Containers") }
         )
         NavigationBarItem(
             selected = currentDestination?.hierarchy?.any { it.route == NavRoute.ItemBrowser.route } == true,
             onClick = onGoItems,
-            icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Items") },
+            icon = { Icon(Icons.Default.Category, contentDescription = "Items") },
             label = { Text("Items") }
         )
         NavigationBarItem(
             selected = currentDestination?.hierarchy?.any { it.route == NavRoute.QRScan.route } == true,
             onClick = onGoScan,
-            icon = { Icon(Icons.Default.Search, contentDescription = "Scan") },
+            icon = { Icon(Icons.Default.QrCodeScanner, contentDescription = "Scan") },
             label = { Text("Scan") }
         )
     }
