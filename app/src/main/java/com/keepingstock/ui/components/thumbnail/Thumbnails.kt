@@ -1,5 +1,6 @@
 package com.keepingstock.ui.components.thumbnail
 
+import com.keepingstock.R
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -107,7 +108,11 @@ private fun ThumbnailBase(
                 fallbackIcon()
             }
         } else {
-            val model: Any = Uri.parse(imagePath)
+            val model: Any = when (imagePath) {
+                "demo" -> R.drawable.demo_img_cat
+                "demo2" -> R.drawable.demo_img_llama
+                else -> Uri.parse(imagePath)
+            }
 
             AsyncImage(
                 model = model,
