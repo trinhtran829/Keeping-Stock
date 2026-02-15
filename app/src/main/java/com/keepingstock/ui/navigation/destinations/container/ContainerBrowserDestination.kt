@@ -1,16 +1,7 @@
 package com.keepingstock.ui.navigation.destinations.container
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -19,7 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -36,21 +26,9 @@ import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
-
-/**
- * Temporary demo modes for the Container Browser destination.
- *
- * These exist to allow manual toggling between UI states (Ready populated/empty, Loading, Error)
- * before the real ContainerBrowserViewModel is implemented.
- *
- * TODO(REMOVE): Delete this enum when the ContainerBrowserViewModel provides real UiState.
- */
-private enum class DemoMode {
-    POPULATED,
-    EMPTY,
-    LOADING,
-    ERROR
-}
+import com.keepingstock.ui.components.navigation.ChipOption
+import com.keepingstock.ui.components.navigation.DemoMode
+import com.keepingstock.ui.components.navigation.DemoModeToggleRow
 
 /**
  * Registers the Container Browser destination in AppNavGraph.
@@ -107,9 +85,11 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
         val uiState = remember(containerId, demoMode) {
             when (demoMode) {
                 DemoMode.LOADING -> ContainerBrowserUiState.Loading
-                DemoMode.ERROR -> ContainerBrowserUiState.Error("Demo error loading container.")
+                DemoMode.ERROR ->
+                    ContainerBrowserUiState.Error("Demo error loading container.")
                 DemoMode.EMPTY -> demoContainerBrowserReadyState(containerId, empty = true)
-                DemoMode.POPULATED -> demoContainerBrowserReadyState(containerId, empty = false)
+                DemoMode.POPULATED, DemoMode.READY ->
+                    demoContainerBrowserReadyState(containerId, empty = false)
             }
         }
 
@@ -133,7 +113,14 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
          */
         Column (Modifier.fillMaxSize()) {
             DemoModeToggleRow(
+                title = "Select demo mode:",
                 selected = demoMode,
+                options = listOf (
+                    ChipOption(DemoMode.POPULATED, "Populated"),
+                    ChipOption(DemoMode.EMPTY, "Empty"),
+                    ChipOption(DemoMode.LOADING, "Loading"),
+                    ChipOption(DemoMode.ERROR, "Error")
+                ),
                 onSelect = { demoMode = it }
             )
 
@@ -202,6 +189,7 @@ private fun containerBrowserTopBarConfig(uiState: ContainerBrowserUiState): TopB
  *
  * TODO(REMOVE): Delete when ContainerBrowserViewModel exists.
  */
+
 private fun demoContainerBrowserReadyState(
     containerId: ContainerId?,
     empty: Boolean
@@ -265,78 +253,4 @@ private fun demoContainerBrowserReadyState(
             )
         )
     }
-}
-
-/**
- * Demo-only UI for selecting which UiState the Container Browser should display.
- *
- * This is rendered here in the destination instead of the screen to keep the screen state-driven.
- *
- * :param selected: Currently selected demo mode.
- * :param onSelect: Callback invoked when user selects a new demo mode.
- * :param modifier: Optional modifier for layout/styling.
- *
- * TODO(REMOVE): Delete once the ViewModel exists.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DemoModeToggleRow(
-    selected: DemoMode,
-    onSelect: (DemoMode) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-        Text(
-            text = "Select demo mode:",
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            DemoChip("Populated", selected == DemoMode.POPULATED) {
-                onSelect(DemoMode.POPULATED)
-            }
-            DemoChip("Empty", selected == DemoMode.EMPTY) {
-                onSelect(DemoMode.EMPTY)
-            }
-            DemoChip("Loading", selected == DemoMode.LOADING) {
-                onSelect(DemoMode.LOADING)
-            }
-            DemoChip("Error", selected == DemoMode.ERROR) {
-                onSelect(DemoMode.ERROR)
-            }
-        }
-    }
-}
-
-/**
- * Demo-only chip used by DemoModeToggleRow.
- *
- * :param label: Visible label for the chip.
- * :param selected: Whether this chip is currently selected.
- * :param onClick: Click handler that selects this mode.
- *
- * TODO(REMOVE): Delete once the demo toggle UI is removed.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DemoChip(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = { Text(label) },
-    )
 }
