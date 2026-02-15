@@ -16,11 +16,8 @@ import com.keepingstock.viewmodel.item.ItemBrowserUiData
 fun ItemBrowserScreen(
     modifier: Modifier = Modifier,
     uiState: UiState<ItemBrowserUiData>,
-    onOpenItem: (itemId: ItemId) -> Unit = {},
-    onOpenContainerBrowser: () -> Unit = {}
+    onOpenItem: (itemId: ItemId) -> Unit = {}
 ) {
-    val exampleItemId = ItemId(1L)
-
     Column(modifier = modifier.padding(16.dp)) {
         // Show state info, will refactor with real UI later.
         // Show state if viewModel exists, otherwise placeholder
@@ -33,21 +30,6 @@ fun ItemBrowserScreen(
 
             is UiState.Error ->
                 Text("Item Browser Screen (error: ${uiState.message})")
-        }
-
-        // Button to test item navigation
-        Button(
-            onClick = { onOpenItem(exampleItemId) },
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text("Open Example Item $exampleItemId")
-        }
-        // Navigate to container browser screen
-        Button(
-            onClick = onOpenContainerBrowser,
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text("Go to Container Browser (last open)")
         }
     }
 }

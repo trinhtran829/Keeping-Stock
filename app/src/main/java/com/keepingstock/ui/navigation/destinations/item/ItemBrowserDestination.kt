@@ -100,15 +100,6 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
                 uiState = uiState,
                 onOpenItem = { itemId ->
                     deps.navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
-                },
-                onOpenContainerBrowser = {
-                    deps.navController.navigate(
-                        NavRoute.ContainerBrowser.createRoute(lastContainerId())
-                    ) {
-                        popUpTo(Routes.CONTAINER_BROWSER) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
                 }
             )
         }
