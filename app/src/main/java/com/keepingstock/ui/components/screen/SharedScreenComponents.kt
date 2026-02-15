@@ -92,10 +92,8 @@ fun DetailRow(
 }
 
 /**
- * Row UI for a subcontainer entry in the Container Browser list. Uses a thumbnail (image when
+ * Row UI for a subcontainer entry in the Browser list. Uses a thumbnail (image when
  * available, icon fallback otherwise) and basic text fields.
- *
- * TODO: thumbnail needs testing.
  *
  * TODO(FUTURE): Consider adding a overflow menu for actions like rename, move, delete
  *
@@ -144,7 +142,7 @@ fun ContainerSummaryRow(
 }
 
 /**
- * Row UI for an item entry in the Container Browser list.
+ * Row UI for an item entry in the Browser list.
  *
  * Displays a thumbnail, name, and a subtitle built from item status and description.
  * If tags exist, they're supposed to be displayed in a hashtag-like format. Not tested.

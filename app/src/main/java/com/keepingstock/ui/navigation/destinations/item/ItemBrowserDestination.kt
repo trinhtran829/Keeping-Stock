@@ -100,6 +100,9 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
                 uiState = uiState,
                 onOpenItem = { itemId ->
                     deps.navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
+                },
+                onAddItem = {
+                    deps.navController.navigate(NavRoute.AddEditItem.createRoute(containerId = null))
                 }
             )
         }
