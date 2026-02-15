@@ -21,6 +21,7 @@ sealed interface ItemDetailUiState {
      * Item details successfully loaded and ready for display
      */
     data class Ready(
+        val itemId: ItemId,
         val item: Item,
         val parentContainerName: String? = null
     ) : ItemDetailUiState
