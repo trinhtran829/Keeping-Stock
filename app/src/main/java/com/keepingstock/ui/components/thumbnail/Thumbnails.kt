@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Grass
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material3.Icon
@@ -68,7 +69,7 @@ fun ItemThumbnail(
         imagePath = imagePath,
         fallbackIcon = {
             Icon(
-                imageVector = Icons.Filled.Grass, // TODO: not the best Icon to use...
+                imageVector = Icons.Default.Category,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
