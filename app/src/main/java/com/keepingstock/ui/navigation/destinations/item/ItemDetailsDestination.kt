@@ -76,11 +76,13 @@ internal fun NavGraphBuilder.addItemDetailsDestination(
                 onSelect = { demoMode = it }
             )
             ItemDetailsScreen(
-                itemId = itemId,
+                uiState = uiState,
                 onBack = { deps.navController.popBackStack() },
                 onEdit = { id ->
                     deps.navController.navigate(NavRoute.AddEditItem.createRoute(itemId = id))
-                }
+                },
+                onMove = {/* TODO: hook up when Move flow exists*/},
+                onDelete = {/* TODO: hook up when Delete flow exists */}
             )
         }
     }
@@ -110,9 +112,9 @@ private fun demoItemDetailReadyState(itemId: ItemId): ItemDetailUiState.Ready {
         itemId = itemId,
         item = Item(
             id = itemId,
-            name = "Container ${itemId.value}",
+            name = "Item ${itemId.value}",
             description = "Example container detail description.",
-            imageUri = "demo",
+            imageUri = "demo2",
             containerId = null,
             status = ItemStatus.STORED
         ),
