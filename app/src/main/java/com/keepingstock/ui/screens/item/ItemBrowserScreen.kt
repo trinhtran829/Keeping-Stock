@@ -1,10 +1,16 @@
 package com.keepingstock.ui.screens.item
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +25,7 @@ import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.UiState
 import com.keepingstock.ui.components.screen.ErrorContent
+import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.LoadingContent
 import com.keepingstock.viewmodel.item.ItemBrowserUiData
 
@@ -87,6 +94,27 @@ private fun ReadyContent(
                 onAddItem = onAddItem
             )
             return
+        }
+
+        // Populated state; scrolling list with individual sections for subcontainers/items
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            item {
+                Text("Items", style = MaterialTheme.typography.titleMedium)
+            }
+            items(items, key = { it.id.value }) { i ->
+                ItemSummaryRow(
+                    modifier = Modifier,
+                    item = i,
+                    onClick = { onOpenItem(i.id) }
+                )
+            }
+
+            // breathing room above bottom bar
+            item { Spacer(Modifier.height(72.dp)) }
         }
     }
 }
