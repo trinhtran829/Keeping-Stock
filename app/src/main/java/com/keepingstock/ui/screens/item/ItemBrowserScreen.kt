@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -20,9 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.UiState
@@ -46,8 +43,12 @@ fun ItemBrowserScreen(
             message = uiState.message
         )
 
-        is UiState.Success ->
-            Text("Item Browser Screen (${uiState.data.items.size} items)")
+        is UiState.Success -> ReadyContent(
+            modifier = modifier,
+            items = uiState.data.items,
+            onOpenItem = onOpenItem,
+            onAddItem = onAddItem
+        )
     }
 }
 
@@ -72,7 +73,7 @@ private fun ReadyContent(
     onAddItem: () -> Unit = {}
 ) {
     Column() {
-        // Content header; mainly counts and info button
+        // Content header; mainly counts
         Row(
             modifier = Modifier
                 .fillMaxWidth()
