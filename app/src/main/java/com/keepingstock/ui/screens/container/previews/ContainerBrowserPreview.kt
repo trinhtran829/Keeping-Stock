@@ -18,12 +18,7 @@ import com.keepingstock.ui.screens.container.ContainerBrowserScreen
 @Composable
 private fun Preview_ContainerBrowser_Loading() {
     ContainerBrowserScreen(
-        uiState = ContainerBrowserUiState.Loading,
-        onOpenSubcontainer = {},
-        onOpenItem = {},
-        onOpenContainerInfo = {},
-        onAddContainer = {},
-        onAddItem = {},
+        uiState = ContainerBrowserUiState.Loading
     )
 }
 
@@ -31,12 +26,7 @@ private fun Preview_ContainerBrowser_Loading() {
 @Composable
 private fun Preview_ContainerBrowser_Error() {
     ContainerBrowserScreen(
-        uiState = ContainerBrowserUiState.Error("Failed to load container."),
-        onOpenSubcontainer = {},
-        onOpenItem = {},
-        onOpenContainerInfo = {},
-        onAddContainer = {},
-        onAddItem = {},
+        uiState = ContainerBrowserUiState.Error("Failed to load container.")
     )
 }
 
@@ -49,12 +39,7 @@ private fun Preview_ContainerBrowser_EmptyReady() {
                 containerName = "Garage",
                 subcontainers = emptyList(),
                 items = emptyList()
-            ),
-        onOpenSubcontainer = {},
-        onOpenItem = {},
-        onOpenContainerInfo = {},
-        onAddContainer = {},
-        onAddItem = {},
+            )
     )
 }
 
@@ -106,11 +91,6 @@ private fun Preview_ContainerBrowser_PopulatedReady() {
             containerName = "Garage",
             subcontainers = subcontainers,
             items = items
-        ),
-        onOpenSubcontainer = {},
-        onOpenItem = {},
-        onOpenContainerInfo = {},
-        onAddContainer = {},
-        onAddItem = {},
+        )
     )
 }
