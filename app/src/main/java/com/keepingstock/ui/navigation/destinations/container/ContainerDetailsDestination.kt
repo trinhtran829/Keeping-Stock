@@ -1,17 +1,7 @@
 package com.keepingstock.ui.navigation.destinations.container
 
-import android.R.attr.description
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -19,7 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -33,20 +22,9 @@ import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.container.ContainerDetailScreen
-
-
-/**
- * Stupid name because Android Studio kept constantly forgetting that this exists and kept
- * trying to use the ContainerBrowserDestination's DemoMode enum. Renaming was easier than
- * diagnosing the underlying issue, especially since it is meant to be temporary.
- *
- * TODO(REMOVE): Demo-only state toggles. Delete when ContainerDetailViewModel is implemented.
- */
-private enum class DemoMode_ConDeets {
-    READY,
-    LOADING,
-    ERROR
-}
+import com.keepingstock.ui.components.navigation.ChipOption
+import com.keepingstock.ui.components.navigation.DemoMode
+import com.keepingstock.ui.components.navigation.DemoModeToggleRow
 
 internal fun NavGraphBuilder.addContainerDetailsDestination(
     deps: NavDeps
@@ -65,15 +43,16 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
 
         // TODO(REMOVE): Demo-only mode selector
         var demoMode by rememberSaveable(containerId.value) {
-            mutableStateOf(DemoMode_ConDeets.READY)
+            mutableStateOf(DemoMode.READY)
         }
 
         // TODO(REMOVE): Replace this with ViewModel uiState.
         val uiState = remember(containerId, demoMode) {
             when (demoMode) {
-                DemoMode_ConDeets.LOADING -> ContainerDetailUiState.Loading
-                DemoMode_ConDeets.ERROR -> ContainerDetailUiState.Error("Demo error loading container details.")
-                DemoMode_ConDeets.READY -> demoContainerDetailReadyState(containerId)
+                DemoMode.LOADING -> ContainerDetailUiState.Loading
+                DemoMode.READY, DemoMode.POPULATED -> demoContainerDetailReadyState(containerId)
+                DemoMode.ERROR, DemoMode.EMPTY ->
+                    ContainerDetailUiState.Error("Demo error loading container details.")
             }
         }
 
@@ -86,7 +65,13 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
         Column(Modifier.fillMaxSize()) {
             // TODO(REMOVE): demo-only UI controls.
             DemoModeToggleRow(
+                title = "Select demo mode:",
                 selected = demoMode,
+                options = listOf (
+                    ChipOption(DemoMode.READY, "Ready"),
+                    ChipOption(DemoMode.LOADING, "Loading"),
+                    ChipOption(DemoMode.ERROR, "Error")
+                ),
                 onSelect = { demoMode = it }
             )
 
@@ -140,62 +125,5 @@ private fun demoContainerDetailReadyState(containerId: ContainerId): ContainerDe
         itemCount = 5,
         canDelete = false,
         deleteBlockedReason = "Container must be empty to delete."
-    )
-}
-
-/**
- * TODO(REMOVE): Demo-only toggle UI.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DemoModeToggleRow(
-    selected: DemoMode_ConDeets,
-    onSelect: (DemoMode_ConDeets) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-        Text(
-            text = "Select demo mode:",
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            DemoChip("Ready", selected == DemoMode_ConDeets.READY) {
-                onSelect(DemoMode_ConDeets.READY)
-            }
-            DemoChip("Loading", selected == DemoMode_ConDeets.LOADING) {
-                onSelect(DemoMode_ConDeets.LOADING)
-            }
-            DemoChip("Error", selected == DemoMode_ConDeets.ERROR) {
-                onSelect(DemoMode_ConDeets.ERROR)
-            }
-        }
-    }
-}
-
-/**
- * TODO(REMOVE): Demo-only chip.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DemoChip(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = { Text(label) },
     )
 }
