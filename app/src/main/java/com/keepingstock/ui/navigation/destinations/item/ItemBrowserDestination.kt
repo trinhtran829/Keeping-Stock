@@ -1,16 +1,19 @@
 package com.keepingstock.ui.navigation.destinations.item
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
-import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
+import com.keepingstock.core.contracts.UiState
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.item.ItemBrowserScreen
+import com.keepingstock.viewmodel.item.ItemBrowserUiData
 
 /**
  * Registers the Item Browser destination in AppNavGraph.
@@ -36,6 +39,10 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
     composable(
         route = NavRoute.ItemBrowser.route
     ) {
+        val uiState = remember() {
+            UiState.Error("Item Browser temporarily disabled")
+        }
+
         // Build TopBarConfig from current UiState
         val topBarConfig = remember(uiState) { itemBrowserTopBarConfig(uiState) }
 
@@ -45,6 +52,8 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
         }
 
         ItemBrowserScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = uiState,
             onOpenItem = { itemId ->
                 deps.navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
             },
@@ -71,11 +80,11 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
  * :param uiState: The current UI state for the Item Browser screen.
  * :return: TopBarConfig used by the app scaffold's top bar.
  */
-private fun itemBrowserTopBarConfig(uiState: ContainerBrowserUiState): TopBarConfig {
+private fun itemBrowserTopBarConfig(uiState: UiState<ItemBrowserUiData>): TopBarConfig {
     val title = when (uiState) {
-        is ContainerBrowserUiState.Ready -> "All Items"
-        is ContainerBrowserUiState.Loading -> "Loading…"
-        is ContainerBrowserUiState.Error -> "All Items"
+        is UiState.Success -> "All Items"
+        is UiState.Loading -> "Loading…"
+        is UiState.Error -> "All Items"
     }
     val showBack = false
 
