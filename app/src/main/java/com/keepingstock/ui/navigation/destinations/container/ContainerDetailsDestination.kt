@@ -1,5 +1,6 @@
 package com.keepingstock.ui.navigation.destinations.container
 
+import android.R.attr.description
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
@@ -126,10 +128,13 @@ private fun containerDetailTopBarConfig(uiState: ContainerDetailUiState): TopBar
 private fun demoContainerDetailReadyState(containerId: ContainerId): ContainerDetailUiState.Ready {
     return ContainerDetailUiState.Ready(
         containerId = containerId,
-        containerName = "Container ${containerId.value}",
-        description = "Example container detail description.",
-        imageUri = "demo",
-        parentContainerId = null,
+        container = Container(
+            id = containerId,
+            name = "Container ${containerId.value}",
+            description = "Example container detail description.",
+            imageUri = "demo",
+            parentContainerId = null,
+        ),
         parentContainerName = null,
         subcontainerCount = 2,
         itemCount = 5,

@@ -178,7 +178,7 @@ private fun ContainerDetailHeaderCard(
 
                 Column(Modifier.weight(1f)) {
                     Text(
-                        text = uiState.containerName,
+                        text = uiState.container.name,
                         style = MaterialTheme.typography.titleLarge
                     )
                     Text(
@@ -191,11 +191,12 @@ private fun ContainerDetailHeaderCard(
 
             // Container Image (only when present)
             // Hero Image
-            if (!uiState.imageUri.isNullOrBlank()) {
-                val model: Any = when (uiState.imageUri) {
+            val imageUri = uiState.container.imageUri
+            if (!imageUri.isNullOrBlank()) {
+                val model: Any = when (imageUri) {
                     "demo" -> R.drawable.demo_img_cat
                     "demo2" -> R.drawable.demo_img_llama
-                    else -> Uri.parse(uiState.imageUri)
+                    else -> Uri.parse(imageUri)
                 }
 
                 HorizontalDivider()
@@ -212,7 +213,7 @@ private fun ContainerDetailHeaderCard(
             }
 
             // Full description
-            val description = uiState.description?.trim().orEmpty()
+            val description = uiState.container.description?.trim().orEmpty()
             if (description.isNotBlank()) {
                 HorizontalDivider()
                 Text(

@@ -1,7 +1,9 @@
 package com.keepingstock.ui.screens.container.previews
 
+import android.R.attr.name
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
 import com.keepingstock.ui.screens.container.ContainerDetailScreen
@@ -43,13 +45,17 @@ private fun Preview_ContainerDetail_Error() {
 @Preview(showBackground = true)
 @Composable
 private fun Preview_ContainerDetail_Ready_CanDelete() {
+    val containerId = ContainerId(1L)
     ContainerDetailScreen(
         uiState = ContainerDetailUiState.Ready(
-            containerId = ContainerId(1L),
-            containerName = "Garage",
-            description = "Tools, hardware, and project materials.",
-            imageUri = "demo", //dummy flag - use demo img
-            parentContainerId = null,
+            containerId = containerId,
+            container = Container(
+                id = containerId,
+                name = "Garage",
+                description = "Tools, hardware, and project materials.",
+                imageUri = "demo", //dummy flag - use demo img
+                parentContainerId = null
+            ),
             parentContainerName = null,
             subcontainerCount = 0,
             itemCount = 0,
@@ -72,13 +78,17 @@ private fun Preview_ContainerDetail_Ready_CanDelete() {
 @Preview(showBackground = true)
 @Composable
 private fun Preview_ContainerDetail_Ready_DeleteBlocked() {
+    val containerId = ContainerId(10L)
     ContainerDetailScreen(
         uiState = ContainerDetailUiState.Ready(
             containerId = ContainerId(10L),
-            containerName = "Tool Chest Main",
-            description = "My favorite red one. Contains frequently used hand tools.",
-            imageUri = null,
-            parentContainerId = ContainerId(1L),
+            container = Container(
+                id = containerId,
+                name = "Tool Chest Main",
+                description = "My favorite red one. Contains frequently used hand tools.",
+                imageUri = null,
+                parentContainerId = ContainerId(1L)
+            ),
             parentContainerName = "Garage",
             subcontainerCount = 2,
             itemCount = 12,

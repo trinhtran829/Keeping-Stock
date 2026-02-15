@@ -1,7 +1,7 @@
 package com.keepingstock.core.contracts.uistates.container
 
+import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
-import java.util.Date
 
 /**
  * UI state for the Container Details screen.
@@ -20,12 +20,8 @@ sealed interface ContainerDetailUiState {
      */
     data class Ready(
         val containerId: ContainerId,
-        val containerName: String,
-        val description: String?,
-        val imageUri: String?,
-        val parentContainerId: ContainerId?,
+        val container: Container,
         val parentContainerName: String?,
-        val createdDate: Date = Date(),
         val subcontainerCount: Int,
         val itemCount: Int,
         val canDelete: Boolean,
