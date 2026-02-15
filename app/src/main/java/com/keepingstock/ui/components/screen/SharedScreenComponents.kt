@@ -30,7 +30,7 @@ import com.keepingstock.ui.components.thumbnail.ItemThumbnail
  */
 @Composable
 fun LoadingContent(modifier: Modifier) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Companion.Center) {
+    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CircularProgressIndicator()
     }
 }
@@ -53,7 +53,7 @@ fun ErrorContent(
     message: String,
     cause: Throwable? = null
 ) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Companion.Center) {
+    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(
             text = message,
             style = MaterialTheme.typography.bodyLarge,
@@ -71,18 +71,18 @@ fun ErrorContent(
  */
 @Composable
 fun DetailRow(
-    modifier: Modifier = Modifier.Companion,
+    modifier: Modifier = Modifier,
     label: String,
     value: String
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Companion.CenterVertically
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.Companion.weight(1f)
+            modifier = Modifier.weight(1f)
         )
         Text(
             text = value,
