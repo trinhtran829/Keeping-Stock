@@ -1,14 +1,25 @@
 package com.keepingstock.ui.navigation.destinations.item
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.Item
+import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.UiState
+import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.ui.components.navigation.ChipOption
+import com.keepingstock.ui.components.navigation.DemoMode
+import com.keepingstock.ui.components.navigation.DemoModeToggleRow
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.scaffold.TopBarConfig
@@ -39,8 +50,21 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
     composable(
         route = NavRoute.ItemBrowser.route
     ) {
-        val uiState = remember() {
-            UiState.Error("Item Browser temporarily disabled")
+        // TODO(REMOVE): Demo-only mode selector
+        var demoMode by rememberSaveable() {
+            mutableStateOf(DemoMode.READY)
+        }
+
+        // TODO(REPLACE): Replace this with ViewModel uiState
+        val uiState = remember(demoMode) {
+            when (demoMode) {
+                DemoMode.LOADING -> UiState.Loading
+                DemoMode.ERROR -> UiState.Error(
+                    "Error encountered when attempting to display all items."
+                )
+                DemoMode.EMPTY -> demoItemBrowserReadyState(true)
+                DemoMode.READY, DemoMode.POPULATED -> demoItemBrowserReadyState(false)
+            }
         }
 
         // Build TopBarConfig from current UiState
@@ -51,22 +75,43 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
             deps.onTopBarChange(topBarConfig)
         }
 
-        ItemBrowserScreen(
-            modifier = Modifier.fillMaxSize(),
-            uiState = uiState,
-            onOpenItem = { itemId ->
-                deps.navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
-            },
-            onOpenContainerBrowser = {
-                deps.navController.navigate(
-                    NavRoute.ContainerBrowser.createRoute(lastContainerId())
-                ) {
-                    popUpTo(Routes.CONTAINER_BROWSER) { saveState = true }
-                    launchSingleTop = true
-                    restoreState = true
+        /*
+         * Kept in the destination (not the screen) so ContainerBrowserScreen stays production-like
+         * and purely state-driven.
+         *
+         * TODO(REMOVE): Demo-mode toggle UI. Remove when ViewModel is implemented and render
+         *      screen directly instead.
+         */
+        Column(Modifier.fillMaxSize()) {
+            DemoModeToggleRow(
+                title = "Select demo mode:",
+                selected = demoMode,
+                options = listOf (
+                    ChipOption(DemoMode.POPULATED, "Populated"),
+                    ChipOption(DemoMode.EMPTY, "Empty"),
+                    ChipOption(DemoMode.LOADING, "Loading"),
+                    ChipOption(DemoMode.ERROR, "Error")
+                ),
+                onSelect = { demoMode = it }
+            )
+
+            ItemBrowserScreen(
+                modifier = Modifier.fillMaxSize(),
+                uiState = uiState,
+                onOpenItem = { itemId ->
+                    deps.navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
+                },
+                onOpenContainerBrowser = {
+                    deps.navController.navigate(
+                        NavRoute.ContainerBrowser.createRoute(lastContainerId())
+                    ) {
+                        popUpTo(Routes.CONTAINER_BROWSER) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }
 
@@ -89,4 +134,37 @@ private fun itemBrowserTopBarConfig(uiState: UiState<ItemBrowserUiData>): TopBar
     val showBack = false
 
     return TopBarConfig(title = title, showBack = showBack)
+}
+
+/**
+ * TODO(REMOVE): Demo-only Ready state builder.
+ * ---
+ * GenAI usage citation:
+ * Sample item detail data auto-generated with the help of ChatGPT.
+ * Prompt: "Please generate data for a sample object with the following class signature:"
+ */
+private fun demoItemBrowserReadyState(isEmpty: Boolean):
+        UiState.Success<ItemBrowserUiData> {
+    val containerId = ContainerId(1L)
+
+    val items = if (isEmpty) emptyList<Item>() else listOf(
+        Item(
+            id = ItemId(containerId.value * 100 + 1),
+            name = "Impact Driver",
+            description = "18V brushless",
+            containerId = containerId,
+            status = ItemStatus.STORED
+        ),
+        Item(
+            id = ItemId(containerId.value * 100 + 2),
+            name = "Reciprocating Saw",
+            description = "Corded",
+            containerId = containerId,
+            status = ItemStatus.STORED
+        ),
+    )
+
+    return UiState.Success(
+        data = ItemBrowserUiData(items = items)
+    )
 }
