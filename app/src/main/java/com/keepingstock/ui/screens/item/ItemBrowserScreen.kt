@@ -1,6 +1,7 @@
 package com.keepingstock.ui.screens.item
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -120,7 +122,7 @@ private fun ReadyContent(
 }
 
 /**
- * Empty-state UI shown when a container has no subcontainers and no items.
+ * Empty-state UI shown when there are no items.
  *
  * :param modifier Modifier applied to the full-size empty-state container.
  * :param onAddContainer Invoked when user chooses to add a container.
@@ -131,28 +133,29 @@ private fun EmptyState(
     modifier: Modifier,
     onAddItem: () -> Unit
 ) {
-
-}
-
-@Preview(showSystemUi = false, showBackground = true)
-@Composable
-private fun ItemBrowserScreenPreview() {
-    // Preview without ViewModel
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text("Item Browser Screen (placeholder)")
-
-        Button(
-            onClick = {},
-            modifier = Modifier.padding(top = 12.dp)
+    Box(
+        modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(24.dp)
         ) {
-            Text("Open Example Item 01")
-        }
+            Text(
+                text = "Nothing here yet",
+                style = MaterialTheme.typography.titleMedium
+            )
 
-        Button(
-            onClick = {},
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text("Go to Container Browser (last open)")
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = "Add an item to get started.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            OutlinedButton(onClick = onAddItem) { Text("Add item") }
         }
     }
 }
