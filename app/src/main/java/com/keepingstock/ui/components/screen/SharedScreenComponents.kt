@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
  */
 @Composable
 fun LoadingContent(modifier: Modifier) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Companion.Center) {
         CircularProgressIndicator()
     }
 }
@@ -41,7 +41,7 @@ fun ErrorContent(
     message: String,
     cause: Throwable? = null
 ) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Companion.Center) {
         Text(
             text = message,
             style = MaterialTheme.typography.bodyLarge,
@@ -59,18 +59,18 @@ fun ErrorContent(
  */
 @Composable
 fun DetailRow(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     label: String,
     value: String
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Companion.CenterVertically
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.Companion.weight(1f)
         )
         Text(
             text = value,
