@@ -13,6 +13,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
@@ -26,6 +27,7 @@ import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.itemIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.item.ItemDetailsScreen
+import java.util.Date
 
 internal fun NavGraphBuilder.addItemDetailsDestination(
     deps: NavDeps
@@ -51,8 +53,9 @@ internal fun NavGraphBuilder.addItemDetailsDestination(
         val uiState = remember(itemId, demoMode) {
             when (demoMode) {
                 DemoMode.LOADING -> ItemDetailUiState.Loading
-                DemoMode.READY, DemoMode.POPULATED -> demoItemDetailReadyState(itemId)
-                DemoMode.ERROR, DemoMode.EMPTY ->
+                DemoMode.READY -> demoItemDetailReadyState(itemId, ItemStatus.STORED)
+                DemoMode.EMPTY -> demoItemDetailReadyState(itemId, ItemStatus.TAKEN_OUT)
+                DemoMode.ERROR, DemoMode.POPULATED ->
                     ItemDetailUiState.Error("Demo error loading item details.")
             }
         }
@@ -69,7 +72,8 @@ internal fun NavGraphBuilder.addItemDetailsDestination(
                 title = "Select demo mode:",
                 selected = demoMode,
                 options = listOf(
-                    ChipOption(DemoMode.READY, "Ready"),
+                    ChipOption(DemoMode.READY, "Stored"),
+                    ChipOption(DemoMode.EMPTY, "Taken"),
                     ChipOption(DemoMode.LOADING, "Loading"),
                     ChipOption(DemoMode.ERROR, "Error")
                 ),
@@ -107,17 +111,30 @@ private fun itemDetailTopBarConfig(uiState: ItemDetailUiState): TopBarConfig {
  * Sample container detail data auto-generated with the help of ChatGPT.
  * Prompt: "Please generate data for a sample object with the following class signature:"
  */
-private fun demoItemDetailReadyState(itemId: ItemId): ItemDetailUiState.Ready {
-    return ItemDetailUiState.Ready(
-        itemId = itemId,
-        item = Item(
+private fun demoItemDetailReadyState(itemId: ItemId, status: ItemStatus): ItemDetailUiState.Ready {
+    val item = when (status) {
+        ItemStatus.STORED -> Item(
             id = itemId,
             name = "Item ${itemId.value}",
-            description = "Example container detail description.",
+            description = "Example item detail description.",
             imageUri = "demo2",
             containerId = null,
             status = ItemStatus.STORED
-        ),
+        )
+        ItemStatus.TAKEN_OUT -> Item(
+            id = itemId,
+            name = "Item ${itemId.value}",
+            description = "Example item detail description.",
+            imageUri = "demo2",
+            containerId = ContainerId(1L),
+            status = ItemStatus.TAKEN_OUT,
+            checkoutDate = Date()
+        )
+    }
+
+    return ItemDetailUiState.Ready(
+        itemId = itemId,
+        item = item,
         parentContainerName = null
     )
 }
