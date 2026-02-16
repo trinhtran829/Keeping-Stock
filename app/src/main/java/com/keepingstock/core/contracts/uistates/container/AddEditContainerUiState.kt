@@ -10,12 +10,14 @@ sealed interface AddEditContainerUiState {
 
     /**
      * Form is ready for display and/or editing
+     *
+     * Not using Container model because containerId needs to be able to be null
      */
     data class Ready(
         val mode: Mode,
-        val containerId: ContainerId?,
-        val parentContainerId: ContainerId?,
-        val parentContainerName: String?,
+        val containerId: ContainerId?,              // null when creating
+        val parentContainerId: ContainerId?,        // null = root
+        val parentContainerName: String?,           // need for displaying
         val availableParents: List<ParentOption>,   // TODO: Improve for hierarchical display?
         val name: String,
         val description: String,
