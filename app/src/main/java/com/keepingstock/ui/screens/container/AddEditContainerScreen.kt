@@ -43,6 +43,24 @@ import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiStat
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
 
+/**
+ * Add/Edit Container screen that renders based on uiState.
+ *
+ * State handling:
+ * - [AddEditContainerUiState.Loading] shows a loading indicator.
+ * - [AddEditContainerUiState.Error] shows an error message.
+ * - [AddEditContainerUiState.Ready] shows the editable form and emits [AddEditContainerIntent]
+ *   events via [onIntent].
+ *
+ * Navigation:
+ * - [onNavigateBack] is called when the user confirms leaving (e.g. discard changes) or taps
+ *   Cancel when the form is not dirty.
+ *
+ * :param modifier: Modifier applied to the screen container.
+ * :param uiState: Current UI state for the Add/Edit Container flow.
+ * :param onIntent: Callback for user intents (field edits, save, image changes, etc.).
+ * :param onNavigateBack: Callback to navigate up/back out of this screen.
+ */
 @Composable
 fun AddEditContainerScreen(
     modifier: Modifier = Modifier,
@@ -70,6 +88,19 @@ fun AddEditContainerScreen(
     }
 }
 
+/**
+ * Renders the editable Add/Edit Container form for the [AddEditContainerUiState.Ready] state.
+ *
+ * UI responsibilities:
+ * - Owns local, UI-only discard confirmation dialog state (not part of UiState).
+ * - Intercepts system back when [uiState.isDirty] and prompts for discard confirmation.
+ * - Hosts an Activity Result launcher to pick an image and emits [AddEditContainerIntent.ImagePicked].
+ *
+ * :param modifier: Modifier applied to the scrolling content container.
+ * :param uiState: Ready state containing current field values, validation, and flags.
+ * :param onIntent: Callback for emitting user intents to the state owner (demo controller / ViewModel).
+ * :param onNavigateBack: Callback invoked when navigation away from the screen is confirmed.
+ */
 @Composable
 private fun AddEditContainerReadyContent(
     modifier: Modifier,
@@ -81,12 +112,12 @@ private fun AddEditContainerReadyContent(
     var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
 
     // What actions to emit if back is pressed (not system UI)
-    val requestNavigateBack = remember(uiState.isDirty) {{
+    val requestNavigateBack = remember(uiState.isDirty) {
         if(uiState.isDirty)
             showDiscardDialog = true
         else
             onNavigateBack()
-    }}
+    }
 
     // Intercept system back when form is dirty (so we can prompt for discard confirmation)
     AddEditContainerBackHandling(
@@ -134,7 +165,17 @@ private fun AddEditContainerReadyContent(
 }
 
 /**
- * Handles when the user presses the back button (system-back only right now?)
+ * Handles back navigation behavior for the Add/Edit Container form.
+ *
+ * Behavior:
+ * - When [isDirty] is true, intercepts the system back button and shows a discard confirmation dialog.
+ * - When [showDiscardDialog] is true, displays an [AlertDialog] allowing the user to discard changes
+ *   or cancel and stay on the screen.
+ *
+ * :param isDirty: Whether the form has unsaved changes.
+ * :param showDiscardDialog: Controls whether the discard confirmation dialog is visible.
+ * :param onShowDiscardDialog: Setter for [showDiscardDialog].
+ * :param onDiscardConfirmed: Callback invoked when the user confirms discarding changes.
  */
 @Composable
 private fun AddEditContainerBackHandling(
@@ -182,8 +223,13 @@ private fun AddEditContainerBackHandling(
 }
 
 /**
- * Gets an object that can launch the system image picker. When it finishes, calls the lambda with
- * the result.
+ * Creates and remembers an Activity Result launcher for selecting an image from the system picker.
+ *
+ * When the picker returns a non-null [Uri], this emits [AddEditContainerIntent.ImagePicked]
+ * through [onIntent]. The caller is responsible for invoking `launch(...)` on the returned launcher.
+ *
+ * :param onIntent: Callback used to emit [AddEditContainerIntent] events.
+ * :return: A launcher that can start the visual media picker and deliver a picked image [Uri].
  */
 @Composable
 private fun rememberPickImageLauncher(
@@ -196,7 +242,14 @@ private fun rememberPickImageLauncher(
 }
 
 /**
- * Displays the Container editable fields
+ * Card section containing editable container fields (parent, name, description).
+ *
+ * - Displays CREATE vs EDIT title based on [uiState.mode].
+ * - Shows parent selection UI when [uiState.canChangeParent] is true.
+ * - Emits field-change intents as the user edits values.
+ *
+ * :param uiState: Current form values and validation state.
+ * :param onIntent: Callback for emitting user intents (e.g., [AddEditContainerIntent.NameChanged]).
  */
 @Composable
 private fun AddEditContainerFormCard(
@@ -255,7 +308,13 @@ private fun AddEditContainerFormCard(
 }
 
 /**
- * Displays data related to the parent container. Call parent picker for move actions.
+ * Displays parent container information and, when allowed, provides UI for changing it.
+ *
+ * :param canChangeParent: Whether the parent container can be changed in the current mode.
+ * :param parentContainerId: Currently selected parent container id (null represents Root).
+ * :param parentContainerName: Display name for the currently selected parent (nullable).
+ * :param availableParents: Available parent options to choose from.
+ * :param onParentChanged: Callback for the newly selected parent id (null = Root).
  */
 @Composable
 private fun AddEditContainerParentSection(
@@ -280,7 +339,22 @@ private fun AddEditContainerParentSection(
 }
 
 /**
- * Either minimal picker or dropdown menu.
+ * Demo parent selection UI.
+ *
+ * Current implementation:
+ * - Displays the current parent name.
+ * - Provides a "Change" button that cycles through [options] (no dropdown dependency).
+ *
+ * Future implementation:
+ * - Replace cycling behavior with a dropdown or hierarchical picker when the repository-backed
+ *   container tree is available.
+ *
+ * Assumption:
+ * - [options] is non-empty.
+ *
+ * :param selectedId: Currently selected parent container id (null = Root).
+ * :param options: List of selectable parent options.
+ * :param onSelected: Callback invoked when the selection changes.
  */
 @Composable
 private fun ParentPicker(
@@ -323,7 +397,14 @@ private fun ParentPicker(
 }
 
 /**
- * Displays the Container's image
+ * Card section for viewing and editing the container image.
+ *
+ * - Displays a preview if [imageUri] is present, otherwise shows a placeholder message.
+ * - Exposes actions for picking/changing and removing the image.
+ *
+ * :param imageUri Current image URI string (nullable/blank indicates no image).
+ * :param onPickImage Invoked to launch the system image picker.
+ * :param onRemoveImage Invoked to remove the current image from the form state.
  */
 @Composable
 private fun AddEditContainerImageCard(
@@ -364,7 +445,9 @@ private fun AddEditContainerImageCard(
 }
 
 /**
- * Helper Composable for AddEditContainerImageCard
+ * Displays an image preview for the provided [imageUri], or a placeholder message when absent.
+ *
+ * :param imageUri Image URI string to display (nullable/blank indicates no image).
  */
 @Composable
 private fun AddEditContainerImagePreview(
@@ -393,7 +476,14 @@ private fun AddEditContainerImagePreview(
 }
 
 /**
- * The action buttons for user intent
+ * Card section containing primary form actions (Save/Cancel).
+ *
+ * - Save is disabled while [isSaving] is true.
+ * - Cancel delegates to [onCancel], which may prompt for discard confirmation when dirty.
+ *
+ * :param isSaving Whether a save operation is in progress.
+ * :param onSave Callback invoked when the user taps Save.
+ * :param onCancel Callback invoked when the user taps Cancel.
  */
 @Composable
 private fun AddEditContainerActionsCard(
