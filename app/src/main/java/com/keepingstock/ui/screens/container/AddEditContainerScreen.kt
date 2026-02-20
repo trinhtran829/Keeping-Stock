@@ -1,6 +1,7 @@
 package com.keepingstock.ui.screens.container
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -10,6 +11,8 @@ import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent
 import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
+import com.keepingstock.ui.components.screen.ErrorContent
+import com.keepingstock.ui.components.screen.LoadingContent
 
 @Composable
 fun AddEditContainerScreen(
@@ -18,7 +21,17 @@ fun AddEditContainerScreen(
     onIntent: (AddEditContainerIntent) -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
+    when (uiState) {
+        AddEditContainerUiState.Loading ->
+            LoadingContent(modifier.fillMaxSize())
 
+        is AddEditContainerUiState.Error ->
+            ErrorContent(modifier = modifier.fillMaxSize(), message = uiState.message)
+
+        is AddEditContainerUiState.Ready -> {
+            
+        }
+    }
 
     /*
     // TODO: OLD PLACEHOLDER CODE: REMOVE WHEN UI IS UPDATED
