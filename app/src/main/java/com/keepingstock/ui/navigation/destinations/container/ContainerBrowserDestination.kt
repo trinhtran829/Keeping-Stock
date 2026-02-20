@@ -215,6 +215,7 @@ private fun demoContainerBrowserReadyState(
                 Container(
                     id = ContainerId(1L),
                     name = "Garage",
+                    imageUri = "demo",
                     description = "Tools and hardware",
                     parentContainerId = null
                 ),
@@ -241,6 +242,7 @@ private fun demoContainerBrowserReadyState(
                 Container(
                     id = ContainerId(containerId.value * 10 + 2),
                     name = "Subcontainer B",
+                    imageUri = "demo2",
                     description = "Another subcontainer",
                     parentContainerId = containerId
                 )
