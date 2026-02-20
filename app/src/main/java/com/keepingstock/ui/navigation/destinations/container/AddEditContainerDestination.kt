@@ -60,9 +60,8 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
             )
         }
 
-        // Demo form state (rememberSaveable so screen survives config changes while testing)
         // TODO: Demo currently, to be owned by ViewModel
-        var uiState by rememberSaveable(containerId?.value, parentContainerId?.value) {
+        var uiState by remember(containerId, parentContainerId) {
             mutableStateOf(
                 demoInitialUiState(
                     mode = mode,
