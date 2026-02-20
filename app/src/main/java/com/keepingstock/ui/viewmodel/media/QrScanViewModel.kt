@@ -44,6 +44,7 @@ class QrScanViewModel(
     private val containerRepository: ContainerRepository
 ) : ViewModel() {
 
+    // Prevent overlapping scans from rapid repeated taps.
     private var scanJob: Job? = null
 
     // Expose immutable state to UI and keep mutation private in ViewModel.
@@ -80,6 +81,7 @@ class QrScanViewModel(
                     )
                 )
             } catch (t: CancellationException) {
+                // Preserve cancellation behavior.
                 throw t
             } catch (t: Throwable) {
                 _uiState.value = UiState.Error(
@@ -93,6 +95,7 @@ class QrScanViewModel(
     }
 
     fun reset() {
+        // Cancel active work before reset to prevent stale updates.
         scanJob?.cancel()
         scanJob = null
         _uiState.value = initialQrScanUiState()

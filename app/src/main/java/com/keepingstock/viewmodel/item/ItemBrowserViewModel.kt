@@ -28,6 +28,7 @@ class ItemBrowserViewModel(
 
     // Optional filter to only show items in current container
     private val _activeContainerId = MutableStateFlow<ContainerId?>(null)
+    // Increment to force a reload without changing query/container inputs.
     private val _reloadVersion = MutableStateFlow(0L)
 
     // Exposed UI state (Loading, Success, or Error)
@@ -48,6 +49,7 @@ class ItemBrowserViewModel(
             ) { query, containerId, _ ->
                 query to containerId
             }.collectLatest { (query, containerId) ->
+                // If inputs change mid-load, cancel old request and keep only latest result.
                 loadItems(query, containerId)
             }
         }
