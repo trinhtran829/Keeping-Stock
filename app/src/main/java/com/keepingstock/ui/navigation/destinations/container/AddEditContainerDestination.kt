@@ -19,6 +19,20 @@ import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.container.AddEditContainerScreen
 
+/**
+ * Registers the Add/Edit Container destination and wires demo state + navigation callbacks.
+ *
+ * Navigation args:
+ * - [Routes.Args.CONTAINER_ID]: when present, screen is in EDIT mode; otherwise CREATE mode.
+ * - [Routes.Args.PARENT_CONTAINER_ID]: optional initial parent for CREATE mode (or preselect in EDIT).
+ *
+ * Current behavior (pre-ViewModel):
+ * - Creates a demo [AddEditContainerUiState.Ready] via [demoInitialUiState].
+ * - Uses [AddEditContainerDemoController] to reduce UI intents into state changes and to perform
+ *   side effects (snackbar + popBackStack) on save.
+ *
+ * :param deps: Navigation and UI dependencies (NavController, top bar updater, snackbar helper).
+ */
 internal fun NavGraphBuilder.addAddEditContainerDestination(
     deps: NavDeps
 ) {
@@ -71,9 +85,8 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
             )
         }
 
-        val topBarConfig = remember(uiState) { containerAddEditTopBarConfig(uiState) }
         LaunchedEffect(uiState) {
-            deps.onTopBarChange(topBarConfig)
+            deps.onTopBarChange(containerAddEditTopBarConfig(uiState) )
         }
 
         // TODO: Demo only: Controller will be replaced by ViewModel
@@ -97,7 +110,10 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
 }
 
 /**
- * Builds top bar title/back behavior from ContainerDetailUiState.
+ * Builds top bar title/back behavior from AddEditContainerUiState.
+ *
+ * :param uiState: The current UI state for the Add/Edit Container screen.
+ * :return: A [TopBarConfig] describing the top app bar title and back button visibility.
  */
 private fun containerAddEditTopBarConfig(uiState: AddEditContainerUiState): TopBarConfig {
     val title = when (uiState) {
@@ -116,6 +132,14 @@ private fun containerAddEditTopBarConfig(uiState: AddEditContainerUiState): TopB
 /**
  * A simple controller object for user intent + side effects
  *
+ * This exists to keep the destination composable thinner while the real ViewModel is pending.
+ *
+ * :param deps: Navigation and snackbar helpers.
+ * :param mode: Current screen mode (CREATE vs EDIT).
+ * :param parentOptions: Demo list of available parent containers for selection.
+ * :param getUiState: Getter for the current [AddEditContainerUiState.Ready] form state.
+ * :param setUiState: Setter for the updated [AddEditContainerUiState.Ready] form state.
+ *
  * TODO: For demo purposes only; replace with ViewModel functions
  */
 private class AddEditContainerDemoController(
@@ -125,7 +149,13 @@ private class AddEditContainerDemoController(
     private val getUiState: () -> AddEditContainerUiState.Ready,
     private val setUiState: (AddEditContainerUiState.Ready) -> Unit
 ) {
-    // TODO: onSave function for demo purposes - handled by ViewModel
+    /**
+     * Demo save handler:
+     * - Validates the current form state via [validate].
+     * - If valid, shows a success snackbar and pops the back stack.
+     *
+     * TODO: onSave function for demo purposes - handled by ViewModel
+     */
     fun onSave() {
         val current = getUiState()
 
@@ -149,7 +179,20 @@ private class AddEditContainerDemoController(
         }
     }
 
-    // TODO: onIntent functions for demo purposes - handled by ViewModel
+    /**
+     * Handles user intents emitted by the Add/Edit Container screen.
+     *
+     * Routing rules:
+     * - [AddEditContainerIntent.SaveClicked] triggers [onSave].
+     * - Back/discard intents pop the back stack.
+     * - Image picker launch intent is ignored here (the screen launches the picker); this controller
+     *   only consumes [AddEditContainerIntent.ImagePicked] results.
+     * - All other intents are reduced into a new form state via [reduceIntent].
+     *
+     * :param intent: The user intent to process.
+     *
+     * TODO: onIntent functions for demo purposes - handled by ViewModel
+     */
     fun onIntent(intent: AddEditContainerIntent) {
         when (intent) {
             AddEditContainerIntent.SaveClicked -> onSave()
@@ -167,7 +210,13 @@ private class AddEditContainerDemoController(
 }
 
 /**
- * Form validation for the current state.
+ * Validates the Add/Edit Container form state and returns a copy containing validation errors.
+ *
+ * Current validation rules:
+ * - Name is required (non-blank after trimming).
+ *
+ * :param currentState The current form state.
+ * :return A copy of [currentState] with updated validation fields.
  *
  * TODO: This might be able to be moved directly into the ViewModel later.
  */
@@ -178,7 +227,7 @@ private fun validate(
     //  unique in the container? Update UiState model if additional validation is needed.
     val nameError = if (currentState.name.trim().isBlank()) "Name is required." else null
 
-    // Copy current state, but update the nameError message (
+    // Copy current state, but update the nameError message
     return currentState.copy(
         validation = currentState.validation.copy(nameError = nameError)
     )
@@ -186,6 +235,11 @@ private fun validate(
 
 /**
  * State transition: applies an intent to the current uistate and returns the next uistate.
+ *
+ * :param current: Current form state.
+ * :param intent: User intent to apply.
+ * :param parentOptions: Available parent container options used to resolve parent display name.
+ * :return: The next form state after applying [intent] and validation.
  *
  * TODO: for demo purposes only; could be moved into ViewModel later if matches intended structure
  */
@@ -238,7 +292,24 @@ private fun reduceIntent(
     return validate(updated)
 }
 
-
+/**
+ * Builds a demo [AddEditContainerUiState.Ready] for previews/manual testing.
+ *
+ * CREATE mode:
+ * - Empty name/description.
+ * - Optional [parentContainerId] preselected when provided.
+ *
+ * EDIT mode:
+ * - Uses placeholder values for name/description (replace with repository-loaded values later).
+ *
+ * :param mode CREATE vs EDIT.
+ * :param containerId Container being edited (null for CREATE).
+ * :param parentContainerId Optional initial parent selection.
+ * :param parentOptions Demo parent options list, used to resolve parent display name.
+ * :return A [AddEditContainerUiState.Ready] suitable for demo rendering.
+ *
+ * TODO: For demo purposes only
+ */
 private fun demoInitialUiState(
     mode: AddEditContainerUiState.Ready.Mode,
     containerId: ContainerId?,
