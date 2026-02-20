@@ -105,6 +105,23 @@ private fun containerAddEditTopBarConfig(uiState: AddEditContainerUiState): TopB
     return TopBarConfig(title = title, showBack = true)
 }
 
+private class AddEditContainerDemoController(
+    private val deps: NavDeps,
+    private val mode: AddEditContainerUiState.Ready.Mode,
+    private val parentOptions: List<AddEditContainerUiState.Ready.ParentOption>,
+    private val getForm: () -> AddEditContainerUiState.Ready,
+    private val setForm: (AddEditContainerUiState.Ready) -> Unit
+) {
+    fun onSave() {
+
+    }
+
+    fun onIntent() {
+
+    }
+}
+
+
 private fun demoInitialUiState(
     mode: AddEditContainerUiState.Ready.Mode,
     containerId: ContainerId?,
