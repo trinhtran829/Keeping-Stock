@@ -35,13 +35,8 @@ import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiStat
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.thumbnail.ContainerThumbnail
 import com.keepingstock.ui.components.thumbnail.ItemThumbnail
-<<<<<<< david/feature/ui/itembrowser-1
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
-=======
-import com.keepingstock.ui.screens.shared.ErrorContent
-import com.keepingstock.ui.screens.shared.LoadingContent
->>>>>>> main
 
 /**
  * Screen for browsing container contents. Render based on ContainerBrowserUiState.
