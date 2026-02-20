@@ -91,10 +91,9 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
 
         // TODO: onSave action not implemented yet
         AddEditContainerScreen(
-            containerId = containerId,
-            parentContainerId = parentContainerId,
-            onSave = { deps.navController.popBackStack() },
-            onCancel = { deps.navController.popBackStack() }
+            uiState = uiState,
+            onIntent = controller::onIntent,
+            onNavigateBack = { deps.navController.popBackStack() }
         )
     }
 }

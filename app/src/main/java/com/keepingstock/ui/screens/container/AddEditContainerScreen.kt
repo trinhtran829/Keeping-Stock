@@ -8,15 +8,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent
+import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
 
 @Composable
 fun AddEditContainerScreen(
-    containerId: ContainerId?,
-    parentContainerId: ContainerId?,
     modifier: Modifier = Modifier,
-    onSave: () -> Unit = {},
-    onCancel: () -> Unit = {}
+    uiState: AddEditContainerUiState,
+    onIntent: (AddEditContainerIntent) -> Unit = {},
+    onNavigateBack: () -> Unit = {}
 ) {
+
+
+    /*
+    // TODO: OLD PLACEHOLDER CODE: REMOVE WHEN UI IS UPDATED
     val mode = if (containerId == null) "ADD" else "EDIT"
 
     Column (modifier = modifier.padding(16.dp)) {
@@ -32,4 +37,5 @@ fun AddEditContainerScreen(
             Text("Cancel")
         }
     }
+    */
 }
