@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
+import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent
 import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
@@ -100,6 +101,20 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
         }
 
         // TODO: onIntent functions for demo purposes - handled by ViewModel
+        fun handleIntent(intent: AddEditContainerIntent) {
+            when (intent) {
+                AddEditContainerIntent.SaveClicked -> onSave()
+
+                AddEditContainerIntent.BackClicked,
+                AddEditContainerIntent.DiscardChangesConfirmed -> deps.navController.popBackStack()
+
+                // Screen handles launching the picker; destination only consumes the result.
+                AddEditContainerIntent.PickImageClicked,
+                AddEditContainerIntent.DismissDiscardDialog -> Unit
+
+                else -> uiState = reduceIntent(uiState, intent, parentOptions)
+            }
+        }
 
         // TODO: onSave action not implemented yet
         AddEditContainerScreen(
@@ -160,6 +175,58 @@ private fun validate(
     return currentState.copy(
         validation = currentState.validation.copy(nameError = nameError)
     )
+}
+
+/**
+ * State transition: applies an intent to the current uistate and returns the next uistate.
+ */
+private fun reduceIntent(
+    current: AddEditContainerUiState.Ready,
+    intent: AddEditContainerIntent,
+    parentOptions: List<AddEditContainerUiState.Ready.ParentOption>
+): AddEditContainerUiState.Ready {
+    val updated = when (intent) {
+        // If user edits name
+        is AddEditContainerIntent.NameChanged ->
+            current.copy(name = intent.value, isDirty = true)
+
+        // If user edits description
+        is AddEditContainerIntent.DescriptionChanged ->
+            current.copy(description = intent.value, isDirty = true)
+
+        // If user moved parent container
+        is AddEditContainerIntent.ParentChanged -> {
+            if (!current.canChangeParent)
+                current
+            else {
+                // Get parent name, update current state's parent id and name
+                val parentName = parentOptions.firstOrNull { it.id == intent.parentId }?.name
+                current.copy(
+                    parentContainerId = intent.parentId,
+                    parentContainerName = parentName,
+                    isDirty = true
+                )
+            }
+        }
+
+        // If user selected a new image
+        is AddEditContainerIntent.ImagePicked ->
+            current.copy(imageUri = intent.uriString, isDirty = true)
+
+        // If user removed the current image
+        AddEditContainerIntent.RemoveImageClicked ->
+            current.copy(imageUri = null, isDirty = true)
+
+        // These intents are handled as side-effects in the destination.
+        // when requires them to be accounted for.
+        AddEditContainerIntent.SaveClicked,
+        AddEditContainerIntent.BackClicked,
+        AddEditContainerIntent.PickImageClicked,
+        AddEditContainerIntent.DiscardChangesConfirmed,
+        AddEditContainerIntent.DismissDiscardDialog -> current
+    }
+
+    return validate(updated)
 }
 
 
