@@ -7,7 +7,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -43,7 +42,6 @@ import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent
 import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
-import kotlinx.coroutines.launch
 
 @Composable
 fun AddEditContainerScreen(
