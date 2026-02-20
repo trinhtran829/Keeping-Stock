@@ -9,10 +9,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -46,7 +51,12 @@ fun AddEditContainerScreen(
             ErrorContent(modifier = modifier.fillMaxSize(), message = uiState.message)
 
         is AddEditContainerUiState.Ready -> {
-
+            AddEditContainerReadyContent(
+                modifier = modifier.fillMaxSize(),
+                uiState = uiState,
+                onIntent = onIntent,
+                onNavigateBack = onNavigateBack
+            )
         }
     }
 
@@ -106,10 +116,7 @@ private fun AddEditContainerReadyContent(
     ) {
         // Display container details
         item {
-            AddEditContainerFormCard(
-                uiState = uiState,
-                onIntent = onIntent
-            )
+            AddEditContainerFormCard(uiState = uiState, onIntent = onIntent)
         }
 
         // Display container image
@@ -205,6 +212,91 @@ private fun rememberPickImageLauncher(
 private fun AddEditContainerFormCard(
     uiState: AddEditContainerUiState.Ready,
     onIntent: (AddEditContainerIntent) -> Unit
+) {
+    ElevatedCard(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = if (uiState.mode == AddEditContainerUiState.Ready.Mode.CREATE)
+                    "Add Container"
+                else
+                    "Edit Container",
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            // Parent data
+            AddEditContainerParentSection(
+                canChangeParent = uiState.canChangeParent,
+                parentContainerId = uiState.parentContainerId,
+                parentContainerName = uiState.parentContainerName,
+                availableParents = uiState.availableParents,
+                onParentChanged = { onIntent(AddEditContainerIntent.ParentChanged(it)) }
+            )
+
+            HorizontalDivider()
+
+            // Name field
+            OutlinedTextField(
+                value = uiState.name,
+                onValueChange = { onIntent(AddEditContainerIntent.NameChanged(it)) },
+                label = { Text("Name") },
+                isError = uiState.validation.nameError != null,
+                supportingText = {
+                    uiState.validation.nameError?.let { Text(it) }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            // Description field
+            OutlinedTextField(
+                value = uiState.description,
+                onValueChange = { onIntent(AddEditContainerIntent.DescriptionChanged(it)) },
+                label = { Text("Description") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3
+            )
+        }
+    }
+}
+
+/**
+ * Displays data related to the parent container. Call parent picker for move actions.
+ */
+@Composable
+private fun AddEditContainerParentSection(
+    canChangeParent: Boolean,
+    parentContainerId: ContainerId?,
+    parentContainerName: String?,
+    availableParents: List<AddEditContainerUiState.Ready.ParentOption>,
+    onParentChanged: (ContainerId?) -> Unit
+) {
+    if (canChangeParent) {
+        ParentPicker(
+            selectedId = parentContainerId,
+            options = availableParents,
+            onSelected = onParentChanged
+        )
+    } else {
+        Text(
+            text = "Parent: ${parentContainerName ?: "Root"}",
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+/**
+ * Either minimal picker or dropdown menu.
+ */
+@Composable
+private fun ParentPicker(
+    selectedId: ContainerId?,
+    options: List<AddEditContainerUiState.Ready.ParentOption>,
+    onSelected: (ContainerId?) -> Unit
 ) {
 
 }
