@@ -63,7 +63,7 @@ class ItemDaoTest {
         checkoutDate = null
     )
 
-    /* ---------- Test insert ---------- */
+    /** ---------- Test insert ---------- */
     @Test
     fun insert() = runTest {
         val generatedId = itemDao.insert(createItem())
@@ -75,7 +75,7 @@ class ItemDaoTest {
         Assert.assertEquals("test item", result?.name)
     }
 
-    /* ---------- Test update ---------- */
+    /** ---------- Test update ---------- */
     @Test
     fun update() = runTest {
         val generatedId = itemDao.insert(createItem())
@@ -88,7 +88,7 @@ class ItemDaoTest {
         Assert.assertEquals("updated item", result?.name)
     }
 
-    /* ---------- Test delete (object) ---------- */
+    /** ---------- Test delete (object) ---------- */
     @Test
     fun delete() = runTest {
         val generatedId = itemDao.insert(createItem())
@@ -101,7 +101,7 @@ class ItemDaoTest {
         Assert.assertNull(result)
     }
 
-    /* ---------- Test deleteById ---------- */
+    /** ---------- Test deleteById ---------- */
     @Test
     fun deleteById() = runTest {
         val generatedId = itemDao.insert(createItem())
@@ -113,7 +113,7 @@ class ItemDaoTest {
         Assert.assertNull(result)
     }
 
-    /* ---------- Test updateItemStatus ---------- */
+    /** ---------- Test updateItemStatus ---------- */
     @Test
     fun updateItemStatus() = runTest {
         val generatedId = itemDao.insert(createItem(status = ItemStatus.STORED))
@@ -131,7 +131,7 @@ class ItemDaoTest {
         Assert.assertEquals(checkoutDate, result?.checkoutDate)
     }
 
-    /* ---------- Test getItems ---------- */
+    /** ---------- Test getItems ---------- */
     @Test
     fun getItems() = runTest {
         itemDao.insert(createItem("item 1"))
@@ -142,7 +142,7 @@ class ItemDaoTest {
         Assert.assertEquals(2, items.size)
     }
 
-    /* ---------- Test getItemsInContainer ---------- */
+    /** ---------- Test getItemsInContainer ---------- */
     @Test
     fun getItemsInContainer() = runTest {
         itemDao.insert(createItem("item 1", 1))
@@ -154,7 +154,7 @@ class ItemDaoTest {
         Assert.assertEquals("item 1", items[0].name)
     }
 
-    /* ---------- Test getItemsUnsorted ---------- */
+    /** ---------- Test getItemsUnsorted ---------- */
     @Test
     fun getItemsUnsorted() = runTest {
         itemDao.insert(createItem("item 1", 1))
@@ -167,13 +167,12 @@ class ItemDaoTest {
         Assert.assertNull(items[0].containerId)
     }
 
-    /* ---------- Test countItemsInContainer ---------- */
+    /** ---------- Test countItemsInContainer ---------- */
     @Test
     fun countItemsInContainer() = runTest {
         itemDao.insert(createItem("item 1", 1))
         itemDao.insert(createItem("item 2", 1))
         itemDao.insert(createItem("item 3", 2))
-
 
         val count = itemDao.countItemsInContainer(1)
 
