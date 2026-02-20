@@ -11,14 +11,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.UiState
+import com.keepingstock.viewmodel.item.ItemBrowserUiData
 import com.keepingstock.viewmodel.item.ItemBrowserViewModel
 
 @Composable
 fun ItemBrowserScreen(
-    viewModel: ItemBrowserViewModel? = null,
     modifier: Modifier = Modifier,
+    uiState: UiState<ItemBrowserUiData>,
     onOpenItem: (itemId: ItemId) -> Unit = {},
     onOpenContainerBrowser: () -> Unit = {}
 ) {
@@ -27,16 +29,17 @@ fun ItemBrowserScreen(
     Column(modifier = modifier.padding(16.dp)) {
         // Show state info, will refactor with real UI later.
         // Show state if viewModel exists, otherwise placeholder
-        if (viewModel != null) {
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            when (val state = uiState) {
-                is UiState.Loading -> Text("Item Browser Screen (loading...)")
-                is UiState.Success -> Text("Item Browser Screen (${state.data.items.size} items)")
-                is UiState.Error -> Text("Item Browser Screen (error: ${state.message})")
-            }
-        } else {
-            Text("Item Browser Screen (placeholder)")
+        when (uiState) {
+            is UiState.Loading ->
+                Text("Item Browser Screen (loading...)")
+
+            is UiState.Success ->
+                Text("Item Browser Screen (${uiState.data.items.size} items)")
+
+            is UiState.Error ->
+                Text("Item Browser Screen (error: ${uiState.message})")
         }
+
         // Button to test item navigation
         Button(
             onClick = { onOpenItem(exampleItemId) },

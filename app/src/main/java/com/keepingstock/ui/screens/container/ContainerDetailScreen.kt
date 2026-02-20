@@ -33,9 +33,9 @@ import coil.compose.AsyncImage
 import com.keepingstock.R
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
-import com.keepingstock.ui.screens.shared.DetailRow
-import com.keepingstock.ui.screens.shared.ErrorContent
-import com.keepingstock.ui.screens.shared.LoadingContent
+import com.keepingstock.ui.components.screen.DetailRow
+import com.keepingstock.ui.components.screen.ErrorContent
+import com.keepingstock.ui.components.screen.LoadingContent
 
 /**
  * Details screen for a container. Render based on ContainerBrowserUiState.
