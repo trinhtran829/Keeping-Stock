@@ -10,11 +10,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
@@ -31,8 +33,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import coil.compose.AsyncImage
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent
 import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
@@ -327,7 +332,7 @@ private fun ParentPicker(
                 Text("Change")
             }
         }
-        
+
         Text(
             text = "Tap Change to cycle parent (demo). Replace with dropdown later.",
             style = MaterialTheme.typography.bodySmall,
@@ -345,7 +350,65 @@ private fun AddEditContainerImageCard(
     onPickImage: () -> Unit,
     onRemoveImage: () -> Unit
 ) {
+    ElevatedCard(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Field title
+            Text("Image", style = MaterialTheme.typography.titleMedium)
 
+            // Get image preview (or text indicating no image was selected
+            AddEditContainerImagePreview(imageUri = imageUri)
+
+            // Buttons for user action related to changing the picture
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(
+                    onClick = onPickImage
+                ) {
+                    Text(if (imageUri.isNullOrBlank()) "Pick image" else "Change image")
+                }
+
+                OutlinedButton(
+                    onClick = onRemoveImage,
+                    enabled = !imageUri.isNullOrBlank()
+                ) {
+                    Text("Remove")
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Helper Composable for AddEditContainerImageCard
+ */
+@Composable
+private fun AddEditContainerImagePreview(
+    imageUri: String?
+) {
+    // If URI is not available, show text
+    if (imageUri.isNullOrBlank()) {
+        Text(
+            text = "No image selected.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        return
+    }
+
+    // Show image
+    AsyncImage(
+        model = Uri.parse(imageUri),
+        contentDescription = null,
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(16f / 9f)
+            .clip(RoundedCornerShape(12.dp)),
+        contentScale = ContentScale.Crop
+    )
 }
 
 /**
