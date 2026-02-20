@@ -78,6 +78,7 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
             deps.onTopBarChange(topBarConfig)
         }
 
+        // TODO: Demo only: Controller will be replaced by ViewModel
         val controller = remember(deps, mode, parentOptions) {
             AddEditContainerDemoController(
                 deps = deps,
@@ -116,6 +117,8 @@ private fun containerAddEditTopBarConfig(uiState: AddEditContainerUiState): TopB
 }
 
 /**
+ * A simple controller object for user intent + side effects
+ *
  * TODO: For demo purposes only; replace with ViewModel functions
  */
 private class AddEditContainerDemoController(
@@ -169,7 +172,7 @@ private class AddEditContainerDemoController(
 /**
  * Form validation for the current state.
  *
- * This might be able to be moved directly into the ViewModel later.
+ * TODO: This might be able to be moved directly into the ViewModel later.
  */
 private fun validate(
     currentState: AddEditContainerUiState.Ready
@@ -186,6 +189,8 @@ private fun validate(
 
 /**
  * State transition: applies an intent to the current uistate and returns the next uistate.
+ *
+ * TODO: for demo purposes only; could be moved into ViewModel later if matches intended structure
  */
 private fun reduceIntent(
     current: AddEditContainerUiState.Ready,
