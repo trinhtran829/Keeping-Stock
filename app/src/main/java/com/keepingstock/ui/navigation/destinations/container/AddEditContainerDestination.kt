@@ -88,22 +88,6 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
             )
         }
 
-        // TODO: onIntent functions for demo purposes - handled by ViewModel
-        fun handleIntent(intent: AddEditContainerIntent) {
-            when (intent) {
-                AddEditContainerIntent.SaveClicked -> onSave()
-
-                AddEditContainerIntent.BackClicked,
-                AddEditContainerIntent.DiscardChangesConfirmed -> deps.navController.popBackStack()
-
-                // Screen handles launching the picker; destination only consumes the result.
-                AddEditContainerIntent.PickImageClicked,
-                AddEditContainerIntent.DismissDiscardDialog -> Unit
-
-                else -> uiState = reduceIntent(uiState, intent, parentOptions)
-            }
-        }
-
         // TODO: onSave action not implemented yet
         AddEditContainerScreen(
             containerId = containerId,
@@ -165,8 +149,20 @@ private class AddEditContainerDemoController(
         }
     }
 
-    fun onIntent() {
+    // TODO: onIntent functions for demo purposes - handled by ViewModel
+    fun onIntent(intent: AddEditContainerIntent) {
+        when (intent) {
+            AddEditContainerIntent.SaveClicked -> onSave()
 
+            AddEditContainerIntent.BackClicked,
+            AddEditContainerIntent.DiscardChangesConfirmed -> deps.navController.popBackStack()
+
+            // Screen handles launching the picker; destination only consumes the result.
+            AddEditContainerIntent.PickImageClicked,
+            AddEditContainerIntent.DismissDiscardDialog -> Unit
+
+            else -> setUiState(reduceIntent(getUiState(), intent, parentOptions))
+        }
     }
 }
 
