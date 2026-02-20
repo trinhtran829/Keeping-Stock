@@ -44,3 +44,24 @@ private fun Preview_AddEditContainer_Create() {
     )
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun Preview_AddEditContainer_Edit_WithValidationError() {
+    AddEditContainerScreen(
+        uiState = AddEditContainerUiState.Ready(
+            mode = AddEditContainerUiState.Ready.Mode.EDIT,
+            containerId = ContainerId(10L),
+            parentContainerId = null,
+            parentContainerName = "Root",
+            availableParents = listOf(
+                AddEditContainerUiState.Ready.ParentOption(null, "Root"),
+                AddEditContainerUiState.Ready.ParentOption(ContainerId(1L), "Garage"),
+            ),
+            name = "   ",
+            description = "Example description",
+            imageUri = null,
+            canChangeParent = true,
+            validation = AddEditContainerUiState.Ready.Validation(nameError = "Name is required.")
+        )
+    )
+}
