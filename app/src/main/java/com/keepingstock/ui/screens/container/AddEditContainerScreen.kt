@@ -52,41 +52,24 @@ fun AddEditContainerScreen(
     onIntent: (AddEditContainerIntent) -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
-    when (uiState) {
-        AddEditContainerUiState.Loading ->
-            LoadingContent(modifier.fillMaxSize())
+    Column(modifier = modifier.padding(16.dp)) {
+        when (uiState) {
+            AddEditContainerUiState.Loading ->
+                LoadingContent(modifier.fillMaxSize())
 
-        is AddEditContainerUiState.Error ->
-            ErrorContent(modifier = modifier.fillMaxSize(), message = uiState.message)
+            is AddEditContainerUiState.Error ->
+                ErrorContent(modifier = modifier.fillMaxSize(), message = uiState.message)
 
-        is AddEditContainerUiState.Ready -> {
-            AddEditContainerReadyContent(
-                modifier = modifier.fillMaxSize(),
-                uiState = uiState,
-                onIntent = onIntent,
-                onNavigateBack = onNavigateBack
-            )
+            is AddEditContainerUiState.Ready -> {
+                AddEditContainerReadyContent(
+                    modifier = modifier.fillMaxSize(),
+                    uiState = uiState,
+                    onIntent = onIntent,
+                    onNavigateBack = onNavigateBack
+                )
+            }
         }
     }
-
-    /*
-    // TODO: OLD PLACEHOLDER CODE: REMOVE WHEN UI IS UPDATED
-    val mode = if (containerId == null) "ADD" else "EDIT"
-
-    Column (modifier = modifier.padding(16.dp)) {
-        Text("Add/Edit Container Screen (placeholder)")
-        Text("mode = $mode")
-        Text("containerId = ${containerId ?: "null"}")
-        Text("parentContainerId = ${parentContainerId ?: "null"}")
-
-        Button(onClick = onSave, modifier = Modifier.padding(top = 12.dp)) {
-            Text("Save (placeholder)")
-        }
-        Button(onClick = onCancel, modifier = Modifier.padding(top = 12.dp)) {
-            Text("Cancel")
-        }
-    }
-    */
 }
 
 @Composable
@@ -420,19 +403,28 @@ private fun AddEditContainerActionsCard(
     onSave: () -> Unit,
     onCancel: () -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Button(
-            onClick = onSave,
-            enabled = !isSaving,
-            modifier = Modifier.weight(1f)
-        ) { Text(if (isSaving) "Saving…" else "Save") }
+    ElevatedCard(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = onSave,
+                    enabled = !isSaving,
+                    modifier = Modifier.weight(1f)
+                ) { Text(if (isSaving) "Saving…" else "Save") }
 
-        OutlinedButton(
-            onClick = onCancel,
-            modifier = Modifier.weight(1f)
-        ) { Text("Cancel") }
+                OutlinedButton(
+                    onClick = onCancel,
+                    modifier = Modifier.weight(1f)
+                ) { Text("Cancel") }
+            }
+        }
     }
 }
