@@ -8,15 +8,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -298,7 +302,38 @@ private fun ParentPicker(
     options: List<AddEditContainerUiState.Ready.ParentOption>,
     onSelected: (ContainerId?) -> Unit
 ) {
+    // TODO: Minimal picker: cycle via buttons (no ExposedDropdownMenu dependency).
+    val current = options.firstOrNull { it.id == selectedId } ?: options.first()
 
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text("Parent", style = MaterialTheme.typography.labelLarge)
+
+        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Text(
+                text = current.name,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f)
+            )
+
+            Spacer(Modifier.width(12.dp))
+
+            OutlinedButton(
+                onClick = {
+                    val idx = options.indexOfFirst { it.id == selectedId }.coerceAtLeast(0)
+                    val next = options[(idx + 1) % options.size]
+                    onSelected(next.id)
+                }
+            ) {
+                Text("Change")
+            }
+        }
+        
+        Text(
+            text = "Tap Change to cycle parent (demo). Replace with dropdown later.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }
 
 /**
