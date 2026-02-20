@@ -1,10 +1,14 @@
 package com.keepingstock.ui.navigation.destinations.container
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -13,6 +17,9 @@ import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent
 import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
+import com.keepingstock.ui.components.navigation.ChipOption
+import com.keepingstock.ui.components.navigation.DemoMode
+import com.keepingstock.ui.components.navigation.DemoModeToggleRow
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.containerIdOrNull
@@ -55,6 +62,11 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
         val containerId = args?.containerIdOrNull(Routes.Args.CONTAINER_ID)
         val parentContainerId = args?.containerIdOrNull(Routes.Args.PARENT_CONTAINER_ID)
 
+        // TODO(REMOVE): Demo-only mode selector
+        var demoMode by rememberSaveable(containerId?.value) {
+            mutableStateOf(DemoMode.READY)
+        }
+
         // TODO: ultimately handled by ViewModel
         val mode = if (containerId == null)
             AddEditContainerUiState.Ready.Mode.CREATE
@@ -74,7 +86,8 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
         }
 
         // TODO: Demo currently, to be owned by ViewModel
-        var uiState by remember(containerId, parentContainerId) {
+        // Editable form state (READY only). Not saveable because it contains non-Bundle types.
+        var readyState by remember(containerId, parentContainerId) {
             mutableStateOf(
                 demoInitialUiState(
                     mode = mode,
@@ -83,6 +96,17 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
                     parentOptions = parentOptions
                 )
             )
+        }
+
+        // TODO: For demo only currently, to be covered by ViewModel
+        // Screen-facing UiState is derived from demoMode.
+        val uiState: AddEditContainerUiState = remember(demoMode, readyState) {
+            when (demoMode) {
+                DemoMode.LOADING -> AddEditContainerUiState.Loading
+                DemoMode.ERROR, DemoMode.EMPTY ->
+                    AddEditContainerUiState.Error("Demo error loading Add/Edit Container.")
+                DemoMode.READY, DemoMode.POPULATED -> readyState
+            }
         }
 
         LaunchedEffect(uiState) {
@@ -95,17 +119,42 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
                 deps = deps,
                 mode = mode,
                 parentOptions = parentOptions,
-                getUiState = { uiState },
-                setUiState = { uiState = it }
+                getUiState = { readyState },
+                setUiState = { readyState = it }
             )
         }
 
-        // TODO: onSave action not implemented yet
-        AddEditContainerScreen(
-            uiState = uiState,
-            onIntent = controller::onIntent,
-            onNavigateBack = { deps.navController.popBackStack() }
-        )
+        Column(Modifier.fillMaxSize()) {
+            // TODO(REMOVE): demo-only UI controls.
+            DemoModeToggleRow(
+                title = "Select demo mode:",
+                selected = demoMode,
+                options = listOf(
+                    ChipOption(DemoMode.READY, "Ready"),
+                    ChipOption(DemoMode.LOADING, "Loading"),
+                    ChipOption(DemoMode.ERROR, "Error")
+                ),
+                onSelect = { demoMode = it }
+            )
+
+            AddEditContainerScreen(
+                uiState = uiState,
+                onIntent = { intent ->
+                    // If user is in Loading/Error demo, ignore edit intents except back.
+                    if (uiState is AddEditContainerUiState.Ready) {
+                        controller.onIntent(intent)
+                    } else {
+                        when (intent) {
+                            AddEditContainerIntent.BackClicked,
+                            AddEditContainerIntent.DiscardChangesConfirmed ->
+                                deps.navController.popBackStack()
+                            else -> Unit
+                        }
+                    }
+                },
+                onNavigateBack = { deps.navController.popBackStack() }
+            )
+        }
     }
 }
 
