@@ -78,26 +78,14 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
             deps.onTopBarChange(topBarConfig)
         }
 
-        // TODO: onSave function for demo purposes - handled by ViewModel
-        fun onSave() {
-            // Validate the uiState
-            val validated = validate(uiState)
-            uiState = validated
-
-            // If UiState is valid (right now, means nameError == null; if more validation is used,
-            // update UiState model
-            if (validated.validation.nameError == null) {
-                // Show success message
-                deps.showSnackbar(
-                    if (mode == AddEditContainerUiState.Ready.Mode.CREATE)
-                        "Container created"
-                    else
-                        "Container updated"
-                )
-
-                // Editing is finished, navigate to previous screen
-                deps.navController.popBackStack()
-            }
+        val controller = remember(deps, mode, parentOptions) {
+            AddEditContainerDemoController(
+                deps = deps,
+                mode = mode,
+                parentOptions = parentOptions,
+                getUiState = { uiState },
+                setUiState = { uiState = it }
+            )
         }
 
         // TODO: onIntent functions for demo purposes - handled by ViewModel
@@ -143,6 +131,9 @@ private fun containerAddEditTopBarConfig(uiState: AddEditContainerUiState): TopB
     return TopBarConfig(title = title, showBack = true)
 }
 
+/**
+ * TODO: For demo purposes only; replace with ViewModel functions
+ */
 private class AddEditContainerDemoController(
     private val deps: NavDeps,
     private val mode: AddEditContainerUiState.Ready.Mode,
@@ -150,8 +141,28 @@ private class AddEditContainerDemoController(
     private val getUiState: () -> AddEditContainerUiState.Ready,
     private val setUiState: (AddEditContainerUiState.Ready) -> Unit
 ) {
+    // TODO: onSave function for demo purposes - handled by ViewModel
     fun onSave() {
+        val current = getUiState()
 
+        // Validate the uiState
+        val validated = validate(current)
+        setUiState(validated)
+
+        // If UiState is valid (right now, means nameError == null; if more validation is used,
+        // update UiState model
+        if (validated.validation.nameError == null) {
+            // Show success message
+            deps.showSnackbar(
+                if (mode == AddEditContainerUiState.Ready.Mode.CREATE)
+                    "Container created"
+                else
+                    "Container updated"
+            )
+
+            // Editing is finished, navigate to previous screen
+            deps.navController.popBackStack()
+        }
     }
 
     fun onIntent() {
