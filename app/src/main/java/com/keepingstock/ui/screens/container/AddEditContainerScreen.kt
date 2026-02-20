@@ -420,5 +420,19 @@ private fun AddEditContainerActionsCard(
     onSave: () -> Unit,
     onCancel: () -> Unit
 ) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Button(
+            onClick = onSave,
+            enabled = !isSaving,
+            modifier = Modifier.weight(1f)
+        ) { Text(if (isSaving) "Saving…" else "Save") }
 
+        OutlinedButton(
+            onClick = onCancel,
+            modifier = Modifier.weight(1f)
+        ) { Text("Cancel") }
+    }
 }
