@@ -1,7 +1,22 @@
 package com.keepingstock.ui.navigation.destinations.container
 
+<<<<<<< david/feature/ui/itembrowser-1
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+=======
+import android.R.attr.description
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+>>>>>>> main
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -9,6 +24,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+<<<<<<< david/feature/ui/itembrowser-1
+=======
+import androidx.compose.ui.unit.dp
+>>>>>>> main
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -25,6 +44,20 @@ import com.keepingstock.ui.screens.container.ContainerDetailScreen
 import com.keepingstock.ui.components.navigation.ChipOption
 import com.keepingstock.ui.components.navigation.DemoMode
 import com.keepingstock.ui.components.navigation.DemoModeToggleRow
+
+
+/**
+ * Stupid name because Android Studio kept constantly forgetting that this exists and kept
+ * trying to use the ContainerBrowserDestination's DemoMode enum. Renaming was easier than
+ * diagnosing the underlying issue, especially since it is meant to be temporary.
+ *
+ * TODO(REMOVE): Demo-only state toggles. Delete when ContainerDetailViewModel is implemented.
+ */
+private enum class DemoMode_ConDeets {
+    READY,
+    LOADING,
+    ERROR
+}
 
 internal fun NavGraphBuilder.addContainerDetailsDestination(
     deps: NavDeps
@@ -43,16 +76,26 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
 
         // TODO(REMOVE): Demo-only mode selector
         var demoMode by rememberSaveable(containerId.value) {
+<<<<<<< david/feature/ui/itembrowser-1
             mutableStateOf(DemoMode.READY)
+=======
+            mutableStateOf(DemoMode_ConDeets.READY)
+>>>>>>> main
         }
 
         // TODO(REMOVE): Replace this with ViewModel uiState.
         val uiState = remember(containerId, demoMode) {
             when (demoMode) {
+<<<<<<< david/feature/ui/itembrowser-1
                 DemoMode.LOADING -> ContainerDetailUiState.Loading
                 DemoMode.READY, DemoMode.POPULATED -> demoContainerDetailReadyState(containerId)
                 DemoMode.ERROR, DemoMode.EMPTY ->
                     ContainerDetailUiState.Error("Demo error loading container details.")
+=======
+                DemoMode_ConDeets.LOADING -> ContainerDetailUiState.Loading
+                DemoMode_ConDeets.ERROR -> ContainerDetailUiState.Error("Demo error loading container details.")
+                DemoMode_ConDeets.READY -> demoContainerDetailReadyState(containerId)
+>>>>>>> main
             }
         }
 
@@ -65,6 +108,7 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
         Column(Modifier.fillMaxSize()) {
             // TODO(REMOVE): demo-only UI controls.
             DemoModeToggleRow(
+<<<<<<< david/feature/ui/itembrowser-1
                 title = "Select demo mode:",
                 selected = demoMode,
                 options = listOf (
@@ -72,6 +116,9 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
                     ChipOption(DemoMode.LOADING, "Loading"),
                     ChipOption(DemoMode.ERROR, "Error")
                 ),
+=======
+                selected = demoMode,
+>>>>>>> main
                 onSelect = { demoMode = it }
             )
 
@@ -88,6 +135,7 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
                 onDelete = { /* TODO: hook up when Delete flow exists */ }
             )
         }
+<<<<<<< david/feature/ui/itembrowser-1
     }
 }
 
@@ -125,5 +173,101 @@ private fun demoContainerDetailReadyState(containerId: ContainerId): ContainerDe
         itemCount = 5,
         canDelete = false,
         deleteBlockedReason = "Container must be empty to delete."
+=======
+    }
+}
+
+/**
+ * Builds top bar title/back behavior from ContainerDetailUiState.
+ */
+private fun containerDetailTopBarConfig(uiState: ContainerDetailUiState): TopBarConfig {
+    val title = when (uiState) {
+        is ContainerDetailUiState.Ready ->  "Container Details"//uiState.containerName + " Details"
+        is ContainerDetailUiState.Loading -> "Loading…"
+        is ContainerDetailUiState.Error -> "Container details"
+    }
+    return TopBarConfig(title = title, showBack = true)
+}
+
+/**
+ * TODO(REMOVE): Demo-only Ready state builder.
+ * ---
+ * GenAI usage citation:
+ * Sample container detail data auto-generated with the help of ChatGPT.
+ * Prompt: "Please generate data for a sample object with the following class signature:"
+ */
+private fun demoContainerDetailReadyState(containerId: ContainerId): ContainerDetailUiState.Ready {
+    return ContainerDetailUiState.Ready(
+        containerId = containerId,
+        container = Container(
+            id = containerId,
+            name = "Container ${containerId.value}",
+            description = "Example container detail description.",
+            imageUri = "demo",
+            parentContainerId = null,
+        ),
+        parentContainerName = null,
+        subcontainerCount = 2,
+        itemCount = 5,
+        canDelete = false,
+        deleteBlockedReason = "Container must be empty to delete."
+    )
+}
+
+/**
+ * TODO(REMOVE): Demo-only toggle UI.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DemoModeToggleRow(
+    selected: DemoMode_ConDeets,
+    onSelect: (DemoMode_ConDeets) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Text(
+            text = "Select demo mode:",
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            DemoChip("Ready", selected == DemoMode_ConDeets.READY) {
+                onSelect(DemoMode_ConDeets.READY)
+            }
+            DemoChip("Loading", selected == DemoMode_ConDeets.LOADING) {
+                onSelect(DemoMode_ConDeets.LOADING)
+            }
+            DemoChip("Error", selected == DemoMode_ConDeets.ERROR) {
+                onSelect(DemoMode_ConDeets.ERROR)
+            }
+        }
+    }
+}
+
+/**
+ * TODO(REMOVE): Demo-only chip.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DemoChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = { Text(label) },
+>>>>>>> main
     )
 }
