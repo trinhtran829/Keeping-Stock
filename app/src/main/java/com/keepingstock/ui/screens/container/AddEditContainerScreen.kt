@@ -3,6 +3,7 @@ package com.keepingstock.ui.screens.container
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -103,7 +104,35 @@ private fun AddEditContainerReadyContent(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // Display container details
+        item {
+            AddEditContainerFormCard(
+                uiState = uiState,
+                onIntent = onIntent
+            )
+        }
 
+        // Display container image
+        item {
+            AddEditContainerImageCard(
+                imageUri = uiState.imageUri,
+                onPickImage = {
+                    pickImageLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                },
+                onRemoveImage = { onIntent(AddEditContainerIntent.RemoveImageClicked) }
+            )
+        }
+
+        // Display user actions
+        item {
+            AddEditContainerActionsCard(
+                isSaving = uiState.isSaving,
+                onSave = { onIntent(AddEditContainerIntent.SaveClicked) },
+                onCancel = requestNavigateBack
+            )
+        }
     }
 }
 
