@@ -71,7 +71,7 @@ interface ContainerDao {
         SELECT * FROM containers
         WHERE containerId = :containerId
     """ )
-    suspend fun searchChildContainers(
+    suspend fun getContainerById(
         containerId: Long,
     ): ContainerEntity?
 }
