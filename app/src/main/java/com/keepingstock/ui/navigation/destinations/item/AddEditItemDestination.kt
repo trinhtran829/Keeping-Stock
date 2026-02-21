@@ -15,6 +15,7 @@ import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.Tag
 import com.keepingstock.core.contracts.TagId
 import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
+import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.ui.components.navigation.DemoMode
 import com.keepingstock.ui.navigation.NavDeps
@@ -94,12 +95,7 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
         }
 
         LaunchedEffect(itemId, containerId) {
-            deps.onTopBarChange(
-                TopBarConfig(
-                    title = if (itemId == null) "Add Item" else "Edit Item: $itemId",
-                    showBack = true
-                )
-            )
+            deps.onTopBarChange(addEditItemTopBarConfig(uiState))
         }
 
         AddEditItemScreen(
@@ -108,5 +104,55 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
             onSave = { deps.navController.popBackStack() },
             onCancel = { deps.navController.popBackStack() }
         )
+    }
+}
+
+private fun addEditItemTopBarConfig(uiState: AddEditItemUiState): TopBarConfig {
+    val title = when (uiState) {
+        AddEditItemUiState.Loading -> "Loading"
+        is AddEditItemUiState.Error -> "Item"
+        is AddEditItemUiState.Ready ->
+            if (uiState.mode == AddEditItemUiState.Ready.Mode.CREATE) "Add Item" else "Edit Item"
+    }
+
+    return TopBarConfig(title = title, showBack = true)
+}
+
+private class AddEditItemDemoController(
+    private val deps: NavDeps,
+    private val knownTags: List<Tag>,
+    private val getUiState: () -> AddEditItemUiState,
+    private val setUiState: (AddEditItemUiState) -> Unit
+) {
+    fun onIntent(intent: AddEditItemIntent) {
+        val current = getUiState()
+
+        when (intent) {
+            AddEditItemIntent.SaveClicked -> onSave(current)
+            AddEditItemIntent.BackClicked,
+            AddEditItemIntent.DiscardChangesConfirmed -> Unit
+
+            // Screen handles, destination currently consumes only
+            AddEditItemIntent.PickImageClicked,
+            AddEditItemIntent.DismissDiscardDialog -> Unit
+            
+            AddEditItemIntent.AddQueryAsTagClicked -> TODO()
+            AddEditItemIntent.ClearQuery -> TODO()
+            is AddEditItemIntent.ContainerChanged -> TODO()
+            is AddEditItemIntent.DescriptionChanges -> TODO()
+            is AddEditItemIntent.ExistingTagSelected -> TODO()
+            is AddEditItemIntent.ImagePicked -> TODO()
+            is AddEditItemIntent.NameChanged -> TODO()
+            is AddEditItemIntent.QueryChanged -> TODO()
+            is AddEditItemIntent.RecommendedTagSelected -> TODO()
+            AddEditItemIntent.RefreshRecommendations -> TODO()
+            AddEditItemIntent.RemoveImageClicked -> TODO()
+            is AddEditItemIntent.RemoveTagClicked -> TODO()
+            is AddEditItemIntent.StatusChanged -> TODO()
+        }
+    }
+
+    fun onSave(current: AddEditItemUiState) {
+
     }
 }
