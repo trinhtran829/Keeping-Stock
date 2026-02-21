@@ -1,7 +1,7 @@
 package com.keepingstock.core.contracts.uistates.item
 
 import com.keepingstock.core.contracts.ContainerId
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent
+import com.keepingstock.core.contracts.TagId
 import com.keepingstock.data.entities.ItemStatus
 
 sealed interface AddEditItemIntent {
@@ -25,4 +25,15 @@ sealed interface AddEditItemIntent {
     // TODO: Intent related to navigating away
     data object DiscardChangesConfirmed : AddEditItemIntent
     data object DismissDiscardDialog : AddEditItemIntent
+
+    // Tag related Intent
+    data class QueryChanged(val value: String) : AddEditItemIntent
+    data object ClearQuery : AddEditItemIntent
+
+    data object AddQueryAsTagClicked : AddEditItemIntent
+    data class ExistingTagSelected(val tagId: TagId) : AddEditItemIntent
+    data class RemoveTagClicked(val tagId: TagId) : AddEditItemIntent
+
+    data class RecommendedTagSelected(val name: String) : AddEditItemIntent
+    data object RefreshRecommendations : AddEditItemIntent
 }
