@@ -28,6 +28,15 @@ sealed interface AddEditItemUiState {
         val imageUri: String?,
         val status: ItemStatus,
 
+        val selectedTags: List<Tag> = emptyList(),
+        val tagQuery: String = "",
+        val tagSuggestions: List<Tag> = emptyList(),
+        val tagRecommendations: List<String> = emptyList(),
+        val isRecommending: Boolean = false,
+        val inputError: String? = null,
+        val maxTags: Int = 20,
+        val suggestionsLimit: Int = 8,
+        
         val isSaving: Boolean = false,
         val isDirty: Boolean = false,
         val validation: Validation = Validation(),
@@ -44,6 +53,8 @@ sealed interface AddEditItemUiState {
         data class Validation(
             val nameError: String? = null
         )
+
+        val canAddMore: Boolean get() = selectedTags.size < maxTags
     }
 
     /**
