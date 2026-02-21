@@ -128,14 +128,16 @@ private class AddEditItemDemoController(
         val current = getUiState()
 
         when (intent) {
+            // Navigation related
             AddEditItemIntent.SaveClicked -> onSave(current)
             AddEditItemIntent.BackClicked,
-            AddEditItemIntent.DiscardChangesConfirmed -> Unit
+            AddEditItemIntent.DiscardChangesConfirmed -> deps.navController.popBackStack()
 
             // Screen handles, destination currently consumes only
             AddEditItemIntent.PickImageClicked,
             AddEditItemIntent.DismissDiscardDialog -> Unit
-            
+
+            // Set UI State based on intent - call reducer function
             AddEditItemIntent.AddQueryAsTagClicked -> TODO()
             AddEditItemIntent.ClearQuery -> TODO()
             is AddEditItemIntent.ContainerChanged -> TODO()
@@ -155,4 +157,12 @@ private class AddEditItemDemoController(
     fun onSave(current: AddEditItemUiState) {
 
     }
+}
+
+private fun reduceAddEditItemIntent(
+    current: AddEditItemUiState.Ready,
+    intent: AddEditItemIntent,
+    knownTags: List<Tag>
+) {
+    
 }
