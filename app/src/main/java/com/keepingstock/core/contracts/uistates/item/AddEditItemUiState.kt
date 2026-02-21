@@ -2,6 +2,7 @@ package com.keepingstock.core.contracts.uistates.item
 
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.Tag
 import com.keepingstock.data.entities.ItemStatus
 
 sealed interface AddEditItemUiState {
@@ -17,14 +18,16 @@ sealed interface AddEditItemUiState {
      */
     data class Ready(
         val mode: Mode,
-        val itemId: ItemId?,              // null when creating
-        val containerId: ContainerId?,
-        val containerName: String?,           // need for displaying
+        val itemId: ItemId?,                        // null when creating
+        val containerId: ContainerId?,              // null = no container
+        val containerName: String?,                 // need for displaying
         val availableParents: List<ParentOption>,   // TODO: Improve for hierarchical display?
+
         val name: String,
         val description: String,
-        val status: ItemStatus,
         val imageUri: String?,
+        val status: ItemStatus,
+
         val isSaving: Boolean = false,
         val isDirty: Boolean = false,
         val validation: Validation = Validation(),
