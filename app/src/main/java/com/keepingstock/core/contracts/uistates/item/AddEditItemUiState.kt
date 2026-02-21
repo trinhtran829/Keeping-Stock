@@ -4,6 +4,7 @@ import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Tag
 import com.keepingstock.data.entities.ItemStatus
+import java.util.Date
 
 sealed interface AddEditItemUiState {
     /**
@@ -27,6 +28,8 @@ sealed interface AddEditItemUiState {
         val description: String,
         val imageUri: String?,
         val status: ItemStatus,
+        val createdDate: Date,
+        val checkoutDate: Date?,
 
         val selectedTags: List<Tag> = emptyList(),
         val tagQuery: String = "",
@@ -36,7 +39,7 @@ sealed interface AddEditItemUiState {
         val inputError: String? = null,
         val maxTags: Int = 20,
         val suggestionsLimit: Int = 8,
-        
+
         val isSaving: Boolean = false,
         val isDirty: Boolean = false,
         val validation: Validation = Validation(),
