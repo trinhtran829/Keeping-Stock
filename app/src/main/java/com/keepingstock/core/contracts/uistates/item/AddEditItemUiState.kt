@@ -6,6 +6,17 @@ import com.keepingstock.core.contracts.Tag
 import com.keepingstock.data.entities.ItemStatus
 import java.util.Date
 
+/**
+ * UI state contract for the Add/Edit Item flow.
+ *
+ * This sealed interface represents all possible renderable states for the screen:
+ * - Loading: data is being prepared.
+ * - Ready: form is available for viewing/editing.
+ * - Error: unrecoverable failure during initialization.
+ *
+ * The screen renders exclusively from this model and emits user intents that
+ * mutate or replace it via a controller/ViewModel.
+ */
 sealed interface AddEditItemUiState {
     /**
      * Form is being loaded/initialized
@@ -14,8 +25,6 @@ sealed interface AddEditItemUiState {
 
     /**
      * Form is ready for display and/or editing
-     *
-     * Not using Item model because containerId needs to be able to be null
      */
     data class Ready(
         val mode: Mode,
@@ -31,6 +40,7 @@ sealed interface AddEditItemUiState {
         val createdDate: Date,
         val checkoutDate: Date?,
 
+        // Tagging
         val selectedTags: List<Tag> = emptyList(),
         val tagQuery: String = "",
         val tagSuggestions: List<Tag> = emptyList(),
@@ -40,6 +50,7 @@ sealed interface AddEditItemUiState {
         val maxTags: Int = 20,
         val suggestionsLimit: Int = 8,
 
+        // Form Lifecycle
         val isSaving: Boolean = false,
         val isDirty: Boolean = false,
         val validation: Validation = Validation(),

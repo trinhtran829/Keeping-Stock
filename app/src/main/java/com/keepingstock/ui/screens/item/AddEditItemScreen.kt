@@ -63,7 +63,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 
 /**
- * Add/Edit Item screen that renders based on uiState.
+ * Add/Edit Item screen that renders based on uiState and emits user intents.
  *
  * State handling:
  * - [AddEditItemUiState.Loading] shows a loading indicator.
@@ -80,8 +80,8 @@ import java.util.Date
  * :param onIntent: Callback for user intents (field edits, save, image changes, etc.).
  * :param onNavigateBack: Callback to navigate up/back out of this screen.
  *
- * TODO: This file contains many components/functions that are near identical to those found
- *  in the AddEditContainerScreen. Extract to shared file?
+ * TODO: Large parts of this file overlap with AddEditContainerScreen. Consider extracting shared
+ *  composables (image card, discard dialog, actions card, etc.) into a common package.
  */
 @Composable
 fun AddEditItemScreen(
@@ -110,7 +110,7 @@ fun AddEditItemScreen(
 }
 
 /**
- * Renders the editable Add/Edit Item form for the [AddEditItemUiState.Ready] state.
+ * Ready-state content for Add/Edit Item.
  *
  * UI responsibilities:
  * - Owns local, UI-only discard confirmation dialog state (not part of UiState).
@@ -129,10 +129,16 @@ private fun AddEditItemReadyContent(
     onIntent: (AddEditItemIntent) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    // TODO: Local UI-only dialog state (kept out of UiState to keep demo simple).
+    /**
+     * UI-only state: controls the discard confirmation dialog. Keeping this out of UiState
+     * prevents it from being treated as durable state.
+     *
+     * TODO: If we standardize on effects (ShowDialog), this can move to a one-off effect.
+     *  Otherwise we can keep as local UI state. Either approach is good.
+     */
     var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
 
-    // Intercept system back when form is dirty (so we can prompt for discard confirmation)
+    // Intercept system back when form is dirty (prompt discard)
     AddEditItemBackHandling(
         isDirty = uiState.isDirty,
         onIntent = onIntent,
@@ -144,17 +150,17 @@ private fun AddEditItemReadyContent(
     // Gets an object that can launch the system image picker.
     val pickImageLauncher = rememberPickImageLauncher(onIntent)
 
-    // Presentation of content
+    // Main scrollable form content.
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Container Details
+        // Item Details
         item {
             ItemFormCard(uiState = uiState, onIntent = onIntent)
         }
 
-        // Container Image
+        // Item Image
         item {
             ItemImageCard(
                 imageUri = uiState.imageUri,
@@ -168,7 +174,7 @@ private fun AddEditItemReadyContent(
             )
         }
 
-        // Tagging section
+        // Tag editor section
         item {
             TagEditorCard(
                 uiState = uiState,
@@ -176,7 +182,7 @@ private fun AddEditItemReadyContent(
             )
         }
 
-        // Display user actions
+        // Primary actions (save / cancel)
         item {
             ActionsCard(
                 isSaving = uiState.isSaving,
@@ -258,7 +264,6 @@ private fun AddEditItemBackHandling(
  * launcher.
  *
  * :param onIntent: Callback used to emit [AddEditItemIntent] events.
- *
  * :return: A launcher that can start the visual media picker and deliver a picked image [Uri].
  */
 @Composable
@@ -272,11 +277,11 @@ private fun rememberPickImageLauncher(
 }
 
 /**
- * Card section containing editable container fields (parent, name, description).
- *
- * - Displays CREATE vs EDIT title based on [uiState.mode].
- * - Shows parent selection UI when [uiState.canChangeParent] is true.
- * - Emits field-change intents as the user edits values.
+ * Card section containing editable item fields:
+ * - name
+ * - description
+ * - container selection (demo picker)
+ * - status toggle (stored/taken out)
  *
  * :param uiState: Current form values and validation state.
  * :param onIntent: Callback for emitting user intents (e.g., [AddEditItemIntent.NameChanged]).
@@ -293,7 +298,7 @@ private fun ItemFormCard(
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Editable fields
+            // Name input (required)
             OutlinedTextField(
                 value = uiState.name,
                 onValueChange = {
@@ -308,6 +313,7 @@ private fun ItemFormCard(
                 singleLine = true
             )
 
+            // Description input (optional)
             OutlinedTextField(
                 value = uiState.description,
                 onValueChange = {
@@ -411,7 +417,7 @@ private fun ParentPicker(
     options: List<AddEditItemUiState.Ready.ParentOption>,
     onSelected: (ContainerId?) -> Unit
 ) {
-    // TODO: Minimal picker: cycle via buttons (no ExposedDropdownMenu dependency).
+    // TODO: Replace cycling picker with dropdown/hierarchical picker when container tree is available.
     val current = options.firstOrNull { it.id == selectedId } ?: options.first()
 
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -444,11 +450,17 @@ private fun ParentPicker(
 }
 
 /**
- * Item status toggle. On toggle, updates the item status between [ItemStatus.STORED] and
- * [ItemStatus.TAKEN_OUT].
+ * Status control for an item.
  *
- * :param status: Current status of the item
- * :param onChanged: Invoked to toggle the current status of the item.
+ * Uses a switch to toggle between:
+ * - [ItemStatus.STORED]
+ * - [ItemStatus.TAKEN_OUT]
+ *
+ * When status is Taken Out and [checkoutDate] is present, displays the checkout date.
+ *
+ * :param status: Current status.
+ * :param checkoutDate: Date the item was checked out (nullable).
+ * :param onChanged: Callback invoked with the newly selected status.
  */
 @Composable
 private fun StatusToggle(
@@ -464,6 +476,7 @@ private fun StatusToggle(
             style = MaterialTheme.typography.labelLarge
         )
 
+        // TODO: Confirm whether this control should be a switch or radio buttons.
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(
                 text = "Stored",
@@ -488,7 +501,7 @@ private fun StatusToggle(
         }
 
         /*
-        // TODO: Original alternate implemenation using radio buttons
+        // TODO: Original alternate implementation using radio buttons. Remove if switch is finalized.
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -648,11 +661,16 @@ private fun ActionsCard(
 }
 
 /**
- * Card section containing elements related to tagging item
+ * Card section for tag viewing/editing:
+ * - Displays selected tags (chips)
+ * - Accepts a query to add a new tag
+ * - Shows suggested tags based on the query
+ * - Shows recommended tags (e.g., ML Kit)
  *
- * :param modifier:
- * :param uiState: Current form values and validation state.
- * :param onIntent: Contains callbacks for emitting user intents.
+ * :param uiState: Ready state containing tag-related fields.
+ * :param onIntent: Callback for emitting tag-related intents.
+ *
+ * TODO: Consider passing only tag-related fields rather than the entire uiState if this grows.
  */
 @Composable
 fun TagEditorCard(
@@ -724,7 +742,11 @@ fun TagEditorCard(
 }
 
 /**
- * Chips displayed with FlowRow
+ * Displays selected tags as chips in a wrapping layout.
+ *
+ * :param modifier: Modifier applied to the chip container.
+ * :param tags: Current selected tags.
+ * :param onRemove: Callback invoked with the [TagId] to remove.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -756,10 +778,11 @@ private fun SelectedTagChips(
 }
 
 /**
- * Individual chips for displaying a tag (took forever to get the presentation of this right).
+ * A single selected-tag chip with a trailing remove icon.
  *
- * :param name: The name of the current tag
- * :param onRemove: The invoked intent  when the chip's close icon is clicked
+ * :param modifier: Modifier applied to the chip.
+ * :param name: Tag display name.
+ * :param onRemove: Invoked when the user taps the trailing remove icon.
  */
 @Composable
 private fun SelectedTagChip(
@@ -767,7 +790,7 @@ private fun SelectedTagChip(
     name: String,
     onRemove: () -> Unit
 ) {
-    // quick modifiers for easy adjustment
+    // Layout constants (kept local for easy tuning).
     val chipHeight = 32.dp
     val removeButtonSize = 22.dp
     val removeIconSize = 16.dp
@@ -784,7 +807,7 @@ private fun SelectedTagChip(
             )
         },
         trailingIcon = {
-            // Used box instead of IconButton - spacing was weird
+            // Used box instead of IconButton - padding and alignment was weird
             Box(
                 modifier = Modifier
                     .size(removeButtonSize)
@@ -803,7 +826,15 @@ private fun SelectedTagChip(
 }
 
 /**
- * Displays the list of tags that appear as the user types a tag query.
+ * Displays query-based tag suggestions.
+ *
+ * Behavior:
+ * - If [uiState.tagQuery] is non-blank, shows an 'Add "query"' button (when valid).
+ * - Shows suggested existing tags as chips that can be tapped to select.
+ *
+ * :param uiState: Ready state containing tag query, suggestions, and validation flags.
+ * :param onAddQuery: Called when the user chooses to add the current query as a new tag.
+ * :param onSelectExisting: Called when the user selects an existing suggested tag.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -814,9 +845,8 @@ private fun TagSuggestionList(
 ) {
     if (uiState.tagQuery.isBlank() && uiState.tagSuggestions.isEmpty()) return
 
-    // TODO: improve presentation - hard to test without functions
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        // Add as-is affordance
+        // Add query as-is
         if (uiState.tagQuery.isNotBlank()) {
             Button(
                 onClick = onAddQuery,
@@ -854,6 +884,15 @@ private fun TagSuggestionList(
     }
 }
 
+/**
+ * Displays recommended tags (e.g., ML Kit output) and a refresh action.
+ *
+ * :param uiState: Ready state containing recommendation fields.
+ * :param onSelect: Called when the user selects a recommended tag name.
+ * :param onRefresh: Called when the user requests refreshed recommendations.
+ *
+ * TODO: If recommendations later include confidence scores, update UI to display them.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun RecommendedTagsRow(
