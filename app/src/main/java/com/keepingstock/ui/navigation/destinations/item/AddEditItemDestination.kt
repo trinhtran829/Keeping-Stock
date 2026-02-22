@@ -1,12 +1,14 @@
 package com.keepingstock.ui.navigation.destinations.item
 
-import android.R.attr.mode
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -16,11 +18,12 @@ import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.Tag
 import com.keepingstock.core.contracts.TagId
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
 import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.ui.components.navigation.ChipOption
 import com.keepingstock.ui.components.navigation.DemoMode
+import com.keepingstock.ui.components.navigation.DemoModeToggleRow
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.containerIdOrNull
@@ -80,6 +83,7 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
             )
         }
 
+        // TODO(REMOVE): Demo ready state (uiState covered by VM)
         var readyState by remember(itemId, containerId) {
             mutableStateOf(
                 demoInitialUiState(
@@ -107,15 +111,46 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
             deps.onTopBarChange(addEditItemTopBarConfig(uiState))
         }
 
-        AddEditItemScreen(
-            itemId = itemId,
-            containerId = containerId,
-            onSave = { deps.navController.popBackStack() },
-            onCancel = { deps.navController.popBackStack() }
-        )
+        // TODO: Demo only: Controller will be replaced by ViewModel
+        val controller = remember(deps, knownTags) {
+            AddEditItemDemoController(
+                deps = deps,
+                parentOptions = parentOptions,
+                knownTags = knownTags,
+                getUiState = { uiState },
+                setUiState = { uiState = it }
+            )
+        }
+
+        Column(Modifier.fillMaxSize()) {
+            // TODO(REMOVE): demo-only UI controls.
+            DemoModeToggleRow(
+                title = "Select demo mode:",
+                selected = demoMode,
+                options = listOf(
+                    ChipOption(DemoMode.READY, "Ready"),
+                    ChipOption(DemoMode.LOADING, "Loading"),
+                    ChipOption(DemoMode.ERROR, "Error")
+                ),
+                onSelect = { demoMode = it }
+            )
+
+            AddEditItemScreen(
+                itemId = itemId,
+                containerId = containerId,
+                onSave = { deps.navController.popBackStack() },
+                onCancel = { deps.navController.popBackStack() }
+            )
+        }
     }
 }
 
+/**
+ * Builds top bar title/back behavior from AddEditItemUiState.
+ *
+ * :param uiState: The current UI state for the Add/Edit Item screen.
+ * :return: A [TopBarConfig] describing the top app bar title and back button visibility.
+ */
 private fun addEditItemTopBarConfig(uiState: AddEditItemUiState): TopBarConfig {
     val title = when (uiState) {
         AddEditItemUiState.Loading -> "Loading"
@@ -138,7 +173,8 @@ private fun addEditItemTopBarConfig(uiState: AddEditItemUiState): TopBarConfig {
  * :param getUiState: Getter for the current [AddEditItemUiState.Ready] form state.
  * :param setUiState: Setter for the updated [AddEditItemUiState.Ready] form state.
  *
- * TODO: For demo purposes only; replace with ViewModel functions
+ * TODO: For demo purposes only; replace with ViewModel functions. Can be potentially moved
+ *  in full to VM, so long as functions are updated
  */
 private class AddEditItemDemoController(
     private val deps: NavDeps,
@@ -174,7 +210,7 @@ private class AddEditItemDemoController(
             AddEditItemIntent.PickImageClicked,
             AddEditItemIntent.DismissDiscardDialog -> Unit
 
-            // Set UI State based on intent - call reducer function
+            // Set UI State based on intent - call reducer function (keeps controller thin)
             else -> {
                 if (currentState is AddEditItemUiState.Ready) {
                     val updated = reduceIntent(
@@ -239,6 +275,8 @@ private fun validate(
     //  unique in the container? Update UiState model if additional validation is needed.
     val nameError = if(currentState.name.trim().isBlank()) "Name is required" else null
 
+    // TODO: containerError is currently only just "if it's null (root) it HAS to be
+    //  [ItemStatus.TAKEN_OUT]
     val containerError =
         if ((currentState.containerId == null) && (currentState.status != ItemStatus.TAKEN_OUT))
             "Items outside a container must be marked Taken Out."
