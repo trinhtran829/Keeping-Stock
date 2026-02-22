@@ -18,8 +18,6 @@ import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.Tag
 import com.keepingstock.core.contracts.TagId
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
 import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.data.entities.ItemStatus
