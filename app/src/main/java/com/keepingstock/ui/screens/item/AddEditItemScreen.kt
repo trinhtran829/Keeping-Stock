@@ -9,15 +9,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
+import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 
 @Composable
 fun AddEditItemScreen(
-    itemId: ItemId?,
-    containerId: ContainerId?,
     modifier: Modifier = Modifier,
-    onSave: () -> Unit = {},
-    onCancel: () -> Unit = {}
+    uiState: AddEditItemUiState,
+    onIntent: (AddEditItemIntent) -> Unit = {},
+    onNavigateBack: () -> Unit = {}
 ) {
+    /*
+    // TODO(REMOVE): Replace old code after screen is updated
+
     val mode = if (itemId == null) "ADD" else "EDIT"
 
     Column(modifier = modifier.padding(16.dp)) {
@@ -33,4 +37,6 @@ fun AddEditItemScreen(
             Text("Cancel")
         }
     }
+
+     */
 }
