@@ -267,7 +267,10 @@ private class AddEditItemDemoController(
         val validated = validate(currentState)
         setUiState(validated)
 
-        if ((validated.validation.nameError == null) && (validated.validation.containerError == null))
+        if (
+            (validated.validation.nameError == null) &&
+            (validated.validation.containerError == null)
+        ) {
             // TODO: SHOULD NOT BE IN VM - FIGURE OUT PATTERN TO PREVENT PASSING
             //  navController OR snackbar TO VM!
             // Show success message
@@ -280,6 +283,7 @@ private class AddEditItemDemoController(
 
             // Editing is finished, navigate to previous screen
             deps.navController.popBackStack()
+        }
     }
 }
 
