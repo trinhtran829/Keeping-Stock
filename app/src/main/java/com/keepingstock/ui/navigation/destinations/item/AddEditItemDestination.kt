@@ -1,7 +1,5 @@
 package com.keepingstock.ui.navigation.destinations.item
 
-import android.R.attr.name
-import android.provider.SyncStateContract.Helpers.update
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
@@ -405,7 +403,6 @@ private fun reduceIntent(
         is AddEditItemIntent.RemoveTagClicked -> reduceTagIntent(
             currentState = currentState,
             intent = intent,
-            parentOptions = parentOptions,
             knownTags = knownTags
         )
 
@@ -428,7 +425,6 @@ private fun reduceIntent(
 private fun reduceTagIntent(
     currentState: AddEditItemUiState.Ready,
     intent: AddEditItemIntent,
-    parentOptions: List<AddEditItemUiState.Ready.ParentOption>,
     knownTags: List<Tag>
 ): AddEditItemUiState.Ready {
 
@@ -494,16 +490,16 @@ private fun reduceTagIntent(
      *
      * Currently just uses the demo list of known tags, replace with repo calls.
      */
-    fun addQueryToTags(
+    fun addTagNameToSelected(
         currentState: AddEditItemUiState.Ready,
-        query: String
+        rawName: String
     ): AddEditItemUiState.Ready {
         // First check if the user can add any more tags based on maxTags variable in UiState
-        // TODO: inputError update?
+        // TODO: snackbar error message? "You have added the max number of tags to this item."
         if (!currentState.canAddMore) return currentState
 
         // Remove extra whitespace
-        val tagName = normalize(query)
+        val tagName = normalize(rawName)
 
         // If regex match fails, return current state with inputError updated
         if (!allowedTagRegex.matches(tagName))
@@ -511,11 +507,53 @@ private fun reduceTagIntent(
                 inputError = "Use only letters, numbers, spaces, '-', and '&'."
             )
 
-        // Used for case-insensitive matching
+        // Used for case-insensitive matching.
+        // TODO: if rules state that tags are stored as lowercase, then this can be moved to
+        //  tagName definition as part of normalization
         val tagKey = tagName.lowercase()
 
-        // Look through knownKeys list for existing keys
-        // TODO: Using
+        // Look through knownKeys list for existing keys - will be null if no match found
+        // TODO: If using in ViewModel, knownTags list = repo of all tags in DB.
+        val existing = knownTags.firstOrNull {
+            it.name.trim().replace(Regex("\\s+"), " ").lowercase() == tagKey
+        }
+
+        // Get a set of currently selected keys for the item that have been converted to lowercase
+        // for case-insensitive matching.
+        // TODO: if tags are stored normalized and lowercase, then map function isn't needed
+        val currentSelectedKeys: Set<String> =
+            currentState.selectedTags.map { normalize(it.name).lowercase() }.toSet()
+
+        // Check if the tag the user wants to add isn't already attached to this item.
+        // TODO: snackbar error message? "This item already has that tag."
+        if (tagKey in currentSelectedKeys)
+            return currentState.copy(tagQuery = "", tagSuggestions = emptyList(), inputError = null)
+
+        // Will use found existing tag or create a new one to be saved on onSave intent (we
+        // probably don't want to save a new tag if the add/edit is completely discarded, so wait
+        // until onSave intent)
+        // For the purposes of this demo, negative IDs represent "new tag to create on Save".
+        // TODO: alternatively instead of using Tag model we wrap it in another object, something
+        //  like TagUi(Tag, isNew) so we don't rely on negative IDs as a rule? Maybe easier for
+        //  onSave processing logic.
+        val tagToAdd = existing ?: Tag(
+            id = TagId(-tagKey.hashCode().toLong()),
+            name = tagName
+        )
+
+        // Create a new selected tag list for the UiState, which includes the query's resulting
+        // tag being applied to the item.
+        // TODO: sort alphabetically?
+        val newSelectedTagsList =
+            (currentState.selectedTags + tagToAdd).sortedBy { it.name.lowercase() }
+
+        // Build new UiState based on results
+        return currentState.copy(
+            selectedTags = newSelectedTagsList,
+            tagQuery = "",
+            tagSuggestions = emptyList(),
+            inputError = null
+        )
     }
 
     // The actual reducer part
@@ -529,9 +567,13 @@ private fun reduceTagIntent(
         }
 
         // User wants to add the query as a tag
-        AddEditItemIntent.AddQueryAsTagClicked -> TODO()
+        AddEditItemIntent.AddQueryAsTagClicked ->
+            addTagNameToSelected(currentState, currentState.tagQuery)
 
-        is AddEditItemIntent.ExistingTagSelected -> TODO()
+        is AddEditItemIntent.ExistingTagSelected -> {
+            val userChosenTag = knownTags.firstOrNull { it.id == intent.tagId } ?: return currentState
+            addTagNameToSelected(currentState, userChosenTag.name)
+        }
 
         is AddEditItemIntent.RemoveTagClicked -> TODO()
 
