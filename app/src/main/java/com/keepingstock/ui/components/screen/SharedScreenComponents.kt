@@ -1,5 +1,6 @@
 package com.keepingstock.ui.components.screen
 
+import android.R.attr.label
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -16,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.Container
@@ -30,7 +33,7 @@ import com.keepingstock.ui.components.thumbnail.ItemThumbnail
  */
 @Composable
 fun LoadingContent(modifier: Modifier) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Companion.Center) {
+    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CircularProgressIndicator()
     }
 }
@@ -53,11 +56,15 @@ fun ErrorContent(
     message: String,
     cause: Throwable? = null
 ) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Companion.Center) {
+    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(
             text = message,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.error
+            color = MaterialTheme.colorScheme.error,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(Alignment.CenterVertically)
         )
     }
 }
@@ -71,18 +78,18 @@ fun ErrorContent(
  */
 @Composable
 fun DetailRow(
-    modifier: Modifier = Modifier.Companion,
+    modifier: Modifier = Modifier,
     label: String,
     value: String
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Companion.CenterVertically
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.Companion.weight(1f)
+            modifier = Modifier.weight(1f)
         )
         Text(
             text = value,

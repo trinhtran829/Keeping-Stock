@@ -10,10 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -157,10 +161,32 @@ private fun ReadyContent(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (subcontainers.isNotEmpty()) {
-                item {
-                    Text("Containers", style = MaterialTheme.typography.titleMedium)
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "Containers",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    TextButton(
+                        onClick = { onAddContainer(containerId) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add item"
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text("Add")
+                    }
                 }
+            }
+
+            if (subcontainers.isNotEmpty()) {
                 items(subcontainers, key = { it.id.value }) { c ->
                     ContainerSummaryRow(
                         modifier = Modifier,
@@ -168,13 +194,36 @@ private fun ReadyContent(
                         onClick = { onOpenSubcontainer(c.id) }
                     )
                 }
-                item { Spacer(Modifier.height(8.dp)) }
+            }
+
+            item { Spacer(Modifier.height(8.dp)) }
+
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "Items",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    TextButton(
+                        onClick = { onAddItem(containerId) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add item"
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text("Add")
+                    }
+                }
             }
 
             if (items.isNotEmpty()) {
-                item {
-                    Text("Items", style = MaterialTheme.typography.titleMedium)
-                }
                 items(items, key = { it.id.value }) { i ->
                     ItemSummaryRow(
                         modifier = Modifier,

@@ -10,12 +10,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,21 +40,22 @@ fun ItemBrowserScreen(
     onOpenItem: (itemId: ItemId) -> Unit = {},
     onAddItem: () -> Unit = {}
 ) {
-    when (uiState) {
-        is UiState.Loading -> LoadingContent(modifier)
 
-        is UiState.Error -> ErrorContent(
-            modifier = modifier,
-            message = uiState.message
-        )
+        when (uiState) {
+            is UiState.Loading -> LoadingContent(modifier)
 
-        is UiState.Success -> ReadyContent(
-            modifier = modifier,
-            items = uiState.data.items,
-            onOpenItem = onOpenItem,
-            onAddItem = onAddItem
-        )
-    }
+            is UiState.Error -> ErrorContent(
+                modifier = modifier.fillMaxSize(),
+                message = uiState.message
+            )
+
+            is UiState.Success -> ReadyContent(
+                modifier = modifier.fillMaxSize(),
+                items = uiState.data.items,
+                onOpenItem = onOpenItem,
+                onAddItem = onAddItem
+            )
+        }
 }
 
 /**
@@ -77,7 +83,7 @@ private fun ReadyContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             val counts = "${items.size} items"
@@ -86,6 +92,17 @@ private fun ReadyContent(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
             )
+
+            TextButton(
+                onClick = onAddItem
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add item"
+                )
+                Spacer(Modifier.width(4.dp))
+                Text("Add")
+            }
         }
 
         HorizontalDivider()
@@ -140,7 +157,7 @@ private fun EmptyState(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(24.dp)
+            modifier = Modifier.padding(12.dp)
         ) {
             Text(
                 text = "Nothing here yet",
