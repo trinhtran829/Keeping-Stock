@@ -32,6 +32,20 @@ import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.item.AddEditItemScreen
 import java.util.Date
 
+/**
+ * Registers the Add/Edit Item destination and wires demo state + navigation callbacks.
+ *
+ * Navigation args:
+ * - [Routes.Args.ITEM_ID]: when present, screen is in EDIT mode; otherwise CREATE mode.
+ * - [Routes.Args.CONTAINER_ID]: optional initial parent for CREATE mode (or preselect in EDIT).
+ *
+ * Current behavior (pre-ViewModel):
+ * - Creates a demo [AddEditItemUiState.Ready] via [demoInitialUiState].
+ * - Uses [AddEditItemDemoController] to reduce UI intents into state changes and to perform
+ *   side effects (snackbar + popBackStack) on save.
+ *
+ * :param deps: Navigation and UI dependencies (NavController, top bar updater, snackbar helper).
+ */
 internal fun NavGraphBuilder.addAddEditItemDestination(
     deps: NavDeps
 ) {
