@@ -133,10 +133,12 @@ private fun AddEditItemReadyContent(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // Container Details
         item {
             ItemFormCard(uiState = uiState, onIntent = onIntent)
         }
 
+        // Container Image
         item {
             ItemImageCard(
                 imageUri = uiState.imageUri,
@@ -147,6 +149,25 @@ private fun AddEditItemReadyContent(
                     )
                 },
                 onRemoveImage = { onIntent(AddEditItemIntent.RemoveImageClicked) }
+            )
+        }
+
+        // Tagging section
+        item {
+            TagEditorCard(
+                uiState = uiState,
+                onIntent = onIntent
+            )
+        }
+
+        // Display user actions
+        item {
+            ActionsCard(
+                isSaving = uiState.isSaving,
+                onSave = { onIntent(AddEditItemIntent.SaveClicked) },
+                onCancel = {
+                    if (uiState.isDirty) showDiscardDialog = true else onNavigateBack
+                }
             )
         }
     }
@@ -556,7 +577,34 @@ private fun ActionsCard(
     onSave: () -> Unit,
     onCancel: () -> Unit
 ) {
+    ElevatedCard(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = onSave,
+                    enabled = !isSaving,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(if (isSaving) "Saving…" else "Save")
+                }
 
+                OutlinedButton(
+                    onClick = onCancel,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Cancel")
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -568,7 +616,6 @@ private fun ActionsCard(
  */
 @Composable
 fun TagEditorCard(
-    modifier: Modifier = Modifier,
     uiState: AddEditItemUiState,
     onIntent: (AddEditItemIntent) -> Unit
 ) {
