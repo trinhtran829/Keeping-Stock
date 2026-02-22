@@ -20,6 +20,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -414,7 +416,35 @@ private fun StatusToggle(
     status: ItemStatus,
     onChanged: (ItemStatus) -> Unit
 ) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = "Status",
+            style = MaterialTheme.typography.labelLarge
+        )
 
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // TODO: Switch component instead?
+            Row {
+                RadioButton(
+                    selected = status == ItemStatus.STORED,
+                    onClick = { onChanged(ItemStatus.STORED) }
+                )
+                Text("Stored", modifier = Modifier.padding(top = 12.dp))
+            }
+
+            Row {
+                RadioButton(
+                    selected = status == ItemStatus.TAKEN_OUT,
+                    onClick = { onChanged(ItemStatus.TAKEN_OUT) }
+                )
+                Text("Taken Out", modifier = Modifier.padding(top = 12.dp))
+            }
+        }
+    }
 }
 
 /**
