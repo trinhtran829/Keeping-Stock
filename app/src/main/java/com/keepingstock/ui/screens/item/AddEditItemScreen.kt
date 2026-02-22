@@ -655,7 +655,10 @@ fun TagEditorCard(
                 )
             }
 
-
+            SelectedTagChips(
+                tags = uiState.selectedTags,
+                onRemove = { onIntent(AddEditItemIntent.RemoveTagClicked(it)) }
+            )
         }
     }
 }
@@ -679,7 +682,8 @@ private fun SelectedTagChips(
     }
 
     FlowRow(
-        modifier = Modifier.padding(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         tags.forEach { tag ->
             InputChip(
@@ -687,6 +691,7 @@ private fun SelectedTagChips(
                 onClick = { /* TODO: Consult group on behavior, if any */ },
                 label = { Text(tag.name) },
                 trailingIcon = {
+                    // TODO: snackbar "Tag removed" with "Undo" option
                     IconButton(
                         onClick = { onRemove(tag.id) }
                     ) {
