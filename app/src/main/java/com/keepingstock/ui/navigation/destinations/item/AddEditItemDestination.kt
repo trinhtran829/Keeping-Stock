@@ -30,6 +30,7 @@ import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.navigation.itemIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.item.AddEditItemScreen
+import java.text.Normalizer.normalize
 import java.util.Date
 
 /**
@@ -439,10 +440,12 @@ private fun reduceTagIntent(
      *
      * TODO: add additional characters as group decides
      */
-    val allowedTagRegex = Regex("^[A-Za-z0-9 \\-&]+$")
+    val allowedTagRegex = Regex("""^[A-Za-z0-9 &-]+$""")
 
-    // Only single space
-    fun normalize(value: String): String =
+    // Normalization functions at the top for easy updating
+    fun normalizeForTyping(value: String): String =
+        value.replace(Regex("\\s{2,}"), " ")
+    fun normalizeForCommit(value: String): String =
         value.trim().replace(Regex("\\s+"), " ")
 
     /**
@@ -451,11 +454,15 @@ private fun reduceTagIntent(
      */
     fun updateSuggestions(currentState: AddEditItemUiState.Ready): AddEditItemUiState.Ready {
         // Remove any extra whitespace
-        val query = normalize(currentState.tagQuery)
+        val query = normalizeForTyping(currentState.tagQuery)
 
         // If query is blank, no suggestions and no error
         if (query.isBlank())
-            return currentState.copy(tagSuggestions = emptyList(), inputError = null)
+            return currentState.copy(
+                tagSuggestions = emptyList(),
+                inputError = null,
+                tagQuery = query
+            )
 
         // Set err text if query does not match regex. See regex for logic
         val err =
@@ -499,7 +506,7 @@ private fun reduceTagIntent(
         if (!currentState.canAddMore) return currentState
 
         // Remove extra whitespace
-        val tagName = normalize(rawName)
+        val tagName = normalizeForCommit(rawName)
 
         // If regex match fails, return current state with inputError updated
         if (!allowedTagRegex.matches(tagName))
@@ -522,7 +529,7 @@ private fun reduceTagIntent(
         // for case-insensitive matching.
         // TODO: if tags are stored normalized and lowercase, then map function isn't needed
         val currentSelectedKeys: Set<String> =
-            currentState.selectedTags.map { normalize(it.name).lowercase() }.toSet()
+            currentState.selectedTags.map { normalizeForCommit(it.name).lowercase() }.toSet()
 
         // Check if the tag the user wants to add isn't already attached to this item.
         // TODO: snackbar error message? "This item already has that tag."
