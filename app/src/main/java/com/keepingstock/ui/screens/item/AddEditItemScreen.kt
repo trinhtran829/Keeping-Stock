@@ -3,6 +3,7 @@ package com.keepingstock.ui.screens.item
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -134,6 +135,19 @@ private fun AddEditItemReadyContent(
     ) {
         item {
             ItemFormCard(uiState = uiState, onIntent = onIntent)
+        }
+
+        item {
+            ItemImageCard(
+                imageUri = uiState.imageUri,
+                onPickImage = {
+                    onIntent(AddEditItemIntent.PickImageClicked) // TODO: Add to AddEditContainerScreen - not necessary but good form
+                    pickImageLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                },
+                onRemoveImage = { onIntent(AddEditItemIntent.RemoveImageClicked) }
+            )
         }
     }
 }
