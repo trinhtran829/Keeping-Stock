@@ -494,7 +494,6 @@ private fun reduceTagIntent(
 
         // Return updated state with new suggestions and tag input error text
         return currentState.copy(
-            tagQuery = query,
             inputError = err,
             tagSuggestions = newSuggestions
         )
