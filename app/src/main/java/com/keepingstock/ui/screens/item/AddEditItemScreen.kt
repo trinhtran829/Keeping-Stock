@@ -4,11 +4,14 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -21,10 +24,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent
+import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent.NameChanged
+import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
 import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
+import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
+import com.keepingstock.ui.screens.container.ParentPicker
 
 /**
  * Add/Edit Item screen that renders based on uiState.
@@ -123,6 +131,14 @@ private fun AddEditItemReadyContent(
 
     // Gets an object that can launch the system image picker.
     val pickImageLauncher = rememberPickImageLauncher(onIntent)
+
+    // Presentation of content
+    LazyColumn(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+
+    }
 }
 
 /**
@@ -205,4 +221,150 @@ private fun rememberPickImageLauncher(
 ) { uri: Uri? ->
     if (uri != null)
         onIntent(AddEditItemIntent.ImagePicked(uri.toString()))
+}
+
+/**
+ * Card section containing editable container fields (parent, name, description).
+ *
+ * - Displays CREATE vs EDIT title based on [uiState.mode].
+ * - Shows parent selection UI when [uiState.canChangeParent] is true.
+ * - Emits field-change intents as the user edits values.
+ *
+ * :param uiState: Current form values and validation state.
+ * :param onIntent: Callback for emitting user intents (e.g., [AddEditItemIntent.NameChanged]).
+ */
+@Composable
+private fun AddEditItemFormCard(
+    uiState: AddEditItemUiState.Ready,
+    onIntent: (AddEditItemIntent) -> Unit
+) {
+
+}
+
+/**
+ * Displays parent container information and, when allowed, provides UI for changing it.
+ *
+ * :param canChangeParent: Whether the parent container can be changed in the current mode.
+ * :param parentContainerId: Currently selected parent container id (null represents Root).
+ * :param parentContainerName: Display name for the currently selected parent (nullable).
+ * :param availableParents: Available parent options to choose from.
+ * :param onParentChanged: Callback for the newly selected parent id (null = Root).
+ */
+@Composable
+private fun AddEditItemParentSection(
+    canChangeParent: Boolean,
+    containerId: ContainerId?,
+    containerName: String?,
+    availableParents: List<AddEditContainerUiState.Ready.ParentOption>,
+    onParentChanged: (ContainerId?) -> Unit
+) {
+
+}
+
+/**
+ * Demo parent selection UI.
+ *
+ * Current implementation:
+ * - Displays the current parent name.
+ * - Provides a "Change" button that cycles through [options] (no dropdown dependency).
+ *
+ * Future implementation:
+ * - Replace cycling behavior with a dropdown or hierarchical picker when the repository-backed
+ *   container tree is available.
+ *
+ * Assumption:
+ * - [options] is non-empty.
+ *
+ * :param selectedId: Currently selected parent container id (null = Root).
+ * :param options: List of selectable parent options.
+ * :param onSelected: Callback invoked when the selection changes.
+ */
+@Composable
+private fun ParentPicker(
+    selectedId: ContainerId?,
+    options: List<AddEditContainerUiState.Ready.ParentOption>,
+    onSelected: (ContainerId?) -> Unit
+) {
+
+}
+
+/**
+ * Item status toggle. On toggle, updates the item status between [ItemStatus.STORED] and
+ * [ItemStatus.TAKEN_OUT].
+ *
+ * :param status: Current status of the item
+ * :param onChanged: Invoked to toggle the current status of the item.
+ */
+@Composable
+private fun StatusToggle(
+    status: ItemStatus,
+    onChanged: (ItemStatus) -> Unit
+) {
+
+}
+
+/**
+ * Card section for viewing and editing the item image.
+ *
+ * - Displays a preview if [imageUri] is present, otherwise shows a placeholder message.
+ * - Exposes actions for picking/changing and removing the image.
+ *
+ * :param imageUri: Current image URI string (nullable/blank indicates no image).
+ * :param onPickImage: Invoked to launch the system image picker.
+ * :param onRemoveImage: Invoked to remove the current image from the form state.
+ */
+@Composable
+private fun ItemImageCard(
+    imageUri: String?,
+    onPickImage: () -> Unit,
+    onRemoveImage: () -> Unit
+) {
+
+}
+
+/**
+ * Displays an image preview for the provided [imageUri], or a placeholder message when absent.
+ *
+ * :param imageUri: Image URI string to display (nullable/blank indicates no image).
+ */
+@Composable
+private fun AddEditContainerImagePreview(
+    imageUri: String?
+) {
+
+}
+
+/**
+ * Card section containing primary form actions (Save/Cancel).
+ *
+ * - Save is disabled while [isSaving] is true.
+ * - Cancel delegates to [onCancel], which may prompt for discard confirmation when dirty.
+ *
+ * :param isSaving: Whether a save operation is in progress.
+ * :param onSave: Callback invoked when the user taps Save.
+ * :param onCancel: Callback invoked when the user taps Cancel.
+ */
+@Composable
+private fun AddEditContainerActionsCard(
+    isSaving: Boolean,
+    onSave: () -> Unit,
+    onCancel: () -> Unit
+) {
+
+}
+
+/**
+ * Card section containing elements related to tagging item
+ *
+ * :param modifier:
+ * :param uiState: Current form values and validation state.
+ * :param onIntent: Contains callbacks for emitting user intents.
+ */
+@Composable
+fun TagEditorCard(
+    modifier: Modifier = Modifier,
+    uiState: AddEditItemUiState,
+    onIntent: (AddEditItemIntent) -> Unit
+) {
+
 }
