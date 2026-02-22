@@ -1,5 +1,6 @@
 package com.keepingstock.ui.navigation.destinations.item
 
+import android.R.attr.mode
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,7 +16,6 @@ import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.Tag
 import com.keepingstock.core.contracts.TagId
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
 import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.data.entities.ItemStatus
@@ -133,11 +133,11 @@ private class AddEditItemDemoController(
     private val setUiState: (AddEditItemUiState) -> Unit
 ) {
     fun onIntent(intent: AddEditItemIntent) {
-        val current = getUiState()
+        val currentState = getUiState()
 
         when (intent) {
             // Navigation related
-            AddEditItemIntent.SaveClicked -> onSave(current)
+            AddEditItemIntent.SaveClicked -> onSave(currentState)
             AddEditItemIntent.BackClicked,
             AddEditItemIntent.DiscardChangesConfirmed -> deps.navController.popBackStack()
 
@@ -147,9 +147,9 @@ private class AddEditItemDemoController(
 
             // Set UI State based on intent - call reducer function
             else -> {
-                if (current is AddEditItemUiState.Ready) {
-                    val updated = reduceAddEditItemIntent(
-                        current = current,
+                if (currentState is AddEditItemUiState.Ready) {
+                    val updated = reduceIntent(
+                        currentState = currentState,
                         intent = intent,
                         knownTags = knownTags
                     )
@@ -159,8 +159,34 @@ private class AddEditItemDemoController(
         }
     }
 
-    fun onSave(current: AddEditItemUiState) {
+    /**
+     * Demo save handler:
+     * - Validates the current form state via [validate].
+     * - If valid, shows a success snackbar and pops the back stack.
+     *
+     * TODO: onSave function for demo purposes - handled by ViewModel
+     */
+    fun onSave(currentState: AddEditItemUiState) {
+        // don't save if state isn't ready (redundant?)
+        if (currentState !is AddEditItemUiState.Ready) return
 
+        // Validate the UiState
+        val validated = validate(currentState)
+        setUiState(validated)
+
+        if ((validated.validation.nameError == null) && (validated.validation.containerError == null))
+            // TODO: SHOULD NOT BE IN VM - FIGURE OUT PATTERN TO PREVENT PASSING
+            //  navController OR snackbar TO VM!
+            // Show success message
+            deps.showSnackbar(
+                if (validated.mode == AddEditItemUiState.Ready.Mode.CREATE)
+                    "Item created"
+                else
+                    "Item updated"
+            )
+
+            // Editing is finished, navigate to previous screen
+            deps.navController.popBackStack()
     }
 }
 
@@ -198,8 +224,8 @@ private fun validate(
 /**
  * TODO: for demo purposes only; could be moved into ViewModel later if matches intended structure
  */
-private fun reduceAddEditItemIntent(
-    current: AddEditItemUiState.Ready,
+private fun reduceIntent(
+    currentState: AddEditItemUiState.Ready,
     intent: AddEditItemIntent,
     knownTags: List<Tag>
 ): AddEditItemUiState.Ready {
@@ -207,52 +233,52 @@ private fun reduceAddEditItemIntent(
     val updated = when (intent) {
         // Editable fields
         is AddEditItemIntent.NameChanged ->
-            current.copy(name = intent.value, isDirty = true)
+            currentState.copy(name = intent.value, isDirty = true)
 
         is AddEditItemIntent.DescriptionChanges ->
-            current.copy(description = intent.value, isDirty = true)
+            currentState.copy(description = intent.value, isDirty = true)
 
         is AddEditItemIntent.ImagePicked ->
-            current.copy(imageUri = intent.uriString, isDirty = true)
+            currentState.copy(imageUri = intent.uriString, isDirty = true)
 
         AddEditItemIntent.RemoveImageClicked ->
-            current.copy(imageUri = null, isDirty = true)
+            currentState.copy(imageUri = null, isDirty = true)
 
         // Container related
         is AddEditItemIntent.ContainerChanged ->
             if (intent.containerId == null) {
                 // if container is null, set checkout date and status as taken out
-                current.copy(
+                currentState.copy(
                     containerId = null,
                     status = ItemStatus.TAKEN_OUT,
-                    checkoutDate = current.checkoutDate ?: Date(),
+                    checkoutDate = currentState.checkoutDate ?: Date(),
                     isDirty = true
                 )
             } else {
                 // TODO: behavior check change status to stored if currently taken out?
-                current.copy(
+                currentState.copy(
                     containerId = intent.containerId,
                     isDirty = true
                 )
             }
 
         is AddEditItemIntent.StatusChanged ->
-            if (current.containerId == null) {
+            if (currentState.containerId == null) {
                 // Shouldn't happen, since no container = status toggle disabled
-                current.copy(
+                currentState.copy(
                     status = ItemStatus.TAKEN_OUT,
-                    checkoutDate = current.checkoutDate ?: Date(),
+                    checkoutDate = currentState.checkoutDate ?: Date(),
                 )
             } else {
                 when (intent.status) {
                     ItemStatus.STORED ->
-                        current.copy(
+                        currentState.copy(
                             status = ItemStatus.TAKEN_OUT,
                             checkoutDate = Date(),
                             isDirty = true
                         )
                     ItemStatus.TAKEN_OUT ->
-                        current.copy(
+                        currentState.copy(
                             status = ItemStatus.STORED,
                             checkoutDate = null,
                             isDirty = true
@@ -274,7 +300,7 @@ private fun reduceAddEditItemIntent(
         AddEditItemIntent.DismissDiscardDialog,
         AddEditItemIntent.PickImageClicked,
         AddEditItemIntent.BackClicked,
-        AddEditItemIntent.SaveClicked -> current
+        AddEditItemIntent.SaveClicked -> currentState
     }
 
     return validate(updated)
