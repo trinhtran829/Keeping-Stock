@@ -414,6 +414,32 @@ private fun reduceIntent(
     return validate(updated)
 }
 
+private fun reduceTagIntent(
+    currentState: AddEditItemUiState.Ready,
+    intent: AddEditItemIntent,
+    parentOptions: List<AddEditItemUiState.Ready.ParentOption>,
+    knownTags: List<Tag>
+): AddEditItemUiState.Ready {
+    return when (intent) {
+        is AddEditItemIntent.QueryChanged -> TODO()
+
+        AddEditItemIntent.ClearQuery -> TODO()
+
+        AddEditItemIntent.AddQueryAsTagClicked -> TODO()
+
+        is AddEditItemIntent.ExistingTagSelected -> TODO()
+
+        is AddEditItemIntent.RemoveTagClicked -> TODO()
+
+        is AddEditItemIntent.RecommendedTagSelected -> TODO()
+
+        AddEditItemIntent.RefreshRecommendations -> TODO()
+
+        // Handled by state-reducer/UI/Controller
+        else -> currentState
+    }
+}
+
 /**
  * Builds a demo [AddEditItemUiState.Ready] for previews/manual testing.
  *
