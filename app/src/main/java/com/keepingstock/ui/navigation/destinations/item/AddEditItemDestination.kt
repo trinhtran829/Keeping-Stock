@@ -30,7 +30,6 @@ import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.navigation.itemIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.item.AddEditItemScreen
-import java.text.Normalizer.normalize
 import java.util.Date
 
 /**
@@ -482,11 +481,16 @@ private fun reduceTagIntent(
         // For case-insensitive matching while preserving query input
         val queryKey = query.lowercase()
 
+        // Building a set of already selected tags for easy filtering
+        val selectedIds: Set<TagId> =
+            currentState.selectedTags.map { it.id }.toSet()
+
         // Filtering demo set of "known tags"
         // TODO: replace with repo call
         val newSuggestions =
             if (err == null) {
                 knownTags
+                    .filterNot { it.id in selectedIds }
                     .filter { it.name.lowercase().contains(queryKey) }
                     .sortedBy { it.name.lowercase() }
                     .take(currentState.suggestionsLimit)
