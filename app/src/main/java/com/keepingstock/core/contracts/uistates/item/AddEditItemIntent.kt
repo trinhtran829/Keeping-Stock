@@ -28,7 +28,6 @@ sealed interface AddEditItemIntent {
 
     // Tag related Intent
     data class QueryChanged(val value: String) : AddEditItemIntent
-    data object ClearQuery : AddEditItemIntent
 
     data object AddQueryAsTagClicked : AddEditItemIntent
     data class ExistingTagSelected(val tagId: TagId) : AddEditItemIntent
