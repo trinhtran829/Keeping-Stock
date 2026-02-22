@@ -39,13 +39,11 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.ItemId
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
 import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
-import com.keepingstock.ui.screens.item.ParentPicker
 
 /**
  * Add/Edit Item screen that renders based on uiState.
@@ -64,6 +62,9 @@ import com.keepingstock.ui.screens.item.ParentPicker
  * :param uiState: Current UI state for the Add/Edit Item flow.
  * :param onIntent: Callback for user intents (field edits, save, image changes, etc.).
  * :param onNavigateBack: Callback to navigate up/back out of this screen.
+ *
+ * TODO: This file contains many components/functions that are near identical to those found
+ *  in the AddEditContainerScreen. Extract to shared file?
  */
 @Composable
 fun AddEditItemScreen(
@@ -89,25 +90,6 @@ fun AddEditItemScreen(
                 )
         }
     }
-    /*
-    // TODO(REMOVE): Replace old code after screen is updated
-
-    val mode = if (itemId == null) "ADD" else "EDIT"
-
-    Column(modifier = modifier.padding(16.dp)) {
-        Text("Add/Edit Item Screen (placeholder)")
-        Text("mode = $mode")
-        Text("itemId = ${itemId ?: "null"}")
-        Text("containerId = ${containerId ?: "null"}")
-
-        Button(onClick = onSave, modifier = Modifier.padding(top = 12.dp)) {
-            Text("Save (placeholder)")
-        }
-        Button(onClick = onCancel, modifier = Modifier.padding(top = 12.dp)) {
-            Text("Cancel")
-        }
-    }
-     */
 }
 
 /**
