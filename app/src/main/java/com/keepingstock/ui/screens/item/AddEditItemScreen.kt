@@ -1,7 +1,5 @@
 package com.keepingstock.ui.screens.item
 
-import android.R.attr.name
-import android.R.attr.tag
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
