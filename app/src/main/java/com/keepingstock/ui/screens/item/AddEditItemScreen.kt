@@ -6,7 +6,9 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -15,19 +17,20 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -41,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -686,22 +690,51 @@ private fun SelectedTagChips(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         tags.forEach { tag ->
-            InputChip(
-                selected = true,
-                onClick = { /* TODO: Consult group on behavior, if any */ },
-                label = { Text(tag.name) },
-                trailingIcon = {
-                    // TODO: snackbar "Tag removed" with "Undo" option
-                    IconButton(
-                        onClick = { onRemove(tag.id) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "Remove ${tag.name}",
-                        )
-                    }
-                }
+            SelectedTagChip(
+                name = tag.name,
+                onRemove = { onRemove(tag.id) }
             )
         }
     }
+}
+
+@Composable
+private fun SelectedTagChip(
+    name: String,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // quick modifiers for easy adjustment
+    val chipHeight = 32.dp
+    val removeButtonSize = 22.dp
+    val removeIconSize = 16.dp
+
+    InputChip(
+        modifier = modifier.height(chipHeight),
+        selected = true,
+        onClick = { /* TODO: Consult group on behavior, if any */ },
+        label = {
+            Text(
+                text = name,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1
+            )
+        },
+        trailingIcon = {
+            // Used box instead of IconButton - spacing was weird
+            Box(
+                modifier = Modifier
+                    .size(removeButtonSize)
+                    .clip(CircleShape)
+                    .clickable(onClick = onRemove), // TODO: snackbar "Tag removed" with "Undo" option
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = "Remove $name",
+                    modifier = Modifier.size(removeIconSize)
+                )
+            }
+        }
+    )
 }
