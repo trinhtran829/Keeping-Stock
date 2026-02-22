@@ -257,6 +257,7 @@ private class AddEditItemDemoController(
      * - If valid, shows a success snackbar and pops the back stack.
      *
      * TODO: onSave function for demo purposes - handled by ViewModel
+     *  currently doesn't actually save anything
      */
     fun onSave(currentState: AddEditItemUiState) {
         // don't save if state isn't ready (redundant?)
@@ -373,25 +374,29 @@ private fun reduceIntent(
         is AddEditItemIntent.StatusChanged ->
             if (currentState.containerId == null) {
                 // Shouldn't happen, since no container = status toggle disabled
-                currentState.copy(
-                    status = ItemStatus.TAKEN_OUT,
-                    checkoutDate = currentState.checkoutDate ?: Date(),
-                )
+                currentState
             } else {
-                // Toggle status, update checkout date, set form to dirty
-                when (intent.status) {
-                    ItemStatus.STORED ->
-                        currentState.copy(
-                            status = ItemStatus.TAKEN_OUT,
-                            checkoutDate = Date(),
-                            isDirty = true
-                        )
-                    ItemStatus.TAKEN_OUT ->
-                        currentState.copy(
-                            status = ItemStatus.STORED,
-                            checkoutDate = null,
-                            isDirty = true
-                        )
+                val newStatus = intent.status
+
+                if (newStatus == currentState.status) {
+                    currentState
+                } else {
+                    // Toggle status, update checkout date, set form to dirty
+                    when (newStatus) {
+                        ItemStatus.STORED ->
+                            currentState.copy(
+                                status = ItemStatus.STORED,
+                                checkoutDate = null,
+                                isDirty = true
+                            )
+
+                        ItemStatus.TAKEN_OUT ->
+                            currentState.copy(
+                                status = ItemStatus.TAKEN_OUT,
+                                checkoutDate = currentState.checkoutDate ?: Date(),
+                                isDirty = true
+                            )
+                    }
                 }
             }
 
@@ -540,9 +545,7 @@ private fun reduceTagIntent(
         // probably don't want to save a new tag if the add/edit is completely discarded, so wait
         // until onSave intent)
         // For the purposes of this demo, negative IDs represent "new tag to create on Save".
-        // TODO: alternatively instead of using Tag model we wrap it in another object, something
-        //  like TagUi(Tag, isNew) so we don't rely on negative IDs as a rule? Maybe easier for
-        //  onSave processing logic.
+        // TODO: alternative for repo: just do a simple "if it's not in the DB, add it to the DB"
         val tagToAdd = existing ?: Tag(
             id = TagId(-tagKey.hashCode().toLong()),
             name = tagName
