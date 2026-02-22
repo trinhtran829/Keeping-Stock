@@ -15,6 +15,24 @@ import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
 
+/**
+ * Add/Edit Item screen that renders based on uiState.
+ *
+ * State handling:
+ * - [AddEditItemUiState.Loading] shows a loading indicator.
+ * - [AddEditItemUiState.Error] shows an error message.
+ * - [AddEditItemUiState.Ready] shows the editable form and emits [AddEditItemIntent]
+ *   events via [onIntent].
+ *
+ * Navigation:
+ * - [onNavigateBack] is called when the user confirms leaving (e.g. discard changes) or taps
+ *   Cancel when the form is not dirty.
+ *
+ * :param modifier: Modifier applied to the screen.
+ * :param uiState: Current UI state for the Add/Edit Item flow.
+ * :param onIntent: Callback for user intents (field edits, save, image changes, etc.).
+ * :param onNavigateBack: Callback to navigate up/back out of this screen.
+ */
 @Composable
 fun AddEditItemScreen(
     modifier: Modifier = Modifier,
