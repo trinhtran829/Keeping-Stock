@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -247,6 +248,7 @@ private fun ItemFormCard(
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            // Editable fields
             OutlinedTextField(
                 value = uiState.name,
                 onValueChange = {
@@ -271,6 +273,9 @@ private fun ItemFormCard(
                 minLines = 3
             )
 
+            HorizontalDivider()
+
+            // Parent Container display/picker
             ParentSection(
                 canChangeParent = uiState.canChangeParent,
                 containerId = uiState.containerId,
@@ -280,6 +285,27 @@ private fun ItemFormCard(
                     onIntent(AddEditItemIntent.ContainerChanged(it))
                 }
             )
+
+            // Status toggle: disabled/hidden when container/Id == null
+            if (uiState.containerId == null) {
+                Text(
+                    text = "Status: Taken Out (no container selected)",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                uiState.validation.containerError?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            } else {
+                StatusToggle(
+                    status = uiState.status,
+                    onChanged = { onIntent(AddEditItemIntent.StatusChanged(it)) }
+                )
+            }
         }
     }
 }
