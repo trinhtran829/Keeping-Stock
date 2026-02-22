@@ -48,6 +48,7 @@ private fun Preview_AddEditItem_Create() {
             selectedTags = emptyList(),
             maxTags = 20,
             suggestionsLimit = 8,
+            tagRecommendations = listOf("Tool", "Treasure", "Thing", "Other"),
 
             isSaving = false,
             isDirty = false,
