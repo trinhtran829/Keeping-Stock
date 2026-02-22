@@ -424,6 +424,18 @@ private fun StatusToggle(
             style = MaterialTheme.typography.labelLarge
         )
 
+        /*
+        Switch(
+            checked = status == ItemStatus.TAKEN_OUT,
+            onCheckedChange = {
+                if (status == ItemStatus.TAKEN_OUT)
+                    onChanged(ItemStatus.TAKEN_OUT)
+                else
+                    onChanged(ItemStatus.STORED)
+            }
+        )
+         */
+        
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
