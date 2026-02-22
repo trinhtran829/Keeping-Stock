@@ -54,7 +54,8 @@ sealed interface AddEditItemUiState {
 
         // TODO: Anything else need to be validated? Tags?
         data class Validation(
-            val nameError: String? = null
+            val nameError: String? = null,
+            val containerError: String? = null
         )
 
         val canAddMore: Boolean get() = selectedTags.size < maxTags
