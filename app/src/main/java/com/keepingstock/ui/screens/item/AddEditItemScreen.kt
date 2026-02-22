@@ -1,6 +1,9 @@
 package com.keepingstock.ui.screens.item
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,15 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.ItemId
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent.ImagePicked
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState.Ready
 import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
-import com.keepingstock.ui.screens.container.AddEditContainerBackHandling
 
 /**
  * Add/Edit Item screen that renders based on uiState.
@@ -122,6 +120,9 @@ private fun AddEditItemReadyContent(
         onShowDiscardDialog = { showDiscardDialog = it },
         onDiscardConfirmed = onNavigateBack
     )
+
+    // Gets an object that can launch the system image picker.
+    val pickImageLauncher = rememberPickImageLauncher(onIntent)
 }
 
 /**
@@ -183,4 +184,25 @@ private fun AddEditItemBackHandling(
             )
         )
     }
+}
+
+/**
+ * Creates and remembers an Activity Result launcher for selecting an image from the system picker.
+ *
+ * When the picker returns a non-null [Uri], this emits [AddEditItemIntent.ImagePicked]
+ * through [onIntent]. The caller is responsible for invoking `launch(...)` on the returned
+ * launcher.
+ *
+ * :param onIntent: Callback used to emit [AddEditItemIntent] events.
+ *
+ * :return: A launcher that can start the visual media picker and deliver a picked image [Uri].
+ */
+@Composable
+private fun rememberPickImageLauncher(
+    onIntent: (AddEditItemIntent) -> Unit
+) = rememberLauncherForActivityResult(
+    contract = ActivityResultContracts.PickVisualMedia()
+) { uri: Uri? ->
+    if (uri != null)
+        onIntent(AddEditItemIntent.ImagePicked(uri.toString()))
 }
