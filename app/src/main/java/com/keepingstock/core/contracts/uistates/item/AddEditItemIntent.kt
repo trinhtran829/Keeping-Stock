@@ -4,6 +4,10 @@ import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.TagId
 import com.keepingstock.data.entities.ItemStatus
 
+/**
+ * This Intent interface defines the contract for user intent for the AddEditItem UI
+ * It provides classes/objects for indicating user actions/intent that will need to be consumed
+ */
 sealed interface AddEditItemIntent {
     // Editable fields
     data class NameChanged(val value: String) : AddEditItemIntent
