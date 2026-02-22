@@ -11,6 +11,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.Tag
 import com.keepingstock.core.contracts.TagId
@@ -272,4 +273,73 @@ private fun reduceAddEditItemIntent(
     }
 
     return validate(updated)
+}
+
+/**
+ * Builds a demo [AddEditItemUiState.Ready] for previews/manual testing.
+ *
+ * CREATE mode:
+ * - Empty name/description.
+ * - Optional [containerId] preselected when provided.
+ *
+ * EDIT mode:
+ * - Uses placeholder values for name/description (replace with repository-loaded values later).
+ *
+ * :param mode: CREATE vs EDIT. // TODO: removed, can be derived from itemId presence
+ * :param itemId: Item being edited (null for CREATE).
+ * :param containerId: Optional initial parent selection.
+ * :param parentOptions: Demo parent options list, used to resolve parent display name.
+ *
+ * :return A [AddEditItemUiState.Ready] suitable for demo rendering.
+ *
+ * TODO: For demo purposes only
+ */
+private fun demoInitialUiState(
+    itemId: ItemId?,
+    containerId: ContainerId?,
+    parentOptions: List<AddEditItemUiState.Ready.ParentOption>,
+    knownTags: List<Tag>
+): AddEditItemUiState.Ready {
+    val parentName = parentOptions.firstOrNull { it.id == containerId }?.name
+    val now = Date()
+    val mode =
+        if (itemId == null) AddEditItemUiState.Ready.Mode.CREATE
+        else AddEditItemUiState.Ready.Mode.EDIT
+
+    val initialStatus =
+        if (containerId == null) ItemStatus.TAKEN_OUT
+        else ItemStatus.STORED
+
+    val initalCheckout = if (containerId == null) now else null
+
+    return validate(
+        AddEditItemUiState.Ready(
+            mode = mode,
+            itemId = itemId,
+            containerId = containerId,
+            containerName = parentName,
+            availableParents = parentOptions,
+
+            name = if (mode == AddEditItemUiState.Ready.Mode.EDIT) "Impact Driver" else "",
+            description = if (mode == AddEditItemUiState.Ready.Mode.EDIT) "18V brushless" else "",
+            imageUri = null,
+            status = initialStatus,
+            createdDate = now,
+            checkoutDate = initalCheckout,
+
+            selectedTags = TODO(),
+            tagQuery = TODO(),
+            tagSuggestions = TODO(),
+            tagRecommendations = TODO(),
+            isRecommending = TODO(),
+            inputError = TODO(),
+            maxTags = TODO(),
+            suggestionsLimit = TODO(),
+
+            isSaving = TODO(),
+            isDirty = TODO(),
+            validation = TODO(),
+            canChangeParent = TODO()
+        )
+    )
 }
