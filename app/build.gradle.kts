@@ -59,7 +59,7 @@ dependencies {
 
     // ML Kit
     implementation(libs.mlkit.image.labeling)
-    implementation(libs.mlkit.`object`.detection)
+    implementation(libs.mlkit.obj.detection)
     implementation(libs.kotlinx.coroutines.play.services)
 
     testImplementation(libs.junit)
