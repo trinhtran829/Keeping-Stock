@@ -18,6 +18,8 @@ import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.Tag
 import com.keepingstock.core.contracts.TagId
+import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent
+import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
 import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.data.entities.ItemStatus
@@ -150,10 +152,21 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
             )
 
             AddEditItemScreen(
-                itemId = itemId,
-                containerId = containerId,
-                onSave = { deps.navController.popBackStack() },
-                onCancel = { deps.navController.popBackStack() }
+                uiState = uiState,
+                onIntent = { intent ->
+                    // If user is in Loading/Error demo, ignore edit intents except back.
+                    if (uiState is AddEditItemUiState.Ready) {
+                        controller.onIntent(intent)
+                    } else {
+                        when (intent) {
+                            AddEditItemIntent.BackClicked,
+                            AddEditItemIntent.DiscardChangesConfirmed ->
+                                deps.navController.popBackStack()
+                            else -> Unit
+                        }
+                    }
+                },
+                onNavigateBack = { deps.navController.popBackStack() }
             )
         }
     }
