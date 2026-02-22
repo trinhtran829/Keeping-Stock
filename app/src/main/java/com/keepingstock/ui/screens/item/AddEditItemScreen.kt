@@ -6,10 +6,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent
+import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent.ImagePicked
+import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
+import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState.Ready
 import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.ui.components.screen.ErrorContent
@@ -78,6 +86,19 @@ fun AddEditItemScreen(
      */
 }
 
+/**
+ * Renders the editable Add/Edit Item form for the [AddEditItemUiState.Ready] state.
+ *
+ * UI responsibilities:
+ * - Owns local, UI-only discard confirmation dialog state (not part of UiState).
+ * - Intercepts system back when [uiState.isDirty] and prompts for discard confirmation.
+ * - Hosts an Activity Result launcher to pick an image and emits [AddEditItemIntent.ImagePicked].
+ *
+ * :param modifier: Modifier applied to the scrolling content container.
+ * :param uiState: Ready state containing current field values, validation, and flags.
+ * :param onIntent: Callback for emitting user intents to the state owner (demo controller / ViewModel).
+ * :param onNavigateBack: Callback invoked when navigation away from the screen is confirmed.
+ */
 @Composable
 private fun AddEditItemReadyContent(
     modifier: Modifier,
@@ -85,5 +106,8 @@ private fun AddEditItemReadyContent(
     onIntent: (AddEditItemIntent) -> Unit,
     onNavigateBack: () -> Unit
 ) {
+    // TODO: Local UI-only dialog state (kept out of UiState to keep demo simple).
+    var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
+
 
 }
