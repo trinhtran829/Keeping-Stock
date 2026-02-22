@@ -413,7 +413,6 @@ private fun reduceIntent(
  * EDIT mode:
  * - Uses placeholder values for name/description (replace with repository-loaded values later).
  *
- * :param mode: CREATE vs EDIT. // TODO: removed, can be derived from itemId presence
  * :param itemId: Item being edited (null for CREATE).
  * :param containerId: Optional initial parent selection.
  * :param parentOptions: Demo parent options list, used to resolve parent display name.
