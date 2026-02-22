@@ -27,13 +27,12 @@ private fun Preview_AddEditItem_Error() {
 @Preview(showBackground = true)
 @Composable
 private fun Preview_AddEditItem_Create() {
-    // TODO: Why is this unreachable??
     AddEditItemScreen(
         uiState = AddEditItemUiState.Ready(
             mode = AddEditItemUiState.Ready.Mode.CREATE,
             itemId = null,
             containerId = null,
-            containerName = TODO(),
+            containerName = null,
             availableParents = listOf(
                 AddEditItemUiState.Ready.ParentOption(ContainerId(1L), "Garage"),
                 AddEditItemUiState.Ready.ParentOption(ContainerId(2L), "Kitchen")
