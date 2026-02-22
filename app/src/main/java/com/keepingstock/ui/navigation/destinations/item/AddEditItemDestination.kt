@@ -159,6 +159,29 @@ private class AddEditItemDemoController(
 }
 
 /**
+ * Validates the Add/Edit Item form state and returns a copy containing validation errors.
+ *
+ * Current validation rules:
+ * - Name is required (non-blank after trimming).
+ *
+ * :param currentState The current form state.
+ * :return A copy of [currentState] with updated validation fields.
+ *
+ * TODO: This might be able to be moved directly into the ViewModel later.
+ */
+private fun validate(
+    currentState: AddEditItemUiState.Ready
+): AddEditItemUiState.Ready {
+    // TODO: Name error validation here is just "is it blank". ViewModel might include if it's
+    //  unique in the container? Update UiState model if additional validation is needed.
+    val nameError = if(currentState.name.trim().isBlank()) "Name is required" else null
+
+    return currentState.copy(
+        validation = currentState.validation.copy(nameError = nameError)
+    )
+}
+
+/**
  * TODO: for demo purposes only; could be moved into ViewModel later if matches intended structure
  */
 private fun reduceAddEditItemIntent(
@@ -223,7 +246,6 @@ private fun reduceAddEditItemIntent(
                 }
             }
 
-
         // Tag Related
         AddEditItemIntent.AddQueryAsTagClicked -> TODO()
         AddEditItemIntent.ClearQuery -> TODO()
@@ -240,4 +262,6 @@ private fun reduceAddEditItemIntent(
         AddEditItemIntent.BackClicked,
         AddEditItemIntent.SaveClicked -> current
     }
+
+    return updated
 }
