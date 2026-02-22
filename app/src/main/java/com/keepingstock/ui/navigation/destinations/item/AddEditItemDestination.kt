@@ -17,6 +17,7 @@ import com.keepingstock.core.contracts.TagId
 import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
 import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
+import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.navigation.DemoMode
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
@@ -24,6 +25,7 @@ import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.navigation.itemIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.item.AddEditItemScreen
+import java.util.Date
 
 internal fun NavGraphBuilder.addAddEditItemDestination(
     deps: NavDeps
@@ -138,19 +140,16 @@ private class AddEditItemDemoController(
             AddEditItemIntent.DismissDiscardDialog -> Unit
 
             // Set UI State based on intent - call reducer function
-            AddEditItemIntent.AddQueryAsTagClicked -> TODO()
-            AddEditItemIntent.ClearQuery -> TODO()
-            is AddEditItemIntent.ContainerChanged -> TODO()
-            is AddEditItemIntent.DescriptionChanges -> TODO()
-            is AddEditItemIntent.ExistingTagSelected -> TODO()
-            is AddEditItemIntent.ImagePicked -> TODO()
-            is AddEditItemIntent.NameChanged -> TODO()
-            is AddEditItemIntent.QueryChanged -> TODO()
-            is AddEditItemIntent.RecommendedTagSelected -> TODO()
-            AddEditItemIntent.RefreshRecommendations -> TODO()
-            AddEditItemIntent.RemoveImageClicked -> TODO()
-            is AddEditItemIntent.RemoveTagClicked -> TODO()
-            is AddEditItemIntent.StatusChanged -> TODO()
+            else -> {
+                if (current is AddEditItemUiState.Ready) {
+                    val updated = reduceAddEditItemIntent(
+                        current = current,
+                        intent = intent,
+                        knownTags = knownTags
+                    )
+                    setUiState(updated)
+                }
+            }
         }
     }
 
@@ -159,10 +158,86 @@ private class AddEditItemDemoController(
     }
 }
 
+/**
+ * TODO: for demo purposes only; could be moved into ViewModel later if matches intended structure
+ */
 private fun reduceAddEditItemIntent(
     current: AddEditItemUiState.Ready,
     intent: AddEditItemIntent,
     knownTags: List<Tag>
-) {
-    
+): AddEditItemUiState.Ready {
+    // What to do for each emitted user action
+    val updated = when (intent) {
+        // Editable fields
+        is AddEditItemIntent.NameChanged ->
+            current.copy(name = intent.value, isDirty = true)
+
+        is AddEditItemIntent.DescriptionChanges ->
+            current.copy(description = intent.value, isDirty = true)
+
+        is AddEditItemIntent.ImagePicked ->
+            current.copy(imageUri = intent.uriString, isDirty = true)
+
+        AddEditItemIntent.RemoveImageClicked ->
+            current.copy(imageUri = null, isDirty = true)
+
+        // Container related
+        is AddEditItemIntent.ContainerChanged ->
+            if (intent.containerId == null) {
+                // if container is null, set checkout date and status as taken out
+                current.copy(
+                    containerId = null,
+                    status = ItemStatus.TAKEN_OUT,
+                    checkoutDate = current.checkoutDate ?: Date(),
+                    isDirty = true
+                )
+            } else {
+                // TODO: behavior check change status to stored if currently taken out?
+                current.copy(
+                    containerId = intent.containerId,
+                    isDirty = true
+                )
+            }
+
+        is AddEditItemIntent.StatusChanged ->
+            if (current.containerId == null) {
+                // Shouldn't happen, since no container = status toggle disabled
+                current.copy(
+                    status = ItemStatus.TAKEN_OUT,
+                    checkoutDate = current.checkoutDate ?: Date(),
+                )
+            } else {
+                when (intent.status) {
+                    ItemStatus.STORED ->
+                        current.copy(
+                            status = ItemStatus.TAKEN_OUT,
+                            checkoutDate = Date(),
+                            isDirty = true
+                        )
+                    ItemStatus.TAKEN_OUT ->
+                        current.copy(
+                            status = ItemStatus.STORED,
+                            checkoutDate = null,
+                            isDirty = true
+                        )
+                }
+            }
+
+
+        // Tag Related
+        AddEditItemIntent.AddQueryAsTagClicked -> TODO()
+        AddEditItemIntent.ClearQuery -> TODO()
+        is AddEditItemIntent.ExistingTagSelected -> TODO()
+        is AddEditItemIntent.QueryChanged -> TODO()
+        is AddEditItemIntent.RecommendedTagSelected -> TODO()
+        AddEditItemIntent.RefreshRecommendations -> TODO()
+        is AddEditItemIntent.RemoveTagClicked -> TODO()
+
+        // Handled by UI/Controller
+        AddEditItemIntent.DiscardChangesConfirmed,
+        AddEditItemIntent.DismissDiscardDialog,
+        AddEditItemIntent.PickImageClicked,
+        AddEditItemIntent.BackClicked,
+        AddEditItemIntent.SaveClicked -> current
+    }
 }
