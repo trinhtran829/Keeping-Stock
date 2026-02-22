@@ -7,7 +7,7 @@ import com.keepingstock.data.entities.ItemStatus
 sealed interface AddEditItemIntent {
     // Editable fields
     data class NameChanged(val value: String) : AddEditItemIntent
-    data class DescriptionChanges(val value: String) : AddEditItemIntent
+    data class DescriptionChanged(val value: String) : AddEditItemIntent
 
     // Container/Status fields
     data class ContainerChanged(val containerId: ContainerId?) : AddEditItemIntent
