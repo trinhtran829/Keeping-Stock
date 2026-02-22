@@ -568,18 +568,39 @@ private fun reduceTagIntent(
 
         // User wants to add the query as a tag
         AddEditItemIntent.AddQueryAsTagClicked ->
-            addTagNameToSelected(currentState, currentState.tagQuery)
+            addTagNameToSelected(currentState = currentState, rawName = currentState.tagQuery)
 
+        // User wants to add one of the existing suggested tags to the item's selected tags list
         is AddEditItemIntent.ExistingTagSelected -> {
-            val userChosenTag = knownTags.firstOrNull { it.id == intent.tagId } ?: return currentState
-            addTagNameToSelected(currentState, userChosenTag.name)
+            // retrieve the tag name text selected by the user so that addTagNameToSelected
+            // can be reused.
+            // TODO: Can also work with intent.name so it can be bundled with
+            //  RecommmendedTagSelected intent, just need to update Intent contract
+            //
+            // TODO: replace knownTags with repo lookup to get tag name, if necessary
+            val userChosenTag =
+                knownTags.firstOrNull { it.id == intent.tagId } ?: return currentState
+            addTagNameToSelected(currentState = currentState, rawName = userChosenTag.name)
         }
 
-        is AddEditItemIntent.RemoveTagClicked -> TODO()
+        // User wants to remove tag from item's selected tags list.
+        is AddEditItemIntent.RemoveTagClicked -> {
+            val newSelectedTagsList = currentState.selectedTags.filterNot { it.id == intent.tagId }
+            currentState.copy(selectedTags = newSelectedTagsList, inputError = null)
+        }
 
-        is AddEditItemIntent.RecommendedTagSelected -> TODO()
+        // User wants to add one of the ML Kit recommended tags to the item's selected tag list.
+        // TODO: right now recommendations are returned as list of strings - check if confidence
+        //  score is possible?
+        is AddEditItemIntent.RecommendedTagSelected ->
+            addTagNameToSelected(currentState = currentState, rawName = intent.name)
 
-        AddEditItemIntent.RefreshRecommendations -> TODO()
+        // User wants to refresh the recommendations provided
+        // TODO: Necessary or possible? Does it just give the same results every time?
+        //  if we provide recommendations based on item name or description, this may be useful,
+        //  otherwise not really?
+        AddEditItemIntent.RefreshRecommendations ->
+            currentState.copy(isRecommending = true)
 
         // Shouldn't be encountered; Handled by state-reducer/UI/Controller; just consumes
         else -> currentState
