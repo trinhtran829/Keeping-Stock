@@ -176,8 +176,16 @@ private fun validate(
     //  unique in the container? Update UiState model if additional validation is needed.
     val nameError = if(currentState.name.trim().isBlank()) "Name is required" else null
 
+    val containerError =
+        if ((currentState.containerId == null) && (currentState.status != ItemStatus.TAKEN_OUT))
+            "Items outside a container must be marked Taken Out."
+        else null
+
     return currentState.copy(
-        validation = currentState.validation.copy(nameError = nameError)
+        validation = currentState.validation.copy(
+            nameError = nameError,
+            containerError = containerError
+        )
     )
 }
 
@@ -263,5 +271,5 @@ private fun reduceAddEditItemIntent(
         AddEditItemIntent.SaveClicked -> current
     }
 
-    return updated
+    return validate(updated)
 }
