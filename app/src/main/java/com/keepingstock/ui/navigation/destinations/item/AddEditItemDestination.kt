@@ -1,5 +1,6 @@
 package com.keepingstock.ui.navigation.destinations.item
 
+import android.provider.SyncStateContract.Helpers.update
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
@@ -414,14 +415,76 @@ private fun reduceIntent(
     return validate(updated)
 }
 
+/**
+ * When moving to ViewModel, knownTags would probably not be used. Uses of it in intent reducer
+ * should probably be replaced by a repo call of tags that match the query (either begins with,
+ * contains, or whatever other logic is preferred)
+ */
 private fun reduceTagIntent(
     currentState: AddEditItemUiState.Ready,
     intent: AddEditItemIntent,
     parentOptions: List<AddEditItemUiState.Ready.ParentOption>,
     knownTags: List<Tag>
 ): AddEditItemUiState.Ready {
+
+    /**
+     * Regex pattern of allowed characters
+     *
+     * logic: ^ means starts with, $ means ends with, character between brackets are characters
+     * that you want to match with (allowed characters), while + means match whatever is in the
+     * brackets an unlimited number of times. All together, if matches function is run then it
+     * should return true/false based on "does this string, from start to finish, contain only
+     * these characters between one and an unlimited number of times?"
+     *
+     * TODO: add additional characters as group decides
+     */
+    val allowedTagRegex = Regex("^[A-Za-z0-9 \\-&]+$")
+
+    // Only single space
+    fun normalize(value: String): String =
+        value.trim().replace(Regex("\\s+"), " ")
+
+    /**
+     * Used for query change intent. Check query for errors and updates list of suggested tags
+     * based on user's current query.
+     */
+    fun updateSuggestions(currentState: AddEditItemUiState.Ready): AddEditItemUiState.Ready {
+        val query = normalize(currentState.tagQuery)
+
+        // If query is blank, no suggestions and no error
+        if (query.isBlank())
+            return currentState.copy(tagSuggestions = emptyList(), inputError = null)
+
+        // Set err text if query does not match regex. See regex for logic
+        val err =
+            if (!allowedTagRegex.matches(query))
+                "Use only letters, numbers, spaces, '-', and '&'." // TODO: update err text if additional allowed chars added
+            else null
+
+        // For case-insensitive matching while preserving query input
+        val queryKey = query.lowercase()
+
+        // Filtering demo set of "known tags" - do repo call here
+        val newSuggestions =
+            if (err == null) {
+                knownTags
+                    .filter { it.name.lowercase().contains(queryKey) }
+                    .sortedBy { it.name.lowercase() }
+                    .take(currentState.suggestionsLimit)
+            } else emptyList()
+
+        // Return updated state
+        return currentState.copy(
+            tagQuery = query,
+            inputError = err,
+            tagSuggestions = newSuggestions
+        )
+    }
+
     return when (intent) {
-        is AddEditItemIntent.QueryChanged -> TODO()
+        // When query is changed, must check input and update suggestions
+        is AddEditItemIntent.QueryChanged ->
+            updateSuggestions(currentState.copy(tagQuery = intent.value))
 
         AddEditItemIntent.ClearQuery -> TODO()
 
