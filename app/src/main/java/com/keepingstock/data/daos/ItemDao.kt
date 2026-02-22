@@ -1,6 +1,6 @@
 package com.keepingstock.data.daos
 
-/*
+/**
 * This code was generated with the help of Android Basics with Compose course.
 * The following links
 * https://developer.android.com/codelabs/basic-android-kotlin-compose-persisting-data-room?authuser=1&continue=https%3A%2F%2Fdeveloper.android.com%2Fcourses%2Fpathways%2Fandroid-basics-compose-unit-6-pathway-2%3Fauthuser%3D1%23codelab-https%3A%2F%2Fdeveloper.android.com%2Fcodelabs%2Fbasic-android-kotlin-compose-persisting-data-room#5
@@ -29,16 +29,12 @@ interface ItemDao {
     @Delete
     suspend fun delete(item: ItemEntity)
 
-    /* ---------- update item status and manage checkout date ---------- */
+    /* ---- update item status and manage checkout date -logic comes from repository ---- */
     @Query("""
         UPDATE items
         SET
             status = :status,
-            checkoutDate = 
-                CASE 
-                    WHEN :status = 'TAKEN_OUT' THEN :checkoutDate
-                    ELSE NULL
-                END
+            checkoutDate = :checkoutDate
         WHERE itemId = :itemId
     """ )
     suspend fun updateItemStatus(
@@ -47,23 +43,13 @@ interface ItemDao {
         checkoutDate: Date?
     )
 
-    /* ---------- move item to a container and reset status to STORED ---------- */
-    @Query("""
-        UPDATE items
-        SET
-            containerId = :containerId,
-            status = 'STORED',
-            checkoutDate = NULL
-        WHERE itemId = :itemId
-    """ )
-    suspend fun updateItemLocation(
-        itemId: Long,
-        containerId: Long
-    )
-
     /* ---------- delete item by ID ---------- */
     @Query("DELETE FROM items WHERE itemId = :itemId")
     suspend fun deleteById(itemId: Long)
+
+    /* ---------- get item by ID ---------- */
+    @Query("SELECT * FROM items WHERE itemId = :itemId")
+    suspend fun getItemById(itemId: Long): ItemEntity?
 
     /* ---------- observe all items ---------- */
     @Query("""

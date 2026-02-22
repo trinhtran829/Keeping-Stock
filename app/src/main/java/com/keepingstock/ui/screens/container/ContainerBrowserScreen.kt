@@ -1,92 +1,272 @@
 package com.keepingstock.ui.screens.container
 
-import android.R.attr.top
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.Item
+import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
+import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.ui.components.screen.ContainerSummaryRow
+import com.keepingstock.ui.components.screen.ErrorContent
+import com.keepingstock.ui.components.screen.ItemSummaryRow
+import com.keepingstock.ui.components.screen.LoadingContent
 
+/**
+ * Screen for browsing container contents. Render based on ContainerBrowserUiState.
+ *
+ * TODO: Add addContainer and addItem buttons
+ * TODO: Search/Filter/Sort feature
+ *
+ * :param modifier: Optional modifier for the top-level screen container.
+ * :param uiState: Current state of loading, error, or container contents.
+ * :param onOpenSubcontainer: User intent to open a subcontainer.
+ * :param onOpenItem: User intent to open an item detail screen.
+ * :param onOpenContainerInfo: User intent to open the current container's info/detail screen.
+ * :param onAddContainer: User intent to create a container under the current container.
+ * :param onAddItem: User intent to create an item under the current container.
+ */
 @Composable
 fun ContainerBrowserScreen(
-    containerId: String?,
     modifier: Modifier = Modifier,
-    onOpenSubcontainer: (containerId: String) -> Unit = {},
-    onOpenItem: (itemId: String) -> Unit = {},
-    onOpenContainerInfo: (containerId: String) -> Unit = {},
-    onAddContainer: (parentContainerId: String?) -> Unit = {},
-    onAddItem: (containerId: String?) -> Unit = {},
-    onGoToItemBrowser: () -> Unit = {},
-    onScanQr: () -> Unit = {}
+    uiState: ContainerBrowserUiState,
+    onOpenSubcontainer: (containerId: ContainerId) -> Unit = {},
+    onOpenItem: (itemId: ItemId) -> Unit = {},
+    onOpenContainerInfo: (containerId: ContainerId) -> Unit = {},
+    onAddContainer: (parentContainerId: ContainerId?) -> Unit = {},
+    onAddItem: (containerId: ContainerId?) -> Unit = {}
 ) {
-    Column(modifier = modifier.padding(16.dp)) {
-        Text("Container Browser Screen (placeholder)")
-        Text("containerId = ${containerId ?: "ROOT"}")
+    when (uiState) {
+        ContainerBrowserUiState.Loading -> LoadingContent(modifier)
 
-        Button(
-            onClick = { onOpenSubcontainer("02") },
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text("Open example subcontainer 02")
-        }
+        is ContainerBrowserUiState.Error -> ErrorContent(
+            modifier = modifier,
+            message = uiState.message
+            // TODO: uiState.cause not displayed yet
+        )
 
-        Button(
-            onClick = { onOpenItem("01") },
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text("Open example item 01")
-        }
-
-        Button(
-            onClick = { if (containerId != null) onOpenContainerInfo(containerId) },
-            enabled = containerId != null,
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text("Open container info")
-        }
-
-        Button(
-            onClick = { onAddContainer(containerId) },
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text(
-                if (containerId == null) {
-                    "Add container"
-                } else {
-                    "Add subcontainer"
-                }
-            )
-        }
-
-        Button(
-            onClick = { onAddItem(containerId) },
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text(
-                if (containerId == null) {
-                    "Add item (choose container later)"
-                } else {
-                    "Add item to this container"
-                }
-            )
-        }
-
-        Button(
-            onClick = onGoToItemBrowser,
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text("Go to Item Browser")
-        }
-
-        Button(
-            onClick = onScanQr,
-            modifier = Modifier.padding(top = 12.dp)
-        ) {
-            Text("Scan QR")
-        }
-
+        is ContainerBrowserUiState.Ready -> ReadyContent(
+            modifier = modifier,
+            containerId = uiState.containerId,
+            containerName = uiState.containerName,
+            subcontainers = uiState.subcontainers,
+            items = uiState.items,
+            onOpenSubcontainer = onOpenSubcontainer,
+            onOpenItem = onOpenItem,
+            onOpenContainerInfo = onOpenContainerInfo,
+            onAddContainer = onAddContainer,
+            onAddItem = onAddItem
+        )
     }
+}
+
+/**
+ * Ready-state UI for the Container Browser. Does the heavy-lifting
+ *
+ * - Shows a small header with counts and an optional "Info" action.
+ * - If both lists are empty, shows the empty-state call-to-action.
+ * - Otherwise, renders subcontainers and items in a single scrolling list.
+ * - Container name shows in the global top bar right now, so owned by destination.
+ *
+ * TODO(FUTURE): Add a grid/tile layout option. Keep row composables reusable by both layouts.
+ *
+ * :param modifier: Optional modifier for the screen container.
+ * :param containerId: The currently displayed container (null = root).
+ * :param containerName: The current container display name (currently not used/used by topbar in
+ *                 destination).
+ * :param subcontainers: List of subcontainers.
+ * :param items: List of items in this container.
+ * :param onOpenSubcontainer: User intent to open a subcontainer.
+ * :param onOpenItem: User intent to open an item detail view.
+ * :param onOpenContainerInfo: User intent to open container info/detail for containerId.
+ * :param onAddContainer: User intent to add a subcontainer under containerId.
+ * :param onAddItem: User intent to add an item under containerId.
+ */
+@Composable
+private fun ReadyContent(
+    modifier: Modifier,
+    containerId: ContainerId?,
+    containerName: String,
+    subcontainers: List<Container>,
+    items: List<Item>,
+    onOpenSubcontainer: (containerId: ContainerId) -> Unit = {},
+    onOpenItem: (itemId: ItemId) -> Unit = {},
+    onOpenContainerInfo: (containerId: ContainerId) -> Unit = {},
+    onAddContainer: (parentContainerId: ContainerId?) -> Unit = {},
+    onAddItem: (containerId: ContainerId?) -> Unit = {}
+) {
+    Column() {
+        // Content header; mainly counts and info button
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val counts = "${subcontainers.size} containers • ${items.size} items"
+            Text(
+                text = counts,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+
+            if (containerId != null) {
+                TextButton(onClick = { onOpenContainerInfo(containerId) }) {
+                    Text("Info") // TODO: info Icon?
+                }
+            }
+        }
+
+        HorizontalDivider()
+
+        // Empty state; not it's own state variant
+        if (subcontainers.isEmpty() && items.isEmpty()) {
+            EmptyState(
+                modifier = Modifier.fillMaxSize(),
+                onAddContainer = { onAddContainer(containerId) },
+                onAddItem = { onAddItem(containerId) }
+            )
+            return
+        }
+
+        // Populated state; scrolling list with individual sections for subcontainers/items
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (subcontainers.isNotEmpty()) {
+                item {
+                    Text("Containers", style = MaterialTheme.typography.titleMedium)
+                }
+                items(subcontainers, key = { it.id.value }) { c ->
+                    ContainerSummaryRow(
+                        modifier = Modifier,
+                        container = c,
+                        onClick = { onOpenSubcontainer(c.id) }
+                    )
+                }
+                item { Spacer(Modifier.height(8.dp)) }
+            }
+
+            if (items.isNotEmpty()) {
+                item {
+                    Text("Items", style = MaterialTheme.typography.titleMedium)
+                }
+                items(items, key = { it.id.value }) { i ->
+                    ItemSummaryRow(
+                        modifier = Modifier,
+                        item = i,
+                        onClick = { onOpenItem(i.id) }
+                    )
+                }
+            }
+
+            // breathing room above bottom bar
+            item { Spacer(Modifier.height(72.dp)) }
+        }
+    }
+}
+
+/**
+ * Empty-state UI shown when a container has no subcontainers and no items.
+ *
+ * :param modifier Modifier applied to the full-size empty-state container.
+ * :param onAddContainer Invoked when user chooses to add a container.
+ * :param onAddItem Invoked when user chooses to add an item.
+ */
+@Composable
+private fun EmptyState(
+    modifier: Modifier,
+    onAddContainer: () -> Unit,
+    onAddItem: () -> Unit
+) {
+    Box(
+        modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(24.dp)
+        ) {
+            Text(
+                text = "Nothing here yet",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = "Add a container or item to get started.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(onClick = onAddContainer) { Text("Add container") }
+
+                OutlinedButton(onClick = onAddItem) { Text("Add item") }
+            }
+        }
+    }
+}
+
+/**
+ * Preview of ContainerSummaryRow using sample container data.
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_ContainerSummaryRow() {
+    ContainerSummaryRow(
+        modifier = Modifier,
+        onClick = {},
+        container = Container(
+            id = ContainerId(1L),
+            name = "Garage",
+            description = "Garage Description goes here"
+        )
+    )
+}
+
+/**
+ * Preview of ItemSummaryRow using sample item data.
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_ItemSummaryRow() {
+    ItemSummaryRow(
+        modifier = Modifier,
+        onClick = {},
+        item = Item(
+            id = ItemId(100L),
+            name = "Impact Driver",
+            description = "DeWalt Brand 18V brushless",
+            imageUri = null,
+            status = ItemStatus.STORED,
+            containerId = ContainerId(1L)
+        )
+    )
 }

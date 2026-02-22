@@ -1,22 +1,35 @@
 package com.keepingstock.core.contracts
 
-// TODO migrate to @JvmInline value class for stronger type-safety
-typealias ItemId = String
-typealias ContainerId = String
+import com.keepingstock.data.entities.ItemStatus
+import java.util.Date
 
-data class Tag(val name: String)
+// Moved to using @JvmInLine for type safety and for overloading toNavString
+@JvmInline value class ContainerId(val value: Long)
+@JvmInline value class ItemId(val value: Long)
+@JvmInline value class TagId(val value: Long)
+
+data class Tag(
+    val id: TagId,
+    val name: String
+)
 
 data class Item(
     val id: ItemId,
     val name: String,
     val description: String? = null,
+    val imageUri: String? = null,
     val containerId: ContainerId? = null,
+    val status: ItemStatus,
+    val createdDate: Date = Date(),
+    val checkoutDate: Date? = null,
     val tags: List<Tag> = emptyList(),
-    val imagePath: String? = null
 )
 
 data class Container(
     val id: ContainerId,
     val name: String,
-    val parentContainerId: ContainerId? = null
+    val description: String? = null,
+    val imageUri: String? = null,
+    val parentContainerId: ContainerId? = null,
+    val createdDate: Date = Date()
 )

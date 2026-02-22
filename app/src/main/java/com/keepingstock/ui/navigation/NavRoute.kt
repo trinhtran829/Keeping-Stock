@@ -1,6 +1,8 @@
 package com.keepingstock.ui.navigation
 
 import android.net.Uri
+import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
 
 /**
@@ -29,8 +31,9 @@ sealed interface NavRoute {
             "${Routes.CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}={${Routes.Args.CONTAINER_ID}}"
 
         // Function to build the actual route string; uses query param
-        fun createRoute(containerId: String? = null): String =
-            containerId?.let { "${Routes.CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}=$it" }
+        fun createRoute(containerId: ContainerId? = null): String =
+            containerId?.let {
+                "${Routes.CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}=${it.value}" }
                 ?: Routes.CONTAINER_BROWSER
     }
 
@@ -42,8 +45,8 @@ sealed interface NavRoute {
         override val route: String = "${Routes.ITEM_DETAIL}/{${Routes.Args.ITEM_ID}}"
 
         // Function to build the actual route string; uses path param
-        fun createRoute(itemId: String): String =
-            "${Routes.ITEM_DETAIL}/$itemId"
+        fun createRoute(itemId: ItemId): String =
+            "${Routes.ITEM_DETAIL}/${itemId.value}"
     }
 
     object ContainerDetail : NavRoute {
@@ -51,7 +54,8 @@ sealed interface NavRoute {
             "${Routes.CONTAINER_DETAIL}/{${Routes.Args.CONTAINER_ID}}"
 
         // Function to build the actual route string; uses path param
-        fun createRoute(containerId: String): String = "${Routes.CONTAINER_DETAIL}/$containerId"
+        fun createRoute(containerId: ContainerId): String =
+            "${Routes.CONTAINER_DETAIL}/${containerId.value}"
     }
 
     // ----------------
@@ -68,13 +72,14 @@ sealed interface NavRoute {
         // Function to build the actual route string; uses query param, builds using params list
         // based on whether containerId and parentContainerId values were provided.
         fun createRoute(
-            containerId: String? = null,
-            parentContainerId: String? = null
+            containerId: ContainerId? = null,
+            parentContainerId: ContainerId? = null
         ): String {
             val base = Routes.ADD_EDIT_CONTAINER
             val params = buildList {
-                if (containerId != null) add("${Routes.Args.CONTAINER_ID}=$containerId")
-                if (parentContainerId != null) add("${Routes.Args.PARENT_CONTAINER_ID}=$parentContainerId")
+                if (containerId != null) add("${Routes.Args.CONTAINER_ID}=${containerId.value}")
+                if (parentContainerId != null)
+                    add("${Routes.Args.PARENT_CONTAINER_ID}=${parentContainerId.value}")
             }
             return if (params.isEmpty()) base else base + "?" + params.joinToString("&")
         }
@@ -89,14 +94,14 @@ sealed interface NavRoute {
         // Function to build the actual route string; uses query param, builds using params list
         // based on whether itemId and containerId values were provided.
         fun createRoute(
-            itemId: String? = null,
-            containerId: String? = null
+            itemId: ItemId? = null,
+            containerId: ContainerId? = null
         ): String {
             val base = Routes.ADD_EDIT_ITEM
 
             val params = buildList {
-                if (itemId != null) add("${Routes.Args.ITEM_ID}=$itemId")
-                if (containerId != null) add("${Routes.Args.CONTAINER_ID}=$containerId")
+                if (itemId != null) add("${Routes.Args.ITEM_ID}=${itemId.value}")
+                if (containerId != null) add("${Routes.Args.CONTAINER_ID}=${containerId.value}")
             }
             return if (params.isEmpty()) base else base + "?" + params.joinToString("&")
         }

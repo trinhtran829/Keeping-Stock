@@ -8,6 +8,8 @@ import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
+import com.keepingstock.ui.navigation.containerIdOrNull
+import com.keepingstock.ui.navigation.itemIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.item.AddEditItemScreen
 
@@ -29,8 +31,9 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
             }
         )
     ) { backStackEntry ->
-        val itemId = backStackEntry.arguments?.getString(Routes.Args.ITEM_ID)
-        val containerId = backStackEntry.arguments?.getString(Routes.Args.CONTAINER_ID)
+        val args = backStackEntry.arguments
+        val itemId = args?.itemIdOrNull(Routes.Args.ITEM_ID)
+        val containerId = args?.containerIdOrNull(Routes.Args.CONTAINER_ID)
 
         LaunchedEffect(itemId, containerId) {
             deps.onTopBarChange(
