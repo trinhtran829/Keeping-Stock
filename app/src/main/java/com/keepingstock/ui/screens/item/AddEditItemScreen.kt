@@ -1,6 +1,7 @@
 package com.keepingstock.ui.screens.item
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -11,6 +12,8 @@ import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
+import com.keepingstock.ui.components.screen.ErrorContent
+import com.keepingstock.ui.components.screen.LoadingContent
 
 @Composable
 fun AddEditItemScreen(
@@ -19,6 +22,21 @@ fun AddEditItemScreen(
     onIntent: (AddEditItemIntent) -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
+    when (uiState) {
+        AddEditItemUiState.Loading ->
+            LoadingContent(modifier.fillMaxSize())
+
+        is AddEditItemUiState.Error ->
+            ErrorContent(modifier = modifier.fillMaxSize(), message = uiState.message)
+
+        is AddEditItemUiState.Ready ->
+            AddEditItemReadyContent(
+                modifier = modifier.fillMaxSize(),
+                uiState = uiState,
+                onIntent = onIntent,
+                onNavigateBack = onNavigateBack
+            )
+    }
     /*
     // TODO(REMOVE): Replace old code after screen is updated
 
@@ -37,6 +55,15 @@ fun AddEditItemScreen(
             Text("Cancel")
         }
     }
-
      */
+}
+
+@Composable
+private fun AddEditItemReadyContent(
+    modifier: Modifier,
+    uiState: AddEditItemUiState.Ready,
+    onIntent: (AddEditItemIntent) -> Unit,
+    onNavigateBack: () -> Unit
+) {
+
 }
