@@ -27,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -686,11 +687,14 @@ private fun SelectedTagChips(
                 onClick = { /* TODO: Consult group on behavior, if any */ },
                 label = { Text(tag.name) },
                 trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Close,
-                        contentDescription = "Remove ${tag.name}",
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
+                    IconButton(
+                        onClick = { onRemove(tag.id) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "Remove ${tag.name}",
+                        )
+                    }
                 }
             )
         }
