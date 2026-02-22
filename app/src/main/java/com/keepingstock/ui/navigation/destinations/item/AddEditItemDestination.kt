@@ -340,7 +340,7 @@ private fun reduceIntent(
         is AddEditItemIntent.NameChanged ->
             currentState.copy(name = intent.value, isDirty = true)
 
-        is AddEditItemIntent.DescriptionChanges ->
+        is AddEditItemIntent.DescriptionChanged ->
             currentState.copy(description = intent.value, isDirty = true)
 
         is AddEditItemIntent.ImagePicked ->
