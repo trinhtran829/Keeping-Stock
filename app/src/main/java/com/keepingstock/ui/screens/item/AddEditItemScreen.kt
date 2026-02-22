@@ -673,6 +673,7 @@ fun TagEditorCard(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SelectedTagChips(
+    modifier: Modifier = Modifier,
     tags: List<Tag>,
     onRemove: (TagId) -> Unit
 ) {
@@ -698,11 +699,17 @@ private fun SelectedTagChips(
     }
 }
 
+/**
+ * Individual chips for displaying a tag (took forever to get the presentation of this right).
+ *
+ * :param name: The name of the current tag
+ * :param onRemove: The invoked intent  when the chip's close icon is clicked
+ */
 @Composable
 private fun SelectedTagChip(
+    modifier: Modifier = Modifier,
     name: String,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier
+    onRemove: () -> Unit
 ) {
     // quick modifiers for easy adjustment
     val chipHeight = 32.dp
