@@ -805,6 +805,7 @@ private fun SelectedTagChip(
 /**
  * Displays the list of tags that appear as the user types a tag query.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TagSuggestionList(
     uiState: AddEditItemUiState.Ready,
@@ -817,7 +818,7 @@ private fun TagSuggestionList(
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         // Add as-is affordance
         if (uiState.tagQuery.isNotBlank()) {
-            OutlinedButton(
+            Button(
                 onClick = onAddQuery,
                 enabled = uiState.canAddMore && uiState.inputError == null,
                 modifier = Modifier.fillMaxWidth()
@@ -827,13 +828,27 @@ private fun TagSuggestionList(
         }
 
         // Existing suggestions
-        uiState.tagSuggestions.take(uiState.suggestionsLimit).forEach { tag ->
-            TextButton(
-                onClick = { onSelectExisting(tag.id) },
-                enabled = uiState.canAddMore,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(tag.name)
+        Text(
+            text = "Suggested tags:",
+            style = MaterialTheme.typography.labelSmall
+        )
+
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            uiState.tagSuggestions.take(uiState.suggestionsLimit).forEach { tag ->
+                InputChip(
+                    modifier = Modifier.height(32.dp),
+                    selected = true,
+                    onClick = { onSelectExisting(tag.id) },
+                    label = {
+                        Text(
+                            text = tag.name,
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1
+                        )
+                    }
+                )
             }
         }
     }
@@ -867,10 +882,9 @@ private fun RecommendedTagsRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            val chipHeight = 32.dp
             uiState.tagRecommendations.forEach { tagRec ->
                 InputChip(
-                    modifier = Modifier.height(chipHeight),
+                    modifier = Modifier.height(32.dp),
                     selected = true,
                     onClick = { onSelect(tagRec) },
                     label = {
