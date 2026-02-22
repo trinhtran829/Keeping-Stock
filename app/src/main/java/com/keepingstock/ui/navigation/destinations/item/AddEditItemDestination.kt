@@ -16,6 +16,7 @@ import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.Tag
 import com.keepingstock.core.contracts.TagId
+import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
 import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.data.entities.ItemStatus
@@ -126,12 +127,40 @@ private fun addEditItemTopBarConfig(uiState: AddEditItemUiState): TopBarConfig {
     return TopBarConfig(title = title, showBack = true)
 }
 
+/**
+ * A simple controller object for user intent + side effects
+ *
+ * This exists to keep the destination composable thinner while the real ViewModel is pending.
+ *
+ * :param deps: Navigation and snackbar helpers.
+ * :param parentOptions: Demo list of available parent containers for selection.
+ * :param knownTags: Set of tags suitable for demo purposes
+ * :param getUiState: Getter for the current [AddEditItemUiState.Ready] form state.
+ * :param setUiState: Setter for the updated [AddEditItemUiState.Ready] form state.
+ *
+ * TODO: For demo purposes only; replace with ViewModel functions
+ */
 private class AddEditItemDemoController(
     private val deps: NavDeps,
+    private val parentOptions: List<AddEditItemUiState.Ready.ParentOption>,
     private val knownTags: List<Tag>,
     private val getUiState: () -> AddEditItemUiState,
     private val setUiState: (AddEditItemUiState) -> Unit
 ) {
+    /**
+     * Handles user intents emitted by the Add/Edit Item screen.
+     *
+     * Routing rules:
+     * - [AddEditItemIntent.SaveClicked] triggers [onSave].
+     * - Back/discard intents pop the back stack.
+     * - Image picker launch intent is ignored here (the screen launches the picker); this
+     *   controller only consumes [AddEditItemIntent.ImagePicked] results.
+     * - All other intents are reduced into a new form state via [reduceIntent].
+     *
+     * :param intent: The user intent to process.
+     *
+     * TODO: onIntent functions for demo purposes - handled by ViewModel
+     */
     fun onIntent(intent: AddEditItemIntent) {
         val currentState = getUiState()
 
@@ -151,7 +180,8 @@ private class AddEditItemDemoController(
                     val updated = reduceIntent(
                         currentState = currentState,
                         intent = intent,
-                        knownTags = knownTags
+                        knownTags = knownTags,
+                        parentOptions = parentOptions
                     )
                     setUiState(updated)
                 }
@@ -197,6 +227,7 @@ private class AddEditItemDemoController(
  * - Name is required (non-blank after trimming).
  *
  * :param currentState The current form state.
+ *
  * :return A copy of [currentState] with updated validation fields.
  *
  * TODO: This might be able to be moved directly into the ViewModel later.
@@ -222,11 +253,20 @@ private fun validate(
 }
 
 /**
+ * State transition: applies an intent to the current uistate and returns the next uistate.
+ *
+ * :param currentState: Current form state.
+ * :param intent: User intent to apply.
+ * :param parentOptions: Available parent container options used to resolve parent display name.
+ *
+ * :return: The next form state after applying [intent] and validation.
+ *
  * TODO: for demo purposes only; could be moved into ViewModel later if matches intended structure
  */
 private fun reduceIntent(
     currentState: AddEditItemUiState.Ready,
     intent: AddEditItemIntent,
+    parentOptions: List<AddEditItemUiState.Ready.ParentOption>,
     knownTags: List<Tag>
 ): AddEditItemUiState.Ready {
     // What to do for each emitted user action
@@ -246,7 +286,9 @@ private fun reduceIntent(
 
         // Container related
         is AddEditItemIntent.ContainerChanged ->
-            if (intent.containerId == null) {
+            if (!currentState.canChangeParent)
+                currentState
+            else if (intent.containerId == null) {
                 // if container is null, set checkout date and status as taken out
                 currentState.copy(
                     containerId = null,
@@ -255,9 +297,11 @@ private fun reduceIntent(
                     isDirty = true
                 )
             } else {
-                // TODO: behavior check change status to stored if currently taken out?
+                val parentName = parentOptions.firstOrNull { it.id == intent.containerId }?.name
+                // TODO: behavior check: change status to stored if currently taken out?
                 currentState.copy(
                     containerId = intent.containerId,
+                    containerName = parentName,
                     isDirty = true
                 )
             }
@@ -270,6 +314,7 @@ private fun reduceIntent(
                     checkoutDate = currentState.checkoutDate ?: Date(),
                 )
             } else {
+                // Toggle status, update checkout date, set form to dirty
                 when (intent.status) {
                     ItemStatus.STORED ->
                         currentState.copy(
@@ -332,18 +377,26 @@ private fun demoInitialUiState(
     parentOptions: List<AddEditItemUiState.Ready.ParentOption>,
     knownTags: List<Tag>
 ): AddEditItemUiState.Ready {
+    // Set parent name
     val parentName = parentOptions.firstOrNull { it.id == containerId }?.name
+
+    // Minor convenience
     val now = Date()
+
+    // Auto-mode based on itemId == null
     val mode =
         if (itemId == null) AddEditItemUiState.Ready.Mode.CREATE
         else AddEditItemUiState.Ready.Mode.EDIT
 
+    // Auto-taken out if in root container
     val initialStatus =
         if (containerId == null) ItemStatus.TAKEN_OUT
         else ItemStatus.STORED
 
+    // Set initial checkout only if in root (auto-taken out)
     val initialCheckout = if (containerId == null) now else null
 
+    // Build and pre-validate the demo ready state
     return validate(
         AddEditItemUiState.Ready(
             mode = mode,
