@@ -40,20 +40,22 @@ fun AddEditItemScreen(
     onIntent: (AddEditItemIntent) -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
-    when (uiState) {
-        AddEditItemUiState.Loading ->
-            LoadingContent(modifier.fillMaxSize())
+    Column(modifier = modifier.padding(16.dp)) {
+        when (uiState) {
+            AddEditItemUiState.Loading ->
+                LoadingContent(modifier.fillMaxSize())
 
-        is AddEditItemUiState.Error ->
-            ErrorContent(modifier = modifier.fillMaxSize(), message = uiState.message)
+            is AddEditItemUiState.Error ->
+                ErrorContent(modifier = modifier.fillMaxSize(), message = uiState.message)
 
-        is AddEditItemUiState.Ready ->
-            AddEditItemReadyContent(
-                modifier = modifier.fillMaxSize(),
-                uiState = uiState,
-                onIntent = onIntent,
-                onNavigateBack = onNavigateBack
-            )
+            is AddEditItemUiState.Ready ->
+                AddEditItemReadyContent(
+                    modifier = modifier.fillMaxSize(),
+                    uiState = uiState,
+                    onIntent = onIntent,
+                    onNavigateBack = onNavigateBack
+                )
+        }
     }
     /*
     // TODO(REMOVE): Replace old code after screen is updated
