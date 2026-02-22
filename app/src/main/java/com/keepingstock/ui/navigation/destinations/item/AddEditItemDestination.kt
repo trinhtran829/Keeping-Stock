@@ -81,7 +81,12 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
 
         var readyState by remember(itemId, containerId) {
             mutableStateOf(
-
+                demoInitialUiState(
+                    itemId = itemId,
+                    containerId = containerId,
+                    parentOptions = parentOptions,
+                    knownTags = knownTags
+                )
             )
         }
 
@@ -289,6 +294,7 @@ private fun reduceAddEditItemIntent(
  * :param itemId: Item being edited (null for CREATE).
  * :param containerId: Optional initial parent selection.
  * :param parentOptions: Demo parent options list, used to resolve parent display name.
+ * :param knownTags: Set of tags suitable for demo purposes
  *
  * :return A [AddEditItemUiState.Ready] suitable for demo rendering.
  *
