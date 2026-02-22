@@ -449,6 +449,7 @@ private fun reduceTagIntent(
      * based on user's current query.
      */
     fun updateSuggestions(currentState: AddEditItemUiState.Ready): AddEditItemUiState.Ready {
+        // Remove any extra whitespace
         val query = normalize(currentState.tagQuery)
 
         // If query is blank, no suggestions and no error
@@ -473,7 +474,7 @@ private fun reduceTagIntent(
                     .take(currentState.suggestionsLimit)
             } else emptyList()
 
-        // Return updated state
+        // Return updated state with new suggestions and tag input error text
         return currentState.copy(
             tagQuery = query,
             inputError = err,
@@ -481,13 +482,16 @@ private fun reduceTagIntent(
         )
     }
 
+    // The actual reducer part
     return when (intent) {
         // When query is changed, must check input and update suggestions
         is AddEditItemIntent.QueryChanged ->
             updateSuggestions(currentState.copy(tagQuery = intent.value))
 
-        AddEditItemIntent.ClearQuery -> TODO()
-
+        // Update state to reflect cleared query (no suggestions, no error)
+        AddEditItemIntent.ClearQuery ->
+            currentState.copy(tagQuery = "", tagSuggestions = emptyList(), inputError = null)
+        
         AddEditItemIntent.AddQueryAsTagClicked -> TODO()
 
         is AddEditItemIntent.ExistingTagSelected -> TODO()
