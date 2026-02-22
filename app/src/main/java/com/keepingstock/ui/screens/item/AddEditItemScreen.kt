@@ -37,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -59,6 +60,9 @@ import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 /**
  * Add/Edit Item screen that renders based on uiState.
@@ -346,6 +350,7 @@ private fun ItemFormCard(
             } else {
                 StatusToggle(
                     status = uiState.status,
+                    checkoutDate = uiState.checkoutDate,
                     onChanged = { onIntent(AddEditItemIntent.StatusChanged(it)) }
                 )
             }
@@ -450,6 +455,7 @@ private fun ParentPicker(
 @Composable
 private fun StatusToggle(
     status: ItemStatus,
+    checkoutDate: Date?,
     onChanged: (ItemStatus) -> Unit
 ) {
     Column(
@@ -460,22 +466,34 @@ private fun StatusToggle(
             style = MaterialTheme.typography.labelLarge
         )
 
-        /*
-        Switch(
-            checked = status == ItemStatus.TAKEN_OUT,
-            onCheckedChange = {
-                if (status == ItemStatus.TAKEN_OUT)
-                    onChanged(ItemStatus.TAKEN_OUT)
-                else
-                    onChanged(ItemStatus.STORED)
-            }
-        )
-         */
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                text = "Stored",
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .clickable { onChanged(ItemStatus.STORED) }
+            )
 
+            Switch(
+                checked = status == ItemStatus.TAKEN_OUT,
+                onCheckedChange = { checked ->
+                    onChanged(if (checked) ItemStatus.TAKEN_OUT else ItemStatus.STORED)
+                }
+            )
+
+            Text(
+                text = "Taken Out",
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .clickable { onChanged(ItemStatus.TAKEN_OUT) }
+            )
+        }
+
+        /*
+        // TODO: Original alternate implemenation using radio buttons
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // TODO: Switch component instead?
             Row {
                 RadioButton(
                     selected = status == ItemStatus.STORED,
@@ -491,6 +509,16 @@ private fun StatusToggle(
                 )
                 Text("Taken Out", modifier = Modifier.padding(top = 12.dp))
             }
+        }
+
+         */
+
+        if (status == ItemStatus.TAKEN_OUT && checkoutDate != null) {
+            Text(
+                text = "Date checked out: " + DateTimeFormatter.ofPattern("MM-dd-yyyy")
+                    .withZone(ZoneId.systemDefault()).format(checkoutDate.toInstant()),
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }
