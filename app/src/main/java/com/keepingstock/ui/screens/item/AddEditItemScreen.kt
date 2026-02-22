@@ -1,6 +1,5 @@
 package com.keepingstock.ui.screens.item
 
-import android.R.attr.onClick
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -36,7 +35,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -52,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.keepingstock.core.contracts.ContainerId
-import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Tag
 import com.keepingstock.core.contracts.TagId
 import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
@@ -659,10 +656,37 @@ fun TagEditorCard(
                 )
             }
 
+            // Display current tags
             SelectedTagChips(
                 tags = uiState.selectedTags,
                 onRemove = { onIntent(AddEditItemIntent.RemoveTagClicked(it)) }
             )
+
+            HorizontalDivider()
+
+            // Display section for adding new tags (text field with suggested tags matching
+            // current query)
+            OutlinedTextField(
+                value = uiState.tagQuery,
+                onValueChange = { onIntent(AddEditItemIntent.QueryChanged(it)) },
+                label = { Text("Add a tag") },
+                supportingText = { uiState.inputError?.let { Text(it) } },
+                isError = uiState.inputError != null,
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            // Display suggested tags based on query
+            TagSuggestionList(
+                uiState = uiState,
+                onAddQuery = { onIntent(AddEditItemIntent.AddQueryAsTagClicked) },
+                onSelectExisting = { onIntent(AddEditItemIntent.ExistingTagSelected(it)) }
+            )
+
+            HorizontalDivider()
+
+            // Display recommended tags
+            
         }
     }
 }
@@ -744,4 +768,41 @@ private fun SelectedTagChip(
             }
         }
     )
+}
+
+/**
+ * Displays the list of tags that appear as the user types a tag query.
+ */
+@Composable
+private fun TagSuggestionList(
+    uiState: AddEditItemUiState.Ready,
+    onAddQuery: () -> Unit,
+    onSelectExisting: (TagId) -> Unit
+) {
+    if (uiState.tagQuery.isBlank() && uiState.tagSuggestions.isEmpty()) return
+
+    // TODO: improve presentation
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        // Add as-is affordance
+        if (uiState.tagQuery.isNotBlank()) {
+            OutlinedButton(
+                onClick = onAddQuery,
+                enabled = uiState.canAddMore && uiState.inputError == null,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Add \"${uiState.tagQuery}\"")
+            }
+        }
+
+        // Existing suggestions
+        uiState.tagSuggestions.take(uiState.suggestionsLimit).forEach { tag ->
+            TextButton(
+                onClick = { onSelectExisting(tag.id) },
+                enabled = uiState.canAddMore,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(tag.name)
+            }
+        }
+    }
 }
