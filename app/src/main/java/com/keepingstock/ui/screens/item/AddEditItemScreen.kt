@@ -1,5 +1,6 @@
 package com.keepingstock.ui.screens.item
 
+import android.R.attr.onClick
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -7,6 +8,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -16,10 +19,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -40,6 +48,8 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.Tag
+import com.keepingstock.core.contracts.TagId
 import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.data.entities.ItemStatus
@@ -616,8 +626,73 @@ private fun ActionsCard(
  */
 @Composable
 fun TagEditorCard(
-    uiState: AddEditItemUiState,
+    uiState: AddEditItemUiState.Ready,
     onIntent: (AddEditItemIntent) -> Unit
 ) {
+    ElevatedCard(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Card title
+                Text(
+                    text = "Tags",
+                    style = MaterialTheme.typography.titleMedium
+                )
 
+                // Display selected / max
+                Text(
+                    text = "${uiState.selectedTags.size}/${uiState.maxTags}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+
+        }
+    }
+}
+
+/**
+ * Chips displayed with FlowRow
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun SelectedTagChips(
+    tags: List<Tag>,
+    onRemove: (TagId) -> Unit
+) {
+    if (tags.isEmpty()) {
+        Text(
+            text = "No tags selected.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        return
+    }
+
+    FlowRow(
+        modifier = Modifier.padding(8.dp)
+    ) {
+        tags.forEach { tag ->
+            InputChip(
+                selected = true,
+                onClick = { /* TODO: Consult group on behavior, if any */ },
+                label = { Text(tag.name) },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = "Remove ${tag.name}",
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+            )
+        }
+    }
 }
