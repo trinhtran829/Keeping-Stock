@@ -1,5 +1,7 @@
 package com.keepingstock.ui.screens.item
 
+import android.R.attr.name
+import android.R.attr.tag
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -686,7 +688,11 @@ fun TagEditorCard(
             HorizontalDivider()
 
             // Display recommended tags
-            
+            RecommendedTagsRow(
+                uiState = uiState,
+                onSelect = { onIntent(AddEditItemIntent.RecommendedTagSelected(it)) },
+                onRefresh = { onIntent(AddEditItemIntent.RefreshRecommendations) }
+            )
         }
     }
 }
@@ -781,7 +787,7 @@ private fun TagSuggestionList(
 ) {
     if (uiState.tagQuery.isBlank() && uiState.tagSuggestions.isEmpty()) return
 
-    // TODO: improve presentation
+    // TODO: improve presentation - hard to test without functions
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         // Add as-is affordance
         if (uiState.tagQuery.isNotBlank()) {
@@ -802,6 +808,53 @@ private fun TagSuggestionList(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(tag.name)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RecommendedTagsRow(
+    uiState: AddEditItemUiState.Ready,
+    onSelect: (String) -> Unit,
+    onRefresh: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Recommended", style = MaterialTheme.typography.labelLarge)
+            TextButton(onClick = onRefresh, enabled = !uiState.isRecommending) {
+                Text(if (uiState.isRecommending) "Refreshing…" else "Refresh")
+            }
+        }
+
+        if (uiState.tagRecommendations.isEmpty()) {
+            Text(
+                text = "No recommendations yet.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            return
+        }
+
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            val chipHeight = 32.dp
+            uiState.tagRecommendations.forEach { tagRec ->
+                InputChip(
+                    modifier = Modifier.height(chipHeight),
+                    selected = true,
+                    onClick = { onSelect(tagRec) },
+                    label = {
+                        Text(
+                            text = tagRec,
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1
+                        )
+                    }
+                )
             }
         }
     }
