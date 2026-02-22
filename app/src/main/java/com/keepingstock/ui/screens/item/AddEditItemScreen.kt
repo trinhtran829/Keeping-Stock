@@ -234,7 +234,7 @@ private fun rememberPickImageLauncher(
  * :param onIntent: Callback for emitting user intents (e.g., [AddEditItemIntent.NameChanged]).
  */
 @Composable
-private fun AddEditItemFormCard(
+private fun ItemFormCard(
     uiState: AddEditItemUiState.Ready,
     onIntent: (AddEditItemIntent) -> Unit
 ) {
@@ -251,7 +251,7 @@ private fun AddEditItemFormCard(
  * :param onParentChanged: Callback for the newly selected parent id (null = Root).
  */
 @Composable
-private fun AddEditItemParentSection(
+private fun ParentSection(
     canChangeParent: Boolean,
     containerId: ContainerId?,
     containerName: String?,
@@ -328,7 +328,7 @@ private fun ItemImageCard(
  * :param imageUri: Image URI string to display (nullable/blank indicates no image).
  */
 @Composable
-private fun AddEditContainerImagePreview(
+private fun ImagePreview(
     imageUri: String?
 ) {
 
@@ -345,7 +345,7 @@ private fun AddEditContainerImagePreview(
  * :param onCancel: Callback invoked when the user taps Cancel.
  */
 @Composable
-private fun AddEditContainerActionsCard(
+private fun ActionsCard(
     isSaving: Boolean,
     onSave: () -> Unit,
     onCancel: () -> Unit
