@@ -33,7 +33,8 @@ import com.keepingstock.ui.screens.item.AddEditItemScreen
 import java.util.Date
 
 /**
- * Registers the Add/Edit Item destination and wires demo state + navigation callbacks.
+ * Registers the Add/Edit Item destination and wires demo navigation arguments, demo state,
+ * and screen callbacks.
  *
  * Navigation args:
  * - [Routes.Args.ITEM_ID]: when present, screen is in EDIT mode; otherwise CREATE mode.
@@ -68,12 +69,12 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
         val itemId = args?.itemIdOrNull(Routes.Args.ITEM_ID)
         val containerId = args?.containerIdOrNull(Routes.Args.CONTAINER_ID)
 
-        // TODO(REMOVE): Demo-only mode selector
+        // TODO(REMOVE): Demo-only mode selector. Remove when backed by VM.
         var demoMode by rememberSaveable(itemId?.value) {
             mutableStateOf(DemoMode.READY)
         }
 
-        // TODO(REMOVE): Demo tags (replace with repo/VM)
+        // TODO(REMOVE): Demo tags. Replace with repo-backed tags provided by VM
         val knownTags = remember {
             listOf(
                 Tag(TagId(1L), "Tools"),
@@ -87,7 +88,7 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
             )
         }
 
-        // TODO(REMOVE): Demo containers list (replace with repo/VM)
+        // TODO(REMOVE): Demo containers. Replace with repo-backed containers via VM
         val parentOptions = remember {
             listOf(
                 AddEditItemUiState.Ready.ParentOption(null, "Root"),
@@ -97,7 +98,7 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
             )
         }
 
-        // TODO(REMOVE): Demo ready state (uiState covered by VM)
+        // TODO(REMOVE): Demo ready state. Replace with ViewModel state.
         var readyState by remember(itemId, containerId) {
             mutableStateOf(
                 demoInitialUiState(
@@ -109,7 +110,7 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
             )
         }
 
-        // TODO: Demo mode only, to be covered by VM
+        // TODO: Demo-mode UiState switching. VM should expose Loading/Error/Ready directly.
         var uiState by remember(itemId, containerId, demoMode) {
             mutableStateOf(
                 when (demoMode) {
@@ -121,11 +122,17 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
             )
         }
 
+        /**
+         * Updates the global top bar whenever the destination arguments change.
+         *
+         * TODO: When uiState is ViewModel-backed, this should key off uiState (or a derived
+         *  TopBarConfig) so title updates correctly on transitions like Loading -> Ready.
+         */
         LaunchedEffect(itemId, containerId) {
             deps.onTopBarChange(addEditItemTopBarConfig(uiState))
         }
 
-        // TODO: Demo only: Controller will be replaced by ViewModel
+        // TODO: Demo only. Replace with a VM that handles intents + state + effects.
         val controller = remember(deps, knownTags) {
             AddEditItemDemoController(
                 deps = deps,
@@ -137,7 +144,7 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
         }
 
         Column(Modifier.fillMaxSize()) {
-            // TODO(REMOVE): demo-only UI controls.
+            // TODO(REMOVE): Demo-only UI controls. Remove when demoMode is removed.
             DemoModeToggleRow(
                 title = "Select demo mode:",
                 selected = demoMode,
@@ -152,7 +159,13 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
             AddEditItemScreen(
                 uiState = uiState,
                 onIntent = { intent ->
-                    // If user is in Loading/Error demo, ignore edit intents except back.
+                    /**
+                     * Demo behavior:
+                     * - When Ready, forward intents to the demo controller.
+                     * - When Loading/Error, ignore edit intents and only allow navigation intents.
+                     *
+                     * TODO(REMOVE): This branching should disappear when VM owns uiState.
+                     */
                     if (uiState is AddEditItemUiState.Ready) {
                         controller.onIntent(intent)
                     } else {
@@ -171,10 +184,10 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
 }
 
 /**
- * Builds top bar title/back behavior from AddEditItemUiState.
+ * Builds top bar configuration for the AddEdit Item Screen.
  *
  * :param uiState: The current UI state for the Add/Edit Item screen.
- * :return: A [TopBarConfig] describing the top app bar title and back button visibility.
+ * :return: A [TopBarConfig] with title and back button visibility.
  */
 private fun addEditItemTopBarConfig(uiState: AddEditItemUiState): TopBarConfig {
     val title = when (uiState) {
@@ -188,9 +201,16 @@ private fun addEditItemTopBarConfig(uiState: AddEditItemUiState): TopBarConfig {
 }
 
 /**
- * A simple controller object for user intent + side effects
+ * A simple demo controller that centralizes intent handling and demo-only side effects.
  *
- * This exists to keep the destination composable thinner while the real ViewModel is pending.
+ * This exists to keep the destination composable thinner while the real ViewModel is introduced.
+ *
+ * The final implementation should move:
+ * - state ownership (UiState),
+ * - validation,
+ * - saving,
+ * - and side-effect emission (snackbar/navigation)
+ * into the ViewModel layer.
  *
  * :param deps: Navigation and snackbar helpers.
  * :param parentOptions: Demo list of available parent containers for selection.
@@ -198,7 +218,7 @@ private fun addEditItemTopBarConfig(uiState: AddEditItemUiState): TopBarConfig {
  * :param getUiState: Getter for the current [AddEditItemUiState.Ready] form state.
  * :param setUiState: Setter for the updated [AddEditItemUiState.Ready] form state.
  *
- * TODO: For demo purposes only; replace with ViewModel functions. Can be potentially moved
+ * TODO: For demo purposes only; replace with ViewModel + effect channel. Can be potentially moved
  *  in full to VM, so long as functions are updated
  */
 private class AddEditItemDemoController(
@@ -209,18 +229,17 @@ private class AddEditItemDemoController(
     private val setUiState: (AddEditItemUiState) -> Unit
 ) {
     /**
-     * Handles user intents emitted by the Add/Edit Item screen.
+     * Handles user intents emitted by [AddEditItemScreen].
      *
      * Routing rules:
      * - [AddEditItemIntent.SaveClicked] triggers [onSave].
      * - Back/discard intents pop the back stack.
-     * - Image picker launch intent is ignored here (the screen launches the picker); this
-     *   controller only consumes [AddEditItemIntent.ImagePicked] results.
+     * - Image picker launch intent is ignored here (the screen launches the picker)
      * - All other intents are reduced into a new form state via [reduceIntent].
      *
      * :param intent: The user intent to process.
      *
-     * TODO: onIntent functions for demo purposes - handled by ViewModel
+     * TODO: ViewModel should own this and expose state + effects.
      */
     fun onIntent(intent: AddEditItemIntent) {
         val currentState = getUiState()
@@ -231,11 +250,11 @@ private class AddEditItemDemoController(
             AddEditItemIntent.BackClicked,
             AddEditItemIntent.DiscardChangesConfirmed -> deps.navController.popBackStack()
 
-            // Screen handles, destination currently consumes only
+            // Screen handles launching the picker; destination consumes results via ImagePicked.
             AddEditItemIntent.PickImageClicked,
             AddEditItemIntent.DismissDiscardDialog -> Unit
 
-            // Set UI State based on intent - call reducer function (keeps controller thin)
+            // Reduce remaining intents into the next UI state.
             else -> {
                 if (currentState is AddEditItemUiState.Ready) {
                     val updated = reduceIntent(
@@ -255,24 +274,32 @@ private class AddEditItemDemoController(
      * - Validates the current form state via [validate].
      * - If valid, shows a success snackbar and pops the back stack.
      *
+     * This demo implementation does not persist data.
+     *
+     * :param currentState: The current [AddEditItemUiState] (only Ready is saveable).
+     *
      * TODO: onSave function for demo purposes - handled by ViewModel
      *  currently doesn't actually save anything
      */
     fun onSave(currentState: AddEditItemUiState) {
-        // don't save if state isn't ready (redundant?)
+        // Only Ready state can be saved.
         if (currentState !is AddEditItemUiState.Ready) return
 
-        // Validate the UiState
+        // Validate and push validation results back into state.
         val validated = validate(currentState)
         setUiState(validated)
 
+        // Proceed only if validation passes.
         if (
             (validated.validation.nameError == null) &&
             (validated.validation.containerError == null)
         ) {
-            // TODO: SHOULD NOT BE IN VM - FIGURE OUT PATTERN TO PREVENT PASSING
-            //  navController OR snackbar TO VM!
-            // Show success message
+            /**
+             * NOTE: This demo controller calls snackbar and navigation directly.
+             *
+             * TODO: When moving to ViewModel, emit one-off effects (e.g., ShowSnackbar,
+             *  NavigateBack) instead of passing NavController/snackbar callbacks into the VM.
+             */
             deps.showSnackbar(
                 if (validated.mode == AddEditItemUiState.Ready.Mode.CREATE)
                     "Item created"
@@ -291,22 +318,21 @@ private class AddEditItemDemoController(
  *
  * Current validation rules:
  * - Name is required (non-blank after trimming).
+ * - If [AddEditItemUiState.Ready.containerId] is null (Root), the item must be
+ *   [ItemStatus.TAKEN_OUT].
  *
- * :param currentState The current form state.
+ * :param currentState: The current form state.
+ * :return: A copy of [currentState] with updated validation fields.
  *
- * :return A copy of [currentState] with updated validation fields.
- *
- * TODO: This might be able to be moved directly into the ViewModel later.
+ * TODO: Move into ViewModel if validation rules expand or become repository-backed.
  */
 private fun validate(
     currentState: AddEditItemUiState.Ready
 ): AddEditItemUiState.Ready {
-    // TODO: Name error validation here is just "is it blank". ViewModel might include if it's
-    //  unique in the container? Update UiState model if additional validation is needed.
+    // // TODO: Expand validation (e.g., unique name within container) once repository is available.
     val nameError = if(currentState.name.trim().isBlank()) "Name is required" else null
 
-    // TODO: containerError is currently only just "if it's null (root) it HAS to be
-    //  [ItemStatus.TAKEN_OUT]
+    // TODO: Revisit rule if we allow items in Root with status Stored in the future.
     val containerError =
         if ((currentState.containerId == null) && (currentState.status != ItemStatus.TAKEN_OUT))
             "Items outside a container must be marked Taken Out."
@@ -321,13 +347,15 @@ private fun validate(
 }
 
 /**
- * State transition: applies an intent to the current uistate and returns the next uistate.
+ * Pure state transition: applies a user [intent] to [currentState] and returns the next state.
+ *
+ * Side effects (navigation, snackbars, persistence) are intentionally not performed here.
  *
  * :param currentState: Current form state.
  * :param intent: User intent to apply.
- * :param parentOptions: Available parent container options used to resolve parent display name.
- *
- * :return: The next form state after applying [intent] and validation.
+ * :param parentOptions: Demo container options used to resolve container display name.
+ * :param knownTags: Demo tag set used for suggestions and existing-tag resolution.
+ * :return: The next form state after applying [intent] and running [validate].
  *
  * TODO: for demo purposes only; could be moved into ViewModel later if matches intended structure
  */
@@ -357,7 +385,7 @@ private fun reduceIntent(
             if (!currentState.canChangeParent)
                 currentState
             else if (intent.containerId == null) {
-                // if container is null, set checkout date and status as taken out
+                // Root container implies Taken Out; ensure checkoutDate is set.
                 currentState.copy(
                     containerId = null,
                     status = ItemStatus.TAKEN_OUT,
@@ -366,7 +394,7 @@ private fun reduceIntent(
                 )
             } else {
                 val parentName = parentOptions.firstOrNull { it.id == intent.containerId }?.name
-                // TODO: behavior check: change status to stored if currently taken out?
+                // TODO: Decide whether selecting a container should force status to Stored.
                 currentState.copy(
                     containerId = intent.containerId,
                     containerName = parentName,
@@ -376,7 +404,7 @@ private fun reduceIntent(
 
         is AddEditItemIntent.StatusChanged ->
             if (currentState.containerId == null) {
-                // Shouldn't happen, since no container = status toggle disabled
+                // Root container forces Taken Out; status toggle should be disabled in UI.
                 currentState
             } else {
                 val newStatus = intent.status
@@ -403,7 +431,7 @@ private fun reduceIntent(
                 }
             }
 
-        // Tag Related
+        // Tag-related intents are delegated to a specialized reducer for clarity.
         AddEditItemIntent.AddQueryAsTagClicked,
         is AddEditItemIntent.ExistingTagSelected,
         is AddEditItemIntent.QueryChanged,
@@ -415,7 +443,7 @@ private fun reduceIntent(
             knownTags = knownTags
         )
 
-        // Code shouldn't run; handled by UI/Controller; just consumes
+        // These are handled as side effects by the controller/destination; reducer consumes them.
         AddEditItemIntent.DiscardChangesConfirmed,
         AddEditItemIntent.DismissDiscardDialog,
         AddEditItemIntent.PickImageClicked,
@@ -427,9 +455,21 @@ private fun reduceIntent(
 }
 
 /**
- * When moving to ViewModel, knownTags would probably not be used. Uses of it in intent reducer
- * should probably be replaced by a repo call of tags that match the query (either begins with,
- * contains, or whatever other logic is preferred)
+ * Handles tag-related intents by updating:
+ * - [AddEditItemUiState.Ready.tagQuery]
+ * - [AddEditItemUiState.Ready.tagSuggestions]
+ * - [AddEditItemUiState.Ready.selectedTags]
+ * - [AddEditItemUiState.Ready.inputError]
+ *
+ * This implementation uses [knownTags] as a demo data source. In the final implementation,
+ * suggestions and existing tag resolution should come from the repository.
+ *
+ * :param currentState: Current form state.
+ * :param intent: Tag-related user intent.
+ * :param knownTags: Demo tag list.
+ * :return: Updated form state (not validated here; caller runs [validate]).
+ *
+ * TODO(REMOVE): Replace knownTags usage with repo-backed tag search in VM.
  */
 private fun reduceTagIntent(
     currentState: AddEditItemUiState.Ready,
@@ -438,33 +478,34 @@ private fun reduceTagIntent(
 ): AddEditItemUiState.Ready {
 
     /**
-     * Regex pattern of allowed characters
+     * Regex pattern for allowed tag characters.
      *
-     * logic: ^ means starts with, $ means ends with, character between brackets are characters
-     * that you want to match with (allowed characters), while + means match whatever is in the
-     * brackets an unlimited number of times. All together, if matches function is run then it
-     * should return true/false based on "does this string, from start to finish, contain only
-     * these characters between one and an unlimited number of times?"
+     * Allows letters, numbers, spaces, '&', and '-'.
      *
-     * TODO: add additional characters as group decides
+     * TODO: Expand allowed characters if product requirements change.
      */
     val allowedTagRegex = Regex("""^[A-Za-z0-9 &-]+$""")
 
-    // Normalization functions at the top for easy updating
+    /**
+     * Normalization helpers:
+     * - Typing normalization avoids trimming so the TextField does not fight the cursor.
+     * - Commit normalization trims and collapses whitespace for stable storage/comparison.
+     */
     fun normalizeForTyping(value: String): String =
         value.replace(Regex("\\s{2,}"), " ")
     fun normalizeForCommit(value: String): String =
         value.trim().replace(Regex("\\s+"), " ")
 
     /**
-     * Used for query change intent. Check query for errors and updates list of suggested tags
-     * based on user's current query.
+     * Handles query updates by validating input and generating suggestion candidates.
+     *
+     * Suggestions are filtered case-insensitively and exclude tags already in selectedTags.
      */
     fun updateSuggestions(currentState: AddEditItemUiState.Ready): AddEditItemUiState.Ready {
-        // Remove any extra whitespace
+        // Do not trim while typing, prevents spaces at end of String
         val query = normalizeForTyping(currentState.tagQuery)
 
-        // If query is blank, no suggestions and no error
+        // If query is blank, clear suggestions and errors but keep the field value consistent.
         if (query.isBlank())
             return currentState.copy(
                 tagSuggestions = emptyList(),
@@ -472,21 +513,18 @@ private fun reduceTagIntent(
                 tagQuery = query
             )
 
-        // Set err text if query does not match regex. See regex for logic
         val err =
             if (!allowedTagRegex.matches(query))
                 "Use only letters, numbers, spaces, '-', and '&'." // TODO: update err text if additional allowed chars added
             else null
 
-        // For case-insensitive matching while preserving query input
         val queryKey = query.lowercase()
 
-        // Building a set of already selected tags for easy filtering
+        // Exclude already-selected tags from suggestions.
         val selectedIds: Set<TagId> =
             currentState.selectedTags.map { it.id }.toSet()
 
-        // Filtering demo set of "known tags"
-        // TODO: replace with repo call
+        // TODO(REMOVE): Replace with repo search (e.g., beginsWith/contains ranking).
         val newSuggestions =
             if (err == null) {
                 knownTags
@@ -504,31 +542,30 @@ private fun reduceTagIntent(
     }
 
     /**
-     * Add the current query to the list of known tags, if no errors are present. Should reuse
-     * existing tags. Also adds to the list of currently selected tags for the item.
+     * Adds [rawName] as a selected tag, reusing an existing tag when possible.
      *
-     * Currently just uses the demo list of known tags, replace with repo calls.
+     * If the tag does not exist in [knownTags], a demo "new tag" is created using a negative ID.
+     * In the real implementation, tag creation should be persisted during save.
+     *
+     * :param state: Current form state.
+     * :param rawName: Raw tag text (from query or recommendation).
+     *
+     * TODO: Consider emitting a snackbar msg when max tags is reached or duplicates are attempted
      */
     fun addTagNameToSelected(
         currentState: AddEditItemUiState.Ready,
         rawName: String
     ): AddEditItemUiState.Ready {
-        // First check if the user can add any more tags based on maxTags variable in UiState
         // TODO: snackbar error message? "You have added the max number of tags to this item."
         if (!currentState.canAddMore) return currentState
 
-        // Remove extra whitespace
         val tagName = normalizeForCommit(rawName)
 
-        // If regex match fails, return current state with inputError updated
         if (!allowedTagRegex.matches(tagName))
             return currentState.copy(
                 inputError = "Use only letters, numbers, spaces, '-', and '&'."
             )
 
-        // Used for case-insensitive matching.
-        // TODO: if rules state that tags are stored as lowercase, then this can be moved to
-        //  tagName definition as part of normalization
         val tagKey = tagName.lowercase()
 
         // Look through knownKeys list for existing keys - will be null if no match found
@@ -537,9 +574,7 @@ private fun reduceTagIntent(
             it.name.trim().replace(Regex("\\s+"), " ").lowercase() == tagKey
         }
 
-        // Get a set of currently selected keys for the item that have been converted to lowercase
-        // for case-insensitive matching.
-        // TODO: if tags are stored normalized and lowercase, then map function isn't needed
+        // Case-insensitive duplicate check against currently selected tags.
         val currentSelectedKeys: Set<String> =
             currentState.selectedTags.map { normalizeForCommit(it.name).lowercase() }.toSet()
 
@@ -548,11 +583,12 @@ private fun reduceTagIntent(
         if (tagKey in currentSelectedKeys)
             return currentState.copy(tagQuery = "", tagSuggestions = emptyList(), inputError = null)
 
-        // Will use found existing tag or create a new one to be saved on onSave intent (we
-        // probably don't want to save a new tag if the add/edit is completely discarded, so wait
-        // until onSave intent)
-        // For the purposes of this demo, negative IDs represent "new tag to create on Save".
-        // TODO: alternative for repo: just do a simple "if it's not in the DB, add it to the DB"
+        /**
+         * Demo rule: negative IDs indicate "new tag to create on Save".
+         *
+         * TODO(REMOVE): Once repo exists, create tags through the repo (or stage them in VM)
+         *  without relying on negative IDs.
+         */
         val tagToAdd = existing ?: Tag(
             id = TagId(-tagKey.hashCode().toLong()),
             name = tagName
@@ -560,7 +596,7 @@ private fun reduceTagIntent(
 
         // Create a new selected tag list for the UiState, which includes the query's resulting
         // tag being applied to the item.
-        // TODO: sort alphabetically?
+        // TODO: Decide whether selected tags should be sorted (alphabetical vs insertion order).
         val newSelectedTagsList =
             (currentState.selectedTags + tagToAdd).sortedBy { it.name.lowercase() }
 
@@ -589,12 +625,12 @@ private fun reduceTagIntent(
 
         // User wants to add one of the existing suggested tags to the item's selected tags list
         is AddEditItemIntent.ExistingTagSelected -> {
-            // retrieve the tag name text selected by the user so that addTagNameToSelected
-            // can be reused.
-            // TODO: Can also work with intent.name so it can be bundled with
-            //  RecommmendedTagSelected intent, just need to update Intent contract
-            //
-            // TODO: replace knownTags with repo lookup to get tag name, if necessary
+            /**
+             * Uses knownTags to resolve the selected tag.
+             *
+             * TODO(REMOVE): In ViewModel, resolve selected tag via repository
+             *  (or carry name in intent).
+             */
             val userChosenTag =
                 knownTags.firstOrNull { it.id == intent.tagId } ?: return currentState
             addTagNameToSelected(currentState = currentState, rawName = userChosenTag.name)
@@ -619,7 +655,7 @@ private fun reduceTagIntent(
         AddEditItemIntent.RefreshRecommendations ->
             currentState.copy(isRecommending = true)
 
-        // Shouldn't be encountered; Handled by state-reducer/UI/Controller; just consumes
+        // Non-tag intents should be filtered before calling this reducer.
         else -> currentState
     }
 }
@@ -627,21 +663,18 @@ private fun reduceTagIntent(
 /**
  * Builds a demo [AddEditItemUiState.Ready] for previews/manual testing.
  *
- * CREATE mode:
- * - Empty name/description.
- * - Optional [containerId] preselected when provided.
- *
- * EDIT mode:
- * - Uses placeholder values for name/description (replace with repository-loaded values later).
+ * Behavior:
+ * - If [itemId] is null, CREATE mode is used; otherwise EDIT mode.
+ * - If [containerId] is null (Root), status is forced to [ItemStatus.TAKEN_OUT] with a checkout date.
+ * - In EDIT mode, placeholder values are prefilled for name/description/tags.
  *
  * :param itemId: Item being edited (null for CREATE).
- * :param containerId: Optional initial parent selection.
- * :param parentOptions: Demo parent options list, used to resolve parent display name.
- * :param knownTags: Set of tags suitable for demo purposes
+ * :param containerId: Optional initial container selection.
+ * :param parentOptions: Demo container options used to resolve display name.
+ * :param knownTags: Demo tags used to prefill selectedTags in EDIT mode.
+ * :return: A validated [AddEditItemUiState.Ready] suitable for demo rendering.
  *
- * :return A [AddEditItemUiState.Ready] suitable for demo rendering.
- *
- * TODO: For demo purposes only
+ * TODO(REMOVE): Replace with repository-backed load in ViewModel.
  */
 private fun demoInitialUiState(
     itemId: ItemId?,
@@ -649,23 +682,14 @@ private fun demoInitialUiState(
     parentOptions: List<AddEditItemUiState.Ready.ParentOption>,
     knownTags: List<Tag>
 ): AddEditItemUiState.Ready {
-    // Set parent name
     val parentName = parentOptions.firstOrNull { it.id == containerId }?.name
-
-    // Minor convenience
     val now = Date()
-
-    // Auto-mode based on itemId == null
     val mode =
         if (itemId == null) AddEditItemUiState.Ready.Mode.CREATE
         else AddEditItemUiState.Ready.Mode.EDIT
-
-    // Auto-taken out if in root container
     val initialStatus =
         if (containerId == null) ItemStatus.TAKEN_OUT
         else ItemStatus.STORED
-
-    // Set initial checkout only if in root (auto-taken out)
     val initialCheckout = if (containerId == null) now else null
 
     // Build and pre-validate the demo ready state

@@ -6,31 +6,34 @@ import com.keepingstock.data.entities.ItemStatus
 
 /**
  * This Intent interface defines the contract for user intent for the AddEditItem UI
- * It provides classes/objects for indicating user actions/intent that will need to be consumed
+ *
+ * Each implementation represents a single, intentional user action
+ * (button press, text edit, selection, confirmation, etc.).
+ *
+ * These intents are emitted by the UI layer and consumed by the controller/ViewModel to
+ * update [AddEditItemUiState] and/or trigger effects.
  */
 sealed interface AddEditItemIntent {
-    // Editable fields
+    /* ---------- Editable text fields ---------- */
     data class NameChanged(val value: String) : AddEditItemIntent
     data class DescriptionChanged(val value: String) : AddEditItemIntent
 
-    // Container/Status fields
+    /* ---------- Container / status selection ---------- */
     data class ContainerChanged(val containerId: ContainerId?) : AddEditItemIntent
     data class StatusChanged(val status: ItemStatus) : AddEditItemIntent
 
-    // Image related intent
+    /* ---------- Image selection ---------- */
     data object PickImageClicked : AddEditItemIntent
     data class ImagePicked(val uriString: String) : AddEditItemIntent
     data object RemoveImageClicked : AddEditItemIntent
 
-    // Action intent
+    /* ---------- Primary actions / navigation ---------- */
     data object SaveClicked : AddEditItemIntent
     data object BackClicked : AddEditItemIntent
-
-    // TODO: Intent related to navigating away
     data object DiscardChangesConfirmed : AddEditItemIntent
     data object DismissDiscardDialog : AddEditItemIntent
 
-    // Tag related Intent
+    /* ---------- Tag editing ---------- */
     data class QueryChanged(val value: String) : AddEditItemIntent
 
     data object AddQueryAsTagClicked : AddEditItemIntent
