@@ -310,7 +310,7 @@ private fun demoInitialUiState(
         if (containerId == null) ItemStatus.TAKEN_OUT
         else ItemStatus.STORED
 
-    val initalCheckout = if (containerId == null) now else null
+    val initialCheckout = if (containerId == null) now else null
 
     return validate(
         AddEditItemUiState.Ready(
@@ -320,26 +320,35 @@ private fun demoInitialUiState(
             containerName = parentName,
             availableParents = parentOptions,
 
-            name = if (mode == AddEditItemUiState.Ready.Mode.EDIT) "Impact Driver" else "",
-            description = if (mode == AddEditItemUiState.Ready.Mode.EDIT) "18V brushless" else "",
+            name =
+                if (mode == AddEditItemUiState.Ready.Mode.EDIT)
+                    "Impact Driver"
+                else "",
+            description =
+                if (mode == AddEditItemUiState.Ready.Mode.EDIT)
+                    "18V brushless"
+                else "",
             imageUri = null,
             status = initialStatus,
             createdDate = now,
-            checkoutDate = initalCheckout,
+            checkoutDate = initialCheckout,
 
-            selectedTags = TODO(),
-            tagQuery = TODO(),
-            tagSuggestions = TODO(),
-            tagRecommendations = TODO(),
-            isRecommending = TODO(),
-            inputError = TODO(),
-            maxTags = TODO(),
-            suggestionsLimit = TODO(),
+            selectedTags =
+                if (mode == AddEditItemUiState.Ready.Mode.EDIT)
+                    listOf(knownTags[0], knownTags[1])
+                else emptyList(),
+            tagQuery = "",
+            tagSuggestions = emptyList(),
+            tagRecommendations = emptyList(),
+            isRecommending = false,
+            inputError = null,
+            maxTags = 20,
+            suggestionsLimit = 8,
 
-            isSaving = TODO(),
-            isDirty = TODO(),
-            validation = TODO(),
-            canChangeParent = TODO()
+            isSaving = false,
+            isDirty = false,
+            validation = AddEditItemUiState.Ready.Validation(),
+            canChangeParent = true
         )
     )
 }
