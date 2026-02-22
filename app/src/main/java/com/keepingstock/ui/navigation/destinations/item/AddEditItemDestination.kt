@@ -1,5 +1,6 @@
 package com.keepingstock.ui.navigation.destinations.item
 
+import android.R.attr.name
 import android.provider.SyncStateContract.Helpers.update
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -396,15 +397,19 @@ private fun reduceIntent(
             }
 
         // Tag Related
-        AddEditItemIntent.AddQueryAsTagClicked -> TODO()
-        AddEditItemIntent.ClearQuery -> TODO()
-        is AddEditItemIntent.ExistingTagSelected -> TODO()
-        is AddEditItemIntent.QueryChanged -> TODO()
-        is AddEditItemIntent.RecommendedTagSelected -> TODO()
-        AddEditItemIntent.RefreshRecommendations -> TODO()
-        is AddEditItemIntent.RemoveTagClicked -> TODO()
+        AddEditItemIntent.AddQueryAsTagClicked,
+        is AddEditItemIntent.ExistingTagSelected,
+        is AddEditItemIntent.QueryChanged,
+        is AddEditItemIntent.RecommendedTagSelected,
+        AddEditItemIntent.RefreshRecommendations,
+        is AddEditItemIntent.RemoveTagClicked -> reduceTagIntent(
+            currentState = currentState,
+            intent = intent,
+            parentOptions = parentOptions,
+            knownTags = knownTags
+        )
 
-        // Handled by UI/Controller
+        // Code shouldn't run; handled by UI/Controller; just consumes
         AddEditItemIntent.DiscardChangesConfirmed,
         AddEditItemIntent.DismissDiscardDialog,
         AddEditItemIntent.PickImageClicked,
@@ -465,7 +470,8 @@ private fun reduceTagIntent(
         // For case-insensitive matching while preserving query input
         val queryKey = query.lowercase()
 
-        // Filtering demo set of "known tags" - do repo call here
+        // Filtering demo set of "known tags"
+        // TODO: replace with repo call
         val newSuggestions =
             if (err == null) {
                 knownTags
@@ -482,16 +488,47 @@ private fun reduceTagIntent(
         )
     }
 
+    /**
+     * Add the current query to the list of known tags, if no errors are present. Should reuse
+     * existing tags. Also adds to the list of currently selected tags for the item.
+     *
+     * Currently just uses the demo list of known tags, replace with repo calls.
+     */
+    fun addQueryToTags(
+        currentState: AddEditItemUiState.Ready,
+        query: String
+    ): AddEditItemUiState.Ready {
+        // First check if the user can add any more tags based on maxTags variable in UiState
+        // TODO: inputError update?
+        if (!currentState.canAddMore) return currentState
+
+        // Remove extra whitespace
+        val tagName = normalize(query)
+
+        // If regex match fails, return current state with inputError updated
+        if (!allowedTagRegex.matches(tagName))
+            return currentState.copy(
+                inputError = "Use only letters, numbers, spaces, '-', and '&'."
+            )
+
+        // Used for case-insensitive matching
+        val tagKey = tagName.lowercase()
+
+        // Look through knownKeys list for existing keys
+        // TODO: Using
+    }
+
     // The actual reducer part
     return when (intent) {
         // When query is changed, must check input and update suggestions
-        is AddEditItemIntent.QueryChanged ->
-            updateSuggestions(currentState.copy(tagQuery = intent.value))
+        is AddEditItemIntent.QueryChanged -> {
+            if (intent.value.isBlank())
+                currentState.copy(tagQuery = "", tagSuggestions = emptyList(), inputError = null)
+            else
+                updateSuggestions(currentState.copy(tagQuery = intent.value))
+        }
 
-        // Update state to reflect cleared query (no suggestions, no error)
-        AddEditItemIntent.ClearQuery ->
-            currentState.copy(tagQuery = "", tagSuggestions = emptyList(), inputError = null)
-        
+        // User wants to add the query as a tag
         AddEditItemIntent.AddQueryAsTagClicked -> TODO()
 
         is AddEditItemIntent.ExistingTagSelected -> TODO()
@@ -502,7 +539,7 @@ private fun reduceTagIntent(
 
         AddEditItemIntent.RefreshRecommendations -> TODO()
 
-        // Handled by state-reducer/UI/Controller
+        // Shouldn't be encountered; Handled by state-reducer/UI/Controller; just consumes
         else -> currentState
     }
 }
