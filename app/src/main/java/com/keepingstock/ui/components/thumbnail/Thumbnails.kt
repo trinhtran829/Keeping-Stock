@@ -1,11 +1,13 @@
 package com.keepingstock.ui.components.thumbnail
 
+import com.keepingstock.R
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Grass
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material3.Icon
@@ -67,7 +69,7 @@ fun ItemThumbnail(
         imagePath = imagePath,
         fallbackIcon = {
             Icon(
-                imageVector = Icons.Filled.Grass, // TODO: not the best Icon to use...
+                imageVector = Icons.Default.Category,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -107,7 +109,11 @@ private fun ThumbnailBase(
                 fallbackIcon()
             }
         } else {
-            val model: Any = Uri.parse(imagePath)
+            val model: Any = when (imagePath) {
+                "demo" -> R.drawable.demo_img_cat
+                "demo2" -> R.drawable.demo_img_llama
+                else -> Uri.parse(imagePath)
+            }
 
             AsyncImage(
                 model = model,

@@ -57,8 +57,9 @@ dependencies {
     implementation(libs.camera.view)
     implementation("io.coil-kt:coil-compose:2.6.0")
 
-    // ML Kit Image Labeling
+    // ML Kit
     implementation(libs.mlkit.image.labeling)
+    implementation(libs.mlkit.obj.detection)
     implementation(libs.kotlinx.coroutines.play.services)
 
     testImplementation(libs.junit)
@@ -67,6 +68,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.androidx.arch.core.testing)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 

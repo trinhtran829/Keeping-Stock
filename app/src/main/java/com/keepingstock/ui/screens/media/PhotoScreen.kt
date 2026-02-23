@@ -5,7 +5,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,11 +25,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.keepingstock.core.ml.getImageLabels
 
 /**
  * PhotoScreen: Displays a single full-screen photo with ML Kit labels.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PhotoScreen(
     photoUri: Uri,
@@ -39,7 +40,7 @@ fun PhotoScreen(
 
     // Fetch labels when the photo URI is available
     LaunchedEffect(photoUri) {
-        labels = getImageLabels(context, photoUri)
+        labels = getEnhancedLabels(context, photoUri)
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
@@ -53,11 +54,12 @@ fun PhotoScreen(
 
         // Labels/tags display overlay
         if (labels.isNotEmpty()) {
-            Row(
+            FlowRow(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 labels.forEach { label ->
                     Text(
