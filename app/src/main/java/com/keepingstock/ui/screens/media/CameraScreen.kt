@@ -30,12 +30,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
 import com.keepingstock.core.media.takePhoto
-import com.keepingstock.core.ml.getImageLabels
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.keepingstock.ui.viewmodel.media.CameraViewModel
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CameraScreen(
     viewModel: CameraViewModel = viewModel(),
@@ -88,14 +88,15 @@ fun CameraScreen(
         )
 
         // Labels/tags display
-        Column(
+        Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(16.dp)
         ) {
             uiState.labels.takeIf { it.isNotEmpty() }?.let { labels ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     labels.forEach { label ->
                         Text(
@@ -154,7 +155,7 @@ fun CameraScreen(
 
                     // Launch coroutine to generate labels
                     coroutineScope.launch {
-                        val labels = getImageLabels(context, uri)
+                        val labels = getEnhancedLabels(context, uri)
                         viewModel.onPhotoCaptured(uri, labels)
                     }
                 }
