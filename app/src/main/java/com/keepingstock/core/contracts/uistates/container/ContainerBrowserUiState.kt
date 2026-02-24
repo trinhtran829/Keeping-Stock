@@ -32,12 +32,7 @@ sealed interface ContainerBrowserUiState {
         val containerId: ContainerId?,         // null represents root container
         val containerName: String,
 
-        /**
-         * TODO: Any reason to keep these? If the "visible" variants are recomputed based on
-         *  repo lookup results after applying filter/search, we don't really need to keep
-         *  the full container results on hand when showing only those filtering/searching
-         *  results.
-         */
+        // All results
         val subcontainers: List<Container>,
         val items: List<Item>,
 

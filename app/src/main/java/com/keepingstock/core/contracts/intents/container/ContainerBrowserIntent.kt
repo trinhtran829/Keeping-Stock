@@ -12,6 +12,8 @@ sealed interface ContainerBrowserIntent {
     data class QueryChange(val query: String) : ContainerBrowserIntent
     data class QuerySubmit(val query: String) : ContainerBrowserIntent
 
+    data object ClearQuery : ContainerBrowserIntent
+
     /* ---------- Filtering related ---------- */
     data class FilterChange(val filter: ContainerBrowserFilter) : ContainerBrowserIntent
 
