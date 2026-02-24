@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.keepingstock.core.contracts.ContainerRepository
 import com.keepingstock.core.contracts.QrService
 import com.keepingstock.core.contracts.UiState
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,14 +44,17 @@ class QrScanViewModel(
     private val containerRepository: ContainerRepository
 ) : ViewModel() {
 
+    // Prevent overlapping scans from rapid repeated taps.
+    private var scanJob: Job? = null
+
     // Expose immutable state to UI and keep mutation private in ViewModel.
     private val _uiState = MutableStateFlow<UiState<QrScanUiData>>(initialQrScanUiState())
     val uiState: StateFlow<UiState<QrScanUiData>> = _uiState.asStateFlow()
 
     fun scanContainer() {
-        viewModelScope.launch {
-            if (_uiState.value is UiState.Loading) return@launch
+        if (scanJob?.isActive == true) return
 
+        scanJob = viewModelScope.launch {
             _uiState.value = UiState.Loading
 
             try {
@@ -75,16 +80,24 @@ class QrScanViewModel(
                         )
                     )
                 )
+            } catch (t: CancellationException) {
+                // Preserve cancellation behavior.
+                throw t
             } catch (t: Throwable) {
                 _uiState.value = UiState.Error(
                     message = "Failed to scan QR container.",
                     cause = t
                 )
+            } finally {
+                scanJob = null
             }
         }
     }
 
     fun reset() {
+        // Cancel active work before reset to prevent stale updates.
+        scanJob?.cancel()
+        scanJob = null
         _uiState.value = initialQrScanUiState()
     }
 }

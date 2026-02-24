@@ -6,6 +6,7 @@ import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemRepository
 import com.keepingstock.core.contracts.UiState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -27,6 +28,8 @@ class ItemBrowserViewModel(
 
     // Optional filter to only show items in current container
     private val _activeContainerId = MutableStateFlow<ContainerId?>(null)
+    // Increment to force a reload without changing query/container inputs.
+    private val _reloadVersion = MutableStateFlow(0L)
 
     // Exposed UI state (Loading, Success, or Error)
     private val _uiState = MutableStateFlow<UiState<ItemBrowserUiData>>(UiState.Loading)
@@ -41,10 +44,12 @@ class ItemBrowserViewModel(
         viewModelScope.launch {
             combine(
                 _searchQuery.debounce(300),
-                _activeContainerId
-            ) { query, containerId ->
+                _activeContainerId,
+                _reloadVersion
+            ) { query, containerId, _ ->
                 query to containerId
-            }.collect { (query, containerId) ->
+            }.collectLatest { (query, containerId) ->
+                // If inputs change mid-load, cancel old request and keep only latest result.
                 loadItems(query, containerId)
             }
         }
@@ -60,6 +65,10 @@ class ItemBrowserViewModel(
         _activeContainerId.value = containerId
     }
 
+    fun retry() {
+        _reloadVersion.value += 1L
+    }
+
     // Get items from repository based on current filters
     private suspend fun loadItems(query: String, containerId: ContainerId?) {
         _uiState.value = UiState.Loading
@@ -72,6 +81,8 @@ class ItemBrowserViewModel(
             _uiState.value = UiState.Success(
                 ItemBrowserUiData(items = items, containerId = containerId)
             )
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             _uiState.value = UiState.Error(
                 message = "Failed to load items",
