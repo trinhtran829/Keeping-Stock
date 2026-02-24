@@ -1,4 +1,4 @@
-package com.keepingstock.core.contracts.uistates.container
+package com.keepingstock.core.contracts.intents.container
 
 import com.keepingstock.core.contracts.ContainerId
 
@@ -16,13 +16,11 @@ sealed interface AddEditContainerIntent {
     data class ImagePicked(val uriString: String) : AddEditContainerIntent
     data object RemoveImageClicked : AddEditContainerIntent
 
-    // TODO: Add tagging intent
-
     // Action intent
     data object SaveClicked : AddEditContainerIntent
     data object BackClicked : AddEditContainerIntent
 
-    // TODO: Intent related to navigating away
+    // Navigation intent
     data object DiscardChangesConfirmed : AddEditContainerIntent
     data object DismissDiscardDialog : AddEditContainerIntent
 }

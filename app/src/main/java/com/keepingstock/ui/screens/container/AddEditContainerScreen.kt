@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.keepingstock.core.contracts.ContainerId
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerIntent
+import com.keepingstock.core.contracts.intents.container.AddEditContainerIntent
 import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent

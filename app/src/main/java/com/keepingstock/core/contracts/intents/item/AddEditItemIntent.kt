@@ -1,4 +1,4 @@
-package com.keepingstock.core.contracts.uistates.item
+package com.keepingstock.core.contracts.intents.item
 
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.TagId
@@ -11,7 +11,7 @@ import com.keepingstock.data.entities.ItemStatus
  * (button press, text edit, selection, confirmation, etc.).
  *
  * These intents are emitted by the UI layer and consumed by the controller/ViewModel to
- * update [AddEditItemUiState] and/or trigger effects.
+ * update [com.keepingstock.core.contracts.uistates.item.AddEditItemUiState] and/or trigger effects.
  */
 sealed interface AddEditItemIntent {
     /* ---------- Editable text fields ---------- */

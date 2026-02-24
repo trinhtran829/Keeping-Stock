@@ -53,7 +53,7 @@ import coil.compose.AsyncImage
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Tag
 import com.keepingstock.core.contracts.TagId
-import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
+import com.keepingstock.core.contracts.intents.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.screen.ErrorContent
