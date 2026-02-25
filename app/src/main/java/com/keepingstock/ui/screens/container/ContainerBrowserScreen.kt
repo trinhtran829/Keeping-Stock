@@ -423,6 +423,36 @@ private fun SortAndLayoutRow(
     onSortChange: (ContainerBrowserSort) -> Unit,
     onLayoutChange: (ContainerBrowserLayout) -> Unit
 ) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+    }
+}
+
+/**
+ * Displays the sorting menu.
+ *
+ *
+ */
+@Composable
+private fun SortMenu(
+
+) {
+
+}
+
+/**
+ * Displays the layout menu.
+ *
+ *
+ */
+@Composable
+private fun LayoutMenu(
+
+) {
 
 }
 
@@ -641,6 +671,28 @@ private fun Preview_SortAndLayoutRow() {
         layout = ContainerBrowserLayout.LIST,
         onSortChange = { },
         onLayoutChange = { }
+    )
+}
+
+/**
+ * Preview of the Sort Menu
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_SortMenu() {
+    SortMenu(
+
+    )
+}
+
+/**
+ * Preview of the Layout Menu
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_LayoutMenu() {
+    LayoutMenu(
+
     )
 }
 
