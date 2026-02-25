@@ -124,7 +124,6 @@ private fun demoContainerDetailReadyState(containerId: ContainerId): ContainerDe
         subcontainerCount = 2,
         itemCount = 5,
         canDelete = false,
-        deleteBlockedReason = "Container must be empty to delete.",
-        createdDate = Date()
+        deleteBlockedReason = "Container must be empty to delete."
     )
 }

@@ -41,7 +41,6 @@ sealed interface ContainerDetailUiState {
      * @param container The container being displayed.
      * @param parentContainerName The display name of the parent container, or null if this
      *                            container is at the root level.
-     * @param createdDate The creation timestamp of the container.
      * @param subcontainerCount Number of direct child containers.
      * @param itemCount Number of direct items contained within this container.
      * @param canDelete Whether the container can be deleted.
@@ -50,7 +49,6 @@ sealed interface ContainerDetailUiState {
     data class Ready(
         val container: Container,
         val parentContainerName: String?,
-        val createdDate: Date,
         val subcontainerCount: Int,
         val itemCount: Int,
         val canDelete: Boolean,

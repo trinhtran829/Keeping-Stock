@@ -60,8 +60,7 @@ private fun Preview_ContainerDetail_Ready_CanDelete() {
             subcontainerCount = 0,
             itemCount = 0,
             canDelete = true,
-            deleteBlockedReason = null,
-            createdDate = Date()
+            deleteBlockedReason = null
         ),
         onBack = {},
         onEdit = {},
@@ -93,8 +92,7 @@ private fun Preview_ContainerDetail_Ready_DeleteBlocked() {
             subcontainerCount = 2,
             itemCount = 12,
             canDelete = false,
-            deleteBlockedReason = "Container must be empty to delete.",
-            createdDate = Date()
+            deleteBlockedReason = "Container must be empty to delete."
         ),
         onBack = {},
         onEdit = {},
