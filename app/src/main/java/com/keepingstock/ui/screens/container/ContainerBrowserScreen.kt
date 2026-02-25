@@ -50,6 +50,7 @@ import com.keepingstock.ui.components.screen.LoadingContent
  *
  * @param modifier: Optional modifier for the top-level screen container.
  * @param uiState: Current state of loading, error, or container contents.
+ * @param onIntent: Callbacks for user intent.
  * @param onOpenSubcontainer: User intent to open a subcontainer.
  * @param onOpenItem: User intent to open an item detail screen.
  * @param onOpenContainerInfo: User intent to open the current container's info/detail screen.
@@ -80,9 +81,6 @@ fun ContainerBrowserScreen(
             modifier = modifier,
             uiState = uiState,
             onIntent = onIntent,
-            containerName = uiState.containerName,
-            subcontainers = uiState.subcontainers,
-            items = uiState.items,
             onOpenSubcontainer = onOpenSubcontainer,
             onOpenItem = onOpenItem,
             onOpenContainerInfo = onOpenContainerInfo,
@@ -103,11 +101,8 @@ fun ContainerBrowserScreen(
  * TODO(FUTURE): Add a grid/tile layout option. Keep row composables reusable by both layouts.
  *
  * @param modifier: Optional modifier for the screen container.
- * @param containerId: The currently displayed container (null = root).
- * @param containerName: The current container display name (currently not used/used by topbar in
- *                 destination).
- * @param subcontainers: List of subcontainers.
- * @param items: List of items in this container.
+ * @param uiState: Current state of loading, error, or container contents.
+ * @param onIntent: Callbacks for user intent.
  * @param onOpenSubcontainer: User intent to open a subcontainer.
  * @param onOpenItem: User intent to open an item detail view.
  * @param onOpenContainerInfo: User intent to open container info/detail for containerId.
@@ -119,9 +114,6 @@ private fun ReadyContent(
     modifier: Modifier,
     uiState: ContainerBrowserUiState.Ready,
     onIntent: (ContainerBrowserIntent) -> Unit,
-    containerName: String,
-    subcontainers: List<Container>,
-    items: List<Item>,
     onOpenSubcontainer: (containerId: ContainerId) -> Unit = {},
     onOpenItem: (itemId: ItemId) -> Unit = {},
     onOpenContainerInfo: (containerId: ContainerId) -> Unit = {},
@@ -136,7 +128,7 @@ private fun ReadyContent(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val counts = "${uiState.subcontainers.size} containers • ${items.size} items"
+            val counts = "${uiState.subcontainers.size} containers • ${uiState.items.size} items"
             Text(
                 text = counts,
                 style = MaterialTheme.typography.bodyMedium,
@@ -164,7 +156,7 @@ private fun ReadyContent(
         HorizontalDivider()
 
         // Empty state; not it's own state variant
-        if (subcontainers.isEmpty() && items.isEmpty()) {
+        if (uiState.subcontainers.isEmpty() && uiState.items.isEmpty()) {
             EmptyState(
                 modifier = Modifier.fillMaxSize(),
                 onAddContainer = { onAddContainer(uiState.containerId) },
@@ -204,8 +196,8 @@ private fun ReadyContent(
                 }
             }
 
-            if (subcontainers.isNotEmpty()) {
-                items(subcontainers, key = { it.id.value }) { c ->
+            if (uiState.subcontainers.isNotEmpty()) {
+                items(uiState.subcontainers, key = { it.id.value }) { c ->
                     ContainerSummaryRow(
                         modifier = Modifier,
                         container = c,
@@ -241,8 +233,8 @@ private fun ReadyContent(
                 }
             }
 
-            if (items.isNotEmpty()) {
-                items(items, key = { it.id.value }) { i ->
+            if (uiState.items.isNotEmpty()) {
+                items(uiState.items, key = { it.id.value }) { i ->
                     ItemSummaryRow(
                         modifier = Modifier,
                         item = i,
