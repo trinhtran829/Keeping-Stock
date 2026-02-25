@@ -16,13 +16,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -120,7 +123,32 @@ private fun ControlsBar(
             .padding(bottom = 12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-
+        // Search field
+        OutlinedTextField(
+            value = query,
+            onValueChange = { onIntent(ContainerBrowserIntent.QueryChange(it)) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            label = { Text("Search") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search"
+                )
+            },
+            trailingIcon = {
+                if (query.isNotBlank()) {
+                    IconButton(
+                        onClick = { onIntent(ContainerBrowserIntent.ClearQuery) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Clear Search"
+                        )
+                    }
+                }
+            }
+        )
     }
 }
 
