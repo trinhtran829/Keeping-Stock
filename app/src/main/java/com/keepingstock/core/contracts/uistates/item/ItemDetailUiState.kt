@@ -1,11 +1,6 @@
 package com.keepingstock.core.contracts.uistates.item
 
-import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
-import com.keepingstock.core.contracts.ItemId
-import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
-import com.keepingstock.data.entities.ItemStatus
-import java.util.Date
 
 /**
  * UI state for the Item Details screen.
