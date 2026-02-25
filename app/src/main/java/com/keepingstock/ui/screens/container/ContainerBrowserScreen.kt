@@ -80,7 +80,6 @@ fun ContainerBrowserScreen(
             modifier = modifier,
             uiState = uiState,
             onIntent = onIntent,
-            containerId = uiState.containerId,
             containerName = uiState.containerName,
             subcontainers = uiState.subcontainers,
             items = uiState.items,
@@ -120,7 +119,6 @@ private fun ReadyContent(
     modifier: Modifier,
     uiState: ContainerBrowserUiState.Ready,
     onIntent: (ContainerBrowserIntent) -> Unit,
-    containerId: ContainerId?,
     containerName: String,
     subcontainers: List<Container>,
     items: List<Item>,
@@ -145,9 +143,9 @@ private fun ReadyContent(
                 modifier = Modifier.weight(1f)
             )
 
-            if (containerId != null) {
+            if (uiState.containerId != null) {
                 TextButton(
-                    onClick = { onOpenContainerInfo(containerId) },
+                    onClick = { onOpenContainerInfo(uiState.containerId) },
                 ) {
                     Icon(
                         Icons.Default.Info,
@@ -169,8 +167,8 @@ private fun ReadyContent(
         if (subcontainers.isEmpty() && items.isEmpty()) {
             EmptyState(
                 modifier = Modifier.fillMaxSize(),
-                onAddContainer = { onAddContainer(containerId) },
-                onAddItem = { onAddItem(containerId) }
+                onAddContainer = { onAddContainer(uiState.containerId) },
+                onAddItem = { onAddItem(uiState.containerId) }
             )
             return
         }
@@ -194,7 +192,7 @@ private fun ReadyContent(
                     )
 
                     TextButton(
-                        onClick = { onAddContainer(containerId) }
+                        onClick = { onAddContainer(uiState.containerId) }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
@@ -231,7 +229,7 @@ private fun ReadyContent(
                     )
 
                     TextButton(
-                        onClick = { onAddItem(containerId) }
+                        onClick = { onAddItem(uiState.containerId) }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
