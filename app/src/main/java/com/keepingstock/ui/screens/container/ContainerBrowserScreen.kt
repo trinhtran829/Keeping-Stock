@@ -1,5 +1,6 @@
 package com.keepingstock.ui.screens.container
 
+import android.R.attr.onClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,9 +16,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -31,6 +34,7 @@ import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.intents.container.ContainerBrowserIntent
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.screen.ContainerSummaryRow
@@ -56,6 +60,7 @@ import com.keepingstock.ui.components.screen.LoadingContent
 fun ContainerBrowserScreen(
     modifier: Modifier = Modifier,
     uiState: ContainerBrowserUiState,
+    onIntent: (ContainerBrowserIntent) -> Unit = {},
     onOpenSubcontainer: (containerId: ContainerId) -> Unit = {},
     onOpenItem: (itemId: ItemId) -> Unit = {},
     onOpenContainerInfo: (containerId: ContainerId) -> Unit = {},
@@ -73,6 +78,8 @@ fun ContainerBrowserScreen(
 
         is ContainerBrowserUiState.Ready -> ReadyContent(
             modifier = modifier,
+            uiState = uiState,
+            onIntent = onIntent,
             containerId = uiState.containerId,
             containerName = uiState.containerName,
             subcontainers = uiState.subcontainers,
@@ -111,6 +118,8 @@ fun ContainerBrowserScreen(
 @Composable
 private fun ReadyContent(
     modifier: Modifier,
+    uiState: ContainerBrowserUiState.Ready,
+    onIntent: (ContainerBrowserIntent) -> Unit,
     containerId: ContainerId?,
     containerName: String,
     subcontainers: List<Container>,
@@ -129,7 +138,7 @@ private fun ReadyContent(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val counts = "${subcontainers.size} containers • ${items.size} items"
+            val counts = "${uiState.subcontainers.size} containers • ${items.size} items"
             Text(
                 text = counts,
                 style = MaterialTheme.typography.bodyMedium,
@@ -137,8 +146,19 @@ private fun ReadyContent(
             )
 
             if (containerId != null) {
-                TextButton(onClick = { onOpenContainerInfo(containerId) }) {
-                    Text("Info") // TODO: info Icon?
+                TextButton(
+                    onClick = { onOpenContainerInfo(containerId) },
+                ) {
+                    Icon(
+                        Icons.Default.Info,
+                        contentDescription = "Info",
+                    )
+
+                    Spacer(Modifier.width(8.dp))
+
+                    Text(
+                        text = "Info"
+                    )
                 }
             }
         }
