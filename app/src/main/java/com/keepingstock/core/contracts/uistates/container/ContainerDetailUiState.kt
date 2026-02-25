@@ -23,7 +23,7 @@ sealed interface ContainerDetailUiState {
         val containerId: ContainerId,
         val container: Container,
         val parentContainerName: String?,
-        val createdDate: Date = Date(),
+        val createdDate: Date,
         val subcontainerCount: Int,
         val itemCount: Int,
         val canDelete: Boolean,

@@ -7,6 +7,7 @@ import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
 import com.keepingstock.ui.screens.container.ContainerDetailScreen
+import java.util.Date
 
 /**
  * Provides previews for each UI State of the ContainerDetailScreen.
@@ -60,7 +61,8 @@ private fun Preview_ContainerDetail_Ready_CanDelete() {
             subcontainerCount = 0,
             itemCount = 0,
             canDelete = true,
-            deleteBlockedReason = null
+            deleteBlockedReason = null,
+            createdDate = Date()
         ),
         onBack = {},
         onEdit = {},
@@ -93,7 +95,8 @@ private fun Preview_ContainerDetail_Ready_DeleteBlocked() {
             subcontainerCount = 2,
             itemCount = 12,
             canDelete = false,
-            deleteBlockedReason = "Container must be empty to delete."
+            deleteBlockedReason = "Container must be empty to delete.",
+            createdDate = Date()
         ),
         onBack = {},
         onEdit = {},

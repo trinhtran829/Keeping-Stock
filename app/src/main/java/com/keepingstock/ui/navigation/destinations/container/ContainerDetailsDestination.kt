@@ -25,6 +25,7 @@ import com.keepingstock.ui.screens.container.ContainerDetailScreen
 import com.keepingstock.ui.components.navigation.ChipOption
 import com.keepingstock.ui.components.navigation.DemoMode
 import com.keepingstock.ui.components.navigation.DemoModeToggleRow
+import java.util.Date
 
 internal fun NavGraphBuilder.addContainerDetailsDestination(
     deps: NavDeps
@@ -124,6 +125,7 @@ private fun demoContainerDetailReadyState(containerId: ContainerId): ContainerDe
         subcontainerCount = 2,
         itemCount = 5,
         canDelete = false,
-        deleteBlockedReason = "Container must be empty to delete."
+        deleteBlockedReason = "Container must be empty to delete.",
+        createdDate = Date()
     )
 }
