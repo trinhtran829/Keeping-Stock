@@ -16,8 +16,6 @@ sealed interface ContainerDetailUiState {
 
     /**
      * Container details successfully loaded and ready for display.
-     *
-     * TODO: itemCount/subcontainerCount - needed?
      */
     data class Ready(
         val container: Container,
@@ -31,7 +29,6 @@ sealed interface ContainerDetailUiState {
 
     /**
      * An error occurred while loading container contents
-     * TODO: consider a retry option?
      */
     data class Error(
         val message: String,
