@@ -56,6 +56,7 @@ import com.keepingstock.ui.components.screen.ContainerSummaryRow
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.LoadingContent
+import java.util.logging.Filter
 
 /**
  * Screen for browsing container contents. Render based on ContainerBrowserUiState.
@@ -246,7 +247,10 @@ private fun ControlsBar(
             onClearQuery = { onIntent(ContainerBrowserIntent.ClearQuery) }
         )
 
-
+        FiltersRow(
+            filter = filter,
+            onFilterChange = { onIntent(ContainerBrowserIntent.FilterChange(it)) }
+        )
     }
 }
 
@@ -567,10 +571,23 @@ private fun SectionHeader(
 private fun Preview_ControlsBar() {
     ControlsBar(
         query = "DEMO SEARCH",
-        filter = ContainerBrowserFilter(),
+        filter = ContainerBrowserFilter(false),
         sort = ContainerBrowserSort.NAME_ASC,
         layout = ContainerBrowserLayout.LIST,
         onIntent = { }
+    )
+}
+
+/**
+ * Preview of the search field row
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_SearchField() {
+    SearchField(
+        query = "",
+        onQueryChange = { },
+        onClearQuery = { }
     )
 }
 
