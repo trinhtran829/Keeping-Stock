@@ -122,36 +122,12 @@ private fun ReadyContent(
 ) {
     Column() {
         // Content header; mainly counts and info button
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val counts = "${uiState.subcontainers.size} containers • ${uiState.items.size} items"
-            Text(
-                text = counts,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
-            )
-
-            if (uiState.containerId != null) {
-                TextButton(
-                    onClick = { onOpenContainerInfo(uiState.containerId) },
-                ) {
-                    Icon(
-                        Icons.Default.Info,
-                        contentDescription = "Info",
-                    )
-
-                    Spacer(Modifier.width(8.dp))
-
-                    Text(
-                        text = "Info"
-                    )
-                }
-            }
-        }
+        ContentHeader(
+            subcontainerCount = uiState.subcontainers.size,
+            itemCount = uiState.items.size,
+            onOpenContainerInfo = onOpenContainerInfo,
+            containerId = uiState.containerId
+        )
 
         HorizontalDivider()
 
@@ -179,11 +155,11 @@ private fun ReadyContent(
             }
 
             if (uiState.subcontainers.isNotEmpty()) {
-                items(uiState.subcontainers, key = { it.id.value }) { c ->
+                items(uiState.subcontainers, key = { it.id.value }) { container ->
                     ContainerSummaryRow(
                         modifier = Modifier,
-                        container = c,
-                        onClick = { onOpenSubcontainer(c.id) }
+                        container = container,
+                        onClick = { onOpenSubcontainer(container.id) }
                     )
                 }
             }
@@ -198,17 +174,63 @@ private fun ReadyContent(
             }
 
             if (uiState.items.isNotEmpty()) {
-                items(uiState.items, key = { it.id.value }) { i ->
+                items(uiState.items, key = { it.id.value }) { item ->
                     ItemSummaryRow(
                         modifier = Modifier,
-                        item = i,
-                        onClick = { onOpenItem(i.id) }
+                        item = item,
+                        onClick = { onOpenItem(item.id) }
                     )
                 }
             }
 
             // breathing room above bottom bar
             item { Spacer(Modifier.height(72.dp)) }
+        }
+    }
+}
+
+/**
+ * Provides the content header component. Content Header contains a count of subcontainers and
+ * items in the current container, as well as an info button if the current container is not
+ * the root container. Clicking reveals the Container details for the current Container.
+ *
+ * @param
+ */
+@Composable
+private fun ContentHeader(
+    subcontainerCount: Int,
+    itemCount: Int,
+    onOpenContainerInfo: (ContainerId) -> Unit,
+    containerId: ContainerId?
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val counts = "$subcontainerCount containers • $itemCount items"
+        Text(
+            text = counts,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
+
+        if (containerId != null) {
+            TextButton(
+                onClick = { onOpenContainerInfo(containerId) },
+            ) {
+                Icon(
+                    Icons.Default.Info,
+                    contentDescription = "Info",
+                )
+
+                Spacer(Modifier.width(8.dp))
+
+                Text(
+                    text = "Info"
+                )
+            }
         }
     }
 }
