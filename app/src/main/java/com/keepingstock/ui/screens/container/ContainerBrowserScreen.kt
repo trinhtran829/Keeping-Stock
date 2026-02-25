@@ -34,7 +34,10 @@ import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.intents.container.ContainerBrowserFilter
 import com.keepingstock.core.contracts.intents.container.ContainerBrowserIntent
+import com.keepingstock.core.contracts.intents.container.ContainerBrowserLayout
+import com.keepingstock.core.contracts.intents.container.ContainerBrowserSort
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserEmptyState
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
@@ -88,6 +91,36 @@ fun ContainerBrowserScreen(
             onAddContainer = onAddContainer,
             onAddItem = onAddItem
         )
+    }
+}
+
+/**
+ * The component between the header and the content, which allows the user to control the content
+ * via searching, filtering, and display modes ([ContainerBrowserLayout])
+ *
+ * @param query: The string entered into the search bar
+ * @param filter: The data class of filter settings currently in place to filter the results of
+ *                the user search query.
+ * @param sort: The sort mode currently selected by the user
+ * @param layout: The user-selected display layout of the containers and items.
+ * @param onIntent: The callback methods to be invoked on user-intent.
+ */
+@Composable
+private fun ControlsBar(
+    query: String,
+    filter: ContainerBrowserFilter,
+    sort: ContainerBrowserSort,
+    layout: ContainerBrowserLayout,
+    onIntent: (ContainerBrowserIntent) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+
     }
 }
 
