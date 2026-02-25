@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -237,6 +238,8 @@ private fun ControlsBar(
             onQueryChange = { onIntent(ContainerBrowserIntent.QueryChange(it)) },
             onClearQuery = { onIntent(ContainerBrowserIntent.ClearQuery) }
         )
+
+
     }
 }
 
@@ -279,6 +282,28 @@ private fun SearchField(
                 }
             }
         }
+    )
+}
+
+/**
+ * Displays a set of available filters for the search results
+ */
+@Composable
+private fun FiltersRow(
+    filter: ContainerBrowserFilter,
+    onFilterChange: (ContainerBrowserFilter) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+    }
+    
+    AssistChip(
+        onClick = { onFilterChange(ContainerBrowserFilter()) },
+        label = { Text("Clear filters") }
     )
 }
 
@@ -446,6 +471,18 @@ private fun Preview_ControlsBar() {
         sort = ContainerBrowserSort.NAME_ASC,
         layout = ContainerBrowserLayout.LIST,
         onIntent = { }
+    )
+}
+
+/**
+ * Preview of the filter row
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_FilterRow() {
+    FiltersRow(
+        filter = ContainerBrowserFilter(),
+        onFilterChange = { }
     )
 }
 
