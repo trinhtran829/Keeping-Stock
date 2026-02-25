@@ -8,7 +8,7 @@ import com.keepingstock.data.entities.ItemStatus
  * All user-driven events that can affect the Container Browser screen's state.
  */
 sealed interface ContainerBrowserIntent {
-    /* ---------- Search related ---------- */
+
     /**
      * TODO: We probably only need either QueryChange or QuerySubmit Depends on the
      *  behavior we want:
@@ -50,8 +50,6 @@ sealed interface ContainerBrowserIntent {
      */
     data object ClearQuery : ContainerBrowserIntent
 
-    /* ---------- Filtering related ---------- */
-
     /**
      * Updates the active filter configuration for the container browser. This intent is emitted
      * when the user changes any filter option.
@@ -63,8 +61,6 @@ sealed interface ContainerBrowserIntent {
      * :param filter: The new filter configuration.
      */
     data class FilterChange(val filter: ContainerBrowserFilter) : ContainerBrowserIntent
-
-    /* ---------- Sorting related ---------- */
 
     /**
      * Updates the active sort order for displayed containers and items. This intent is emitted
@@ -78,8 +74,6 @@ sealed interface ContainerBrowserIntent {
      */
     data class SortChange(val sort: ContainerBrowserSort) : ContainerBrowserIntent
 
-    /* ---------- Layout related ---------- */
-
     /**
      * Updates the preferred layout mode for displaying results. This intent is emitted when
      * the user switches between layouts
@@ -91,8 +85,6 @@ sealed interface ContainerBrowserIntent {
      * :param layout: The selected layout mode.
      */
     data class LayoutChange(val layout: ContainerBrowserLayout) : ContainerBrowserIntent
-
-    /* ---------- Error state related ---------- */
 
     /**
      * Request that the VM retry loading container details after a failure
