@@ -35,6 +35,7 @@ import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.intents.container.ContainerBrowserIntent
+import com.keepingstock.core.contracts.uistates.container.ContainerBrowserEmptyState
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.screen.ContainerSummaryRow
@@ -132,59 +133,22 @@ private fun ReadyContent(
         HorizontalDivider()
 
         // Empty state; not it's own state variant
-        if (uiState.subcontainers.isEmpty() && uiState.items.isEmpty()) {
+        if (uiState.emptyState != ContainerBrowserEmptyState.NONE) {
             EmptyState(
                 modifier = Modifier.fillMaxSize(),
                 onAddContainer = { onAddContainer(uiState.containerId) },
                 onAddItem = { onAddItem(uiState.containerId) }
             )
-            return
-        }
-
-        // Populated state; scrolling list with individual sections for subcontainers/items
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            item {
-                SectionHeader(
-                    sectionTitle = "Containers",
-                    onAdd = { onAddItem(uiState.containerId) }
-                )
-            }
-
-            if (uiState.subcontainers.isNotEmpty()) {
-                items(uiState.subcontainers, key = { it.id.value }) { container ->
-                    ContainerSummaryRow(
-                        modifier = Modifier,
-                        container = container,
-                        onClick = { onOpenSubcontainer(container.id) }
-                    )
-                }
-            }
-
-            item { Spacer(Modifier.height(8.dp)) }
-
-            item {
-                SectionHeader(
-                    sectionTitle = "Items",
-                    onAdd = { onAddItem(uiState.containerId) }
-                )
-            }
-
-            if (uiState.items.isNotEmpty()) {
-                items(uiState.items, key = { it.id.value }) { item ->
-                    ItemSummaryRow(
-                        modifier = Modifier,
-                        item = item,
-                        onClick = { onOpenItem(item.id) }
-                    )
-                }
-            }
-
-            // breathing room above bottom bar
-            item { Spacer(Modifier.height(72.dp)) }
+        } else {
+            PopulatedStateContents(
+                subcontainers = uiState.subcontainers,
+                items = uiState.items,
+                containerId = uiState.containerId,
+                onAddContainer = onAddContainer,
+                onAddItem = onAddItem,
+                onOpenSubcontainer = onOpenSubcontainer,
+                onOpenItem = onOpenItem
+            )
         }
     }
 }
@@ -280,6 +244,77 @@ private fun EmptyState(
 }
 
 /**
+ * Component for the main scrollable content area for the Container Browser when data is available.
+ *
+ * Displays two sections ("Containers" and "Items") with optional add actions and summary rows
+ * for each visible entry.
+ *
+ * @param subcontainers List of visible subcontainers to display.
+ * @param items List of visible items to display.
+ * @param containerId ID of the currently displayed container, or null for root.
+ * @param onAddContainer Callback for creating a new subcontainer.
+ * @param onAddItem Callback for creating a new item.
+ * @param onOpenSubcontainer Invoked when a subcontainer row is selected.
+ * @param onOpenItem Invoked when an item row is selected.
+ */
+@Composable
+private fun PopulatedStateContents(
+    subcontainers: List<Container>,
+    items: List<Item>,
+    containerId: ContainerId?,
+    onAddContainer: (ContainerId?) -> Unit,
+    onAddItem: (ContainerId?) -> Unit,
+    onOpenSubcontainer: (ContainerId) -> Unit,
+    onOpenItem: (ItemId) -> Unit
+) {
+    // Populated state; scrolling list with individual sections for subcontainers/items
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            SectionHeader(
+                sectionTitle = "Containers",
+                onAdd = { onAddContainer(containerId) },
+            )
+        }
+
+        if (subcontainers.isNotEmpty()) {
+            items(subcontainers, key = { it.id.value }) { container ->
+                ContainerSummaryRow(
+                    modifier = Modifier,
+                    container = container,
+                    onClick = { onOpenSubcontainer(container.id) }
+                )
+            }
+        }
+
+        item { Spacer(Modifier.height(8.dp)) }
+
+        item {
+            SectionHeader(
+                sectionTitle = "Items",
+                onAdd = { onAddItem(containerId) },
+            )
+        }
+
+        if (items.isNotEmpty()) {
+            items(items, key = { it.id.value }) { item ->
+                ItemSummaryRow(
+                    modifier = Modifier,
+                    item = item,
+                    onClick = { onOpenItem(item.id) }
+                )
+            }
+        }
+
+        // breathing room above bottom bar
+        item { Spacer(Modifier.height(72.dp)) }
+    }
+}
+
+/**
  * Component to show the section title as well as an Add button that utilizes the onAdd navigation
  * callback.
  *
@@ -290,7 +325,7 @@ private fun EmptyState(
 @Composable
 private fun SectionHeader(
     sectionTitle: String,
-    onAdd: () -> Unit
+    onAdd: () -> Unit,
 ) {
     Row(
         modifier = Modifier
