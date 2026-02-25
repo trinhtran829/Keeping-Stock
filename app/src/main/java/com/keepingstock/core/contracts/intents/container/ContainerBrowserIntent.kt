@@ -22,6 +22,9 @@ sealed interface ContainerBrowserIntent {
 
     /* ---------- Layout related ---------- */
     data class LayoutChange(val layout: ContainerBrowserLayout) : ContainerBrowserIntent
+
+    /* ---------- Error state related ---------- */
+    data object Retry : ContainerBrowserIntent
 }
 
 // TODO: Do we need other filters? I thought being able to filter by if it's taken out
