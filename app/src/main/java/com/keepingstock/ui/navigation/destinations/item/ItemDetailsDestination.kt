@@ -97,9 +97,9 @@ internal fun NavGraphBuilder.addItemDetailsDestination(
  */
 private fun itemDetailTopBarConfig(uiState: ItemDetailUiState): TopBarConfig {
     val title = when (uiState) {
-        is ItemDetailUiState.Ready ->  "Item Details"//uiState.containerName + " Details"
+        is ItemDetailUiState.Ready ->  "Item Details" // TODO: uiState.parentContainerName + " Details"?
         is ItemDetailUiState.Loading -> "Loading…"
-        is ItemDetailUiState.Error -> "Container details"
+        is ItemDetailUiState.Error -> "Item Details"
     }
     return TopBarConfig(title = title, showBack = true)
 }

@@ -13,7 +13,15 @@ sealed interface ItemDetailUiState {
     data object Loading : ItemDetailUiState
 
     /**
-     * Item details successfully loaded and ready for display
+     * Item details successfully loaded and ready for display.
+     *
+     * The ViewModel is responsible for:
+     * - Loading the item by id.
+     * - Resolving [parentContainerName] using the item's container id (when present).
+     *
+     * @param item The item being displayed.
+     * @param parentContainerName The display name of the item's container, or null when the item
+     *                            is not assigned to a container.
      */
     data class Ready(
         val item: Item,
