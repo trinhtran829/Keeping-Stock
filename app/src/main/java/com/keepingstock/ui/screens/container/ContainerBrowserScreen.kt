@@ -385,6 +385,21 @@ private fun SectionHeader(
 }
 
 /**
+ * Preview of the search/controls bar
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_ControlsBar() {
+    ControlsBar(
+        query = "DEMO SEARCH",
+        filter = ContainerBrowserFilter(),
+        sort = ContainerBrowserSort.NAME_ASC,
+        layout = ContainerBrowserLayout.LIST,
+        onIntent = { }
+    )
+}
+
+/**
  * Preview of the SectionHeader
  */
 @Preview(showBackground = true)
