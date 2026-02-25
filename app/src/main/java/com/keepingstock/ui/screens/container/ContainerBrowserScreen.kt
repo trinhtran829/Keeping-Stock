@@ -439,7 +439,8 @@ private fun SortAndLayoutRow(
  */
 @Composable
 private fun SortMenu(
-
+    sort: ContainerBrowserSort,
+    onSortChange: (ContainerBrowserSort) -> Unit
 ) {
 
 }
@@ -451,7 +452,8 @@ private fun SortMenu(
  */
 @Composable
 private fun LayoutMenu(
-
+    layout: ContainerBrowserLayout,
+    onLayoutChange: (ContainerBrowserLayout) -> Unit
 ) {
 
 }
@@ -681,7 +683,8 @@ private fun Preview_SortAndLayoutRow() {
 @Composable
 private fun Preview_SortMenu() {
     SortMenu(
-
+        sort = ContainerBrowserSort.NAME_ASC,
+        onSortChange = { }
     )
 }
 
@@ -692,7 +695,8 @@ private fun Preview_SortMenu() {
 @Composable
 private fun Preview_LayoutMenu() {
     LayoutMenu(
-
+        layout = ContainerBrowserLayout.LIST,
+        onLayoutChange = { }
     )
 }
 
