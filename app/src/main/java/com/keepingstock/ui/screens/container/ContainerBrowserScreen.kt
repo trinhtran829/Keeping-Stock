@@ -412,6 +412,21 @@ private fun ItemStatusPickerChip(
 }
 
 /**
+ * Displays the sorting and layout options available to the user
+ *
+ *
+ */
+@Composable
+private fun SortAndLayoutRow(
+    sort: ContainerBrowserSort,
+    layout: ContainerBrowserLayout,
+    onSortChange: (ContainerBrowserSort) -> Unit,
+    onLayoutChange: (ContainerBrowserLayout) -> Unit
+) {
+
+}
+
+/**
  * Empty-state UI shown when a container has no subcontainers and no items.
  *
  * @param modifier Modifier applied to the full-size empty-state container.
@@ -612,6 +627,20 @@ private fun Preview_FilterRowOptionSelected() {
     FiltersRow(
         filter = ContainerBrowserFilter(false, false),
         onFilterChange = { }
+    )
+}
+
+/**
+ * Preview of the Sort and Layout Row
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_SortAndLayoutRow() {
+    SortAndLayoutRow(
+        sort = ContainerBrowserSort.NAME_ASC,
+        layout = ContainerBrowserLayout.LIST,
+        onSortChange = { },
+        onLayoutChange = { }
     )
 }
 
