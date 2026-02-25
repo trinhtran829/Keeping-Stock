@@ -21,6 +21,8 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -31,6 +33,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -318,12 +324,66 @@ private fun FiltersRow(
                 label = { Text("Items") }
             )
 
+            Spacer(Modifier.weight(1f))
 
+            ItemStatusPickerChip(
+                status = filter.itemStatus,
+                onStatusChange = { onFilterChange(filter.copy(itemStatus = it)) }
+            )
         }
 
         AssistChip(
             onClick = { onFilterChange(ContainerBrowserFilter()) },
             label = { Text("Clear filters") }
+        )
+    }
+}
+
+/**
+ *
+ */
+@Composable
+private fun ItemStatusPickerChip(
+    status: ItemStatus?,
+    onStatusChange: (ItemStatus?) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    val label = when (status) {
+        null -> "Any status"
+        ItemStatus.STORED -> "Stored"
+        ItemStatus.TAKEN_OUT -> "Checked out"
+    }
+
+    AssistChip(
+        onClick = { expanded = true },
+        label = { Text(label) }
+    )
+
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { }
+    ) {
+        DropdownMenuItem(
+            text = { Text("Any status") },
+            onClick = {
+                expanded = false
+                onStatusChange(null)
+            }
+        )
+        DropdownMenuItem(
+            text = { Text("Stored") },
+            onClick = {
+                expanded = false
+                onStatusChange(ItemStatus.STORED)
+            }
+        )
+        DropdownMenuItem(
+            text = { Text("Taken Out") },
+            onClick = {
+                expanded = false
+                onStatusChange(ItemStatus.TAKEN_OUT)
+            }
         )
     }
 }
