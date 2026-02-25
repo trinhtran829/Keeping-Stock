@@ -22,7 +22,6 @@ sealed interface ItemDetailUiState {
 
     /**
      * An error occurred while loading item contents
-     * TODO: consider a retry option?
      */
     data class Error(
         val message: String,
