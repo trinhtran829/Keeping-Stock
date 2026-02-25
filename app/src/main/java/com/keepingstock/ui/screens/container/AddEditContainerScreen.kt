@@ -296,7 +296,7 @@ private fun AddEditContainerFormCard(
 
             // Description field
             OutlinedTextField(
-                value = uiState.description,
+                value = uiState.description ?: "",
                 onValueChange = { onIntent(AddEditContainerIntent.DescriptionChanged(it)) },
                 label = { Text("Description") },
                 modifier = Modifier.fillMaxWidth(),
