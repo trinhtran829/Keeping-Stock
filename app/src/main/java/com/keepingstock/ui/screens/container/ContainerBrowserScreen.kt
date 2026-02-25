@@ -44,13 +44,13 @@ import com.keepingstock.ui.components.screen.LoadingContent
  * TODO: Add addContainer and addItem buttons
  * TODO: Search/Filter/Sort feature
  *
- * :param modifier: Optional modifier for the top-level screen container.
- * :param uiState: Current state of loading, error, or container contents.
- * :param onOpenSubcontainer: User intent to open a subcontainer.
- * :param onOpenItem: User intent to open an item detail screen.
- * :param onOpenContainerInfo: User intent to open the current container's info/detail screen.
- * :param onAddContainer: User intent to create a container under the current container.
- * :param onAddItem: User intent to create an item under the current container.
+ * @param modifier: Optional modifier for the top-level screen container.
+ * @param uiState: Current state of loading, error, or container contents.
+ * @param onOpenSubcontainer: User intent to open a subcontainer.
+ * @param onOpenItem: User intent to open an item detail screen.
+ * @param onOpenContainerInfo: User intent to open the current container's info/detail screen.
+ * @param onAddContainer: User intent to create a container under the current container.
+ * @param onAddItem: User intent to create an item under the current container.
  */
 @Composable
 fun ContainerBrowserScreen(
@@ -96,17 +96,17 @@ fun ContainerBrowserScreen(
  *
  * TODO(FUTURE): Add a grid/tile layout option. Keep row composables reusable by both layouts.
  *
- * :param modifier: Optional modifier for the screen container.
- * :param containerId: The currently displayed container (null = root).
- * :param containerName: The current container display name (currently not used/used by topbar in
+ * @param modifier: Optional modifier for the screen container.
+ * @param containerId: The currently displayed container (null = root).
+ * @param containerName: The current container display name (currently not used/used by topbar in
  *                 destination).
- * :param subcontainers: List of subcontainers.
- * :param items: List of items in this container.
- * :param onOpenSubcontainer: User intent to open a subcontainer.
- * :param onOpenItem: User intent to open an item detail view.
- * :param onOpenContainerInfo: User intent to open container info/detail for containerId.
- * :param onAddContainer: User intent to add a subcontainer under containerId.
- * :param onAddItem: User intent to add an item under containerId.
+ * @param subcontainers: List of subcontainers.
+ * @param items: List of items in this container.
+ * @param onOpenSubcontainer: User intent to open a subcontainer.
+ * @param onOpenItem: User intent to open an item detail view.
+ * @param onOpenContainerInfo: User intent to open container info/detail for containerId.
+ * @param onAddContainer: User intent to add a subcontainer under containerId.
+ * @param onAddItem: User intent to add an item under containerId.
  */
 @Composable
 private fun ReadyContent(
@@ -242,9 +242,9 @@ private fun ReadyContent(
 /**
  * Empty-state UI shown when a container has no subcontainers and no items.
  *
- * :param modifier Modifier applied to the full-size empty-state container.
- * :param onAddContainer Invoked when user chooses to add a container.
- * :param onAddItem Invoked when user chooses to add an item.
+ * @param modifier Modifier applied to the full-size empty-state container.
+ * @param onAddContainer Invoked when user chooses to add a container.
+ * @param onAddItem Invoked when user chooses to add an item.
  */
 @Composable
 private fun EmptyState(
