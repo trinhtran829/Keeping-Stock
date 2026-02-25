@@ -133,7 +133,6 @@ private fun demoItemDetailReadyState(itemId: ItemId, status: ItemStatus): ItemDe
     }
 
     return ItemDetailUiState.Ready(
-        itemId = itemId,
         item = item,
         parentContainerName = null
     )

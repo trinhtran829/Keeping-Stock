@@ -49,7 +49,6 @@ private fun Preview_ItemDetail_Ready() {
     val itemId = ItemId(100L)
     ItemDetailsScreen(
         uiState = ItemDetailUiState.Ready(
-            itemId = itemId,
             item = Item(
                 id = itemId,
                 name = "Impact Driver",
