@@ -1,7 +1,8 @@
 package com.keepingstock.core.contracts.intents.item
 
-import com.keepingstock.core.contracts.ContainerId
-import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.core.contracts.uistates.item.ItemBrowserFilter
+import com.keepingstock.core.contracts.uistates.item.ItemBrowserLayout
+import com.keepingstock.core.contracts.uistates.item.ItemBrowserSort
 
 sealed interface ItemBrowserIntent {
     /* ---------- Search related ---------- */
@@ -20,23 +21,3 @@ sealed interface ItemBrowserIntent {
     /* ---------- Error state related ---------- */
     data object Retry : ItemBrowserIntent
 }
-
-data class ItemBrowserFilter(
-    val scope: ItemBrowserScope = ItemBrowserScope.ALL,
-    val itemStatus: ItemStatus? = null // null = any
-)
-
-sealed interface ItemBrowserScope {
-    data object ALL : ItemBrowserScope
-    data object UNSORTED : ItemBrowserScope              // containerId == null
-    data class IN_CONTAINER(val containerId: ContainerId) : ItemBrowserScope
-}
-
-enum class ItemBrowserSort {
-    NAME_ASC,
-    NAME_DESC,
-    CREATED_NEWEST,
-    CREATED_OLDEST
-}
-
-enum class ItemBrowserLayout { LIST, GRID, COMPACT }
