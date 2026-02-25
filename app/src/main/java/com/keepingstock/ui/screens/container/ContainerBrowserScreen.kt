@@ -294,6 +294,9 @@ private fun SearchField(
 
 /**
  * Displays a set of available filters for the search results
+ *
+ * @param filter: The data class of current filter settings.
+ * @param onFilterChange: Invokes to intended user action callback for changing the filter settings.
  */
 @Composable
 private fun FiltersRow(
@@ -303,11 +306,13 @@ private fun FiltersRow(
     Column(
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
+        // The actual filter options - if more are added, may need to adjust
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Show subcontainers
             FilterChip(
                 selected = filter.includeContainers,
                 onClick = {
@@ -316,6 +321,7 @@ private fun FiltersRow(
                 label = { Text("Containers") }
             )
 
+            // Show items
             FilterChip(
                 selected = filter.includeItems,
                 onClick = {
@@ -326,26 +332,34 @@ private fun FiltersRow(
 
             Spacer(Modifier.weight(1f))
 
-            ItemStatusPickerChip(
-                status = filter.itemStatus,
-                onStatusChange = { onFilterChange(filter.copy(itemStatus = it)) }
-            )
+            // Show only items with specific status (do not display if not showing items)
+            if (filter.includeItems) {
+                ItemStatusPickerChip(
+                    status = filter.itemStatus,
+                    onStatusChange = { onFilterChange(filter.copy(itemStatus = it)) }
+                )
+            }
         }
 
         val isDefault =
             filter.includeContainers && filter.includeItems && filter.itemStatus == null
 
+        // Only show clear filters chip row if filters are non-default.
         if (!isDefault) {
             AssistChip(
                 onClick = { onFilterChange(ContainerBrowserFilter()) },
-                label = { Text("Clear filters") }
+                label = { Text("Clear filters") },
             )
         }
     }
 }
 
 /**
+ * Displays the Item Status Picker dropdown menu component, which allows the user to select
+ * which item status items to show
  *
+ * @param status: The item status to filter items with.
+ * @param onStatusChange: Invoked when the user changes the desired status filter.
  */
 @Composable
 private fun ItemStatusPickerChip(
@@ -579,7 +593,7 @@ private fun Preview_FilterRow() {
 @Composable
 private fun Preview_FilterRowOptionSelected() {
     FiltersRow(
-        filter = ContainerBrowserFilter(false),
+        filter = ContainerBrowserFilter(false, false),
         onFilterChange = { }
     )
 }
