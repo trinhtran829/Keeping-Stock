@@ -172,28 +172,10 @@ private fun ReadyContent(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "Containers",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    TextButton(
-                        onClick = { onAddContainer(uiState.containerId) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add item"
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text("Add")
-                    }
-                }
+                SectionHeader(
+                    sectionTitle = "Containers",
+                    onAdd = { onAddItem(uiState.containerId) }
+                )
             }
 
             if (uiState.subcontainers.isNotEmpty()) {
@@ -209,28 +191,10 @@ private fun ReadyContent(
             item { Spacer(Modifier.height(8.dp)) }
 
             item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "Items",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    TextButton(
-                        onClick = { onAddItem(uiState.containerId) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add item"
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text("Add")
-                    }
-                }
+                SectionHeader(
+                    sectionTitle = "Items",
+                    onAdd = { onAddItem(uiState.containerId) }
+                )
             }
 
             if (uiState.items.isNotEmpty()) {
@@ -291,6 +255,55 @@ private fun EmptyState(
             }
         }
     }
+}
+
+/**
+ * Component to show the section title as well as an Add button that utilizes the onAdd navigation
+ * callback.
+ *
+ * @param sectionTitle: The title of the section (i.e. "Containers" or "Items)
+ * @param onAdd: Navigation callback for creating a new instance of the section type (e.g.
+ *               container or item)
+ */
+@Composable
+private fun SectionHeader(
+    sectionTitle: String,
+    onAdd: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            sectionTitle,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.weight(1f)
+        )
+
+        TextButton(
+            onClick = onAdd
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add $sectionTitle"
+            )
+            Spacer(Modifier.width(4.dp))
+            Text("Add")
+        }
+    }
+}
+
+/**
+ * Preview of the SectionHeader
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_SectionHeader(){
+    SectionHeader(
+        sectionTitle = "Containers",
+        onAdd = {}
+    )
 }
 
 /**
