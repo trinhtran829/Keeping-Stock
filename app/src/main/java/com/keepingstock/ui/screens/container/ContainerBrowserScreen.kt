@@ -299,7 +299,7 @@ private fun FiltersRow(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             FilterChip(
@@ -309,6 +309,16 @@ private fun FiltersRow(
                 },
                 label = { Text("Containers") }
             )
+
+            FilterChip(
+                selected = filter.includeItems,
+                onClick = {
+                    onFilterChange(filter.copy(includeItems = !filter.includeItems))
+                },
+                label = { Text("Items") }
+            )
+
+
         }
 
         AssistChip(
