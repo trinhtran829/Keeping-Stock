@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -293,18 +294,28 @@ private fun FiltersRow(
     filter: ContainerBrowserFilter,
     onFilterChange: (ContainerBrowserFilter) -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            FilterChip(
+                selected = filter.includeContainers,
+                onClick = {
+                    onFilterChange(filter.copy(includeContainers = !filter.includeContainers))
+                },
+                label = { Text("Containers") }
+            )
+        }
 
+        AssistChip(
+            onClick = { onFilterChange(ContainerBrowserFilter()) },
+            label = { Text("Clear filters") }
+        )
     }
-    
-    AssistChip(
-        onClick = { onFilterChange(ContainerBrowserFilter()) },
-        label = { Text("Clear filters") }
-    )
 }
 
 /**
