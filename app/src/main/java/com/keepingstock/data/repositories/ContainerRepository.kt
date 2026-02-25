@@ -67,4 +67,11 @@ interface ContainerRepository {
         parentContainerId: ContainerId,
         query: String
     ): Flow<List<Container>>
+
+    /**
+     * Search containers by name
+     */
+    fun searchContainers(
+        query: String
+    ): Flow<List<Container>>
 }

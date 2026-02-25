@@ -3,21 +3,17 @@ package com.keepingstock.data.repositories
 import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.data.daos.ContainerDao
+import com.keepingstock.data.mapper.toDomain
+import com.keepingstock.data.mapper.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import java.util.Date
 
 /**
- * Placeholder repository
- *
- * NOTE TO TEAM:
- * - This is a temporary implementation
- * - These function names are final and stable
- * - UI and Integration lead can start using them
- * - The real business logic will be implemented later
- *
- * This is to ensures the UI/ViewModels code can be develop while I continue to
- * work on these logic.
+ * This code was generated with the help of the following links
+ * https://developer.android.com/codelabs/basic-android-kotlin-compose-persisting-data-room?authuser=1&continue=https%3A%2F%2Fdeveloper.android.com%2Fcourses%2Fpathways%2Fandroid-basics-compose-unit-6-pathway-2%3Fauthuser%3D1%23codelab-https%3A%2F%2Fdeveloper.android.com%2Fcodelabs%2Fbasic-android-kotlin-compose-persisting-data-room#7
+ * These links document the sample code that led to my code.
  */
 
 class ContainerRepositoryImpl(private val containerDao: ContainerDao) : ContainerRepository {
@@ -32,7 +28,7 @@ class ContainerRepositoryImpl(private val containerDao: ContainerDao) : Containe
         parentContainerId: ContainerId?
     ): Container {
         // Placeholder: return dummy Container
-        return Container(
+        val container = Container(
             id = ContainerId(0L),
             name = name,
             description = description,
@@ -40,43 +36,37 @@ class ContainerRepositoryImpl(private val containerDao: ContainerDao) : Containe
             parentContainerId = parentContainerId,
             createdDate = Date()
         )
+        val generatedId = containerDao.insert(container.toEntity())
+        return container.copy(id = ContainerId(generatedId))
     }
 
     /**
      * Update
      */
     override suspend fun updateContainer(container: Container) {
-        // Placeholder: do nothing for now
+        containerDao.update(container.toEntity())
     }
 
     /**
      * Delete
      */
     override suspend fun deleteContainer(container: Container) {
-        // Placeholder: do nothing for now
+        containerDao.delete(container.toEntity())
     }
 
     /**
      * Get container by Id
      */
     override suspend fun getContainerById(containerId: ContainerId): Container? {
-        // Placeholder: return a dummy Container
-        return Container(
-            id = containerId,
-            name = "Placeholder Container",
-            description = "Placeholder description",
-            imageUri = null,
-            parentContainerId = null,
-            createdDate = Date()
-        )
+        return containerDao.getContainerById(containerId.value)?.toDomain()
     }
 
     /**
      * Observe containers with no parents
      */
     override fun observeRootContainers(): Flow<List<Container>> {
-        // Placeholder: return empty list
-        return flowOf(emptyList())
+        return containerDao.getRootContainers()
+            .map { containerList -> containerList.map { it.toDomain() } }
     }
 
     /**
@@ -85,8 +75,8 @@ class ContainerRepositoryImpl(private val containerDao: ContainerDao) : Containe
     override fun observeChildContainers(
         parentContainerId: ContainerId
     ): Flow<List<Container>> {
-        // Placeholder: return empty list
-        return flowOf(emptyList())
+        return containerDao.getChildContainers(parentContainerId.value)
+            .map { containerList -> containerList.map { it.toDomain() } }
     }
 
     /**
@@ -96,7 +86,17 @@ class ContainerRepositoryImpl(private val containerDao: ContainerDao) : Containe
         parentContainerId: ContainerId,
         query: String
     ): Flow<List<Container>> {
-        // Placeholder: return empty list
-        return flowOf(emptyList())
+        return containerDao.searchChildContainers(parentContainerId.value, query)
+            .map { containerList -> containerList.map { it.toDomain() } }
+    }
+
+    /**
+     * Search containers by name
+     */
+    override fun searchContainers(
+        query: String
+    ): Flow<List<Container>> {
+        return containerDao.searchContainers(query)
+            .map { containerList -> containerList.map { it.toDomain() } }
     }
 }

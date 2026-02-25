@@ -66,6 +66,16 @@ interface ContainerDao {
         query: String
     ): Flow<List<ContainerEntity>>
 
+    /* ---------- search containers by name ---------- */
+    @Query("""
+        SELECT * FROM containers
+        WHERE name LIKE '%' || :query || '%'
+        ORDER BY createdDate DESC
+    """ )
+    fun searchContainers(
+        query: String
+    ): Flow<List<ContainerEntity>>
+
     /* ---------- get a container entity by container Id ---------- */
     @Query("""
         SELECT * FROM containers
