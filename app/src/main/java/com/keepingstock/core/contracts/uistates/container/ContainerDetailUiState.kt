@@ -20,7 +20,6 @@ sealed interface ContainerDetailUiState {
      * TODO: itemCount/subcontainerCount - needed?
      */
     data class Ready(
-        val containerId: ContainerId,
         val container: Container,
         val parentContainerName: String?,
         val createdDate: Date,

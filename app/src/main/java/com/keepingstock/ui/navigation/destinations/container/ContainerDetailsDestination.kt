@@ -113,7 +113,6 @@ private fun containerDetailTopBarConfig(uiState: ContainerDetailUiState): TopBar
  */
 private fun demoContainerDetailReadyState(containerId: ContainerId): ContainerDetailUiState.Ready {
     return ContainerDetailUiState.Ready(
-        containerId = containerId,
         container = Container(
             id = containerId,
             name = "Container ${containerId.value}",

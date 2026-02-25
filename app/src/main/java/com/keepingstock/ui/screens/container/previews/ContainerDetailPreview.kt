@@ -49,7 +49,6 @@ private fun Preview_ContainerDetail_Ready_CanDelete() {
     val containerId = ContainerId(1L)
     ContainerDetailScreen(
         uiState = ContainerDetailUiState.Ready(
-            containerId = containerId,
             container = Container(
                 id = containerId,
                 name = "Garage",
@@ -83,7 +82,6 @@ private fun Preview_ContainerDetail_Ready_DeleteBlocked() {
     val containerId = ContainerId(10L)
     ContainerDetailScreen(
         uiState = ContainerDetailUiState.Ready(
-            containerId = ContainerId(10L),
             container = Container(
                 id = containerId,
                 name = "Tool Chest Main",
