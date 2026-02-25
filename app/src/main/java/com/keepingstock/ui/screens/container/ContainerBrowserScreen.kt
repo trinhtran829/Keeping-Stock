@@ -332,10 +332,15 @@ private fun FiltersRow(
             )
         }
 
-        AssistChip(
-            onClick = { onFilterChange(ContainerBrowserFilter()) },
-            label = { Text("Clear filters") }
-        )
+        val isDefault =
+            filter.includeContainers && filter.includeItems && filter.itemStatus == null
+
+        if (!isDefault) {
+            AssistChip(
+                onClick = { onFilterChange(ContainerBrowserFilter()) },
+                label = { Text("Clear filters") }
+            )
+        }
     }
 }
 
@@ -563,6 +568,18 @@ private fun Preview_ControlsBar() {
 private fun Preview_FilterRow() {
     FiltersRow(
         filter = ContainerBrowserFilter(),
+        onFilterChange = { }
+    )
+}
+
+/**
+ * Preview of the filter row with an option selected to show Clear button.
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_FilterRowOptionSelected() {
+    FiltersRow(
+        filter = ContainerBrowserFilter(false),
         onFilterChange = { }
     )
 }
