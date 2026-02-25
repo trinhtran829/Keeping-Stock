@@ -98,61 +98,6 @@ fun ContainerBrowserScreen(
 }
 
 /**
- * The component between the header and the content, which allows the user to control the content
- * via searching, filtering, and display modes ([ContainerBrowserLayout])
- *
- * @param query: The string entered into the search bar
- * @param filter: The data class of filter settings currently in place to filter the results of
- *                the user search query.
- * @param sort: The sort mode currently selected by the user
- * @param layout: The user-selected display layout of the containers and items.
- * @param onIntent: The callback methods to be invoked on user-intent.
- */
-@Composable
-private fun ControlsBar(
-    query: String,
-    filter: ContainerBrowserFilter,
-    sort: ContainerBrowserSort,
-    layout: ContainerBrowserLayout,
-    onIntent: (ContainerBrowserIntent) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        // Search field
-        OutlinedTextField(
-            value = query,
-            onValueChange = { onIntent(ContainerBrowserIntent.QueryChange(it)) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            label = { Text("Search") },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search"
-                )
-            },
-            trailingIcon = {
-                if (query.isNotBlank()) {
-                    IconButton(
-                        onClick = { onIntent(ContainerBrowserIntent.ClearQuery) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = "Clear Search"
-                        )
-                    }
-                }
-            }
-        )
-    }
-}
-
-/**
  * Ready-state UI for the Container Browser. Does the heavy-lifting
  *
  * - Shows a small header with counts and an optional "Info" action.
@@ -258,6 +203,83 @@ private fun ContentHeader(
             }
         }
     }
+}
+
+/**
+ * The component between the header and the content, which allows the user to control the content
+ * via searching, filtering, and display modes ([ContainerBrowserLayout])
+ *
+ * @param query: The string entered into the search bar
+ * @param filter: The data class of filter settings currently in place to filter the results of
+ *                the user search query.
+ * @param sort: The sort mode currently selected by the user
+ * @param layout: The user-selected display layout of the containers and items.
+ * @param onIntent: The callback methods to be invoked on user-intent.
+ */
+@Composable
+private fun ControlsBar(
+    query: String,
+    filter: ContainerBrowserFilter,
+    sort: ContainerBrowserSort,
+    layout: ContainerBrowserLayout,
+    onIntent: (ContainerBrowserIntent) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .padding(bottom = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Search field
+        SearchField(
+            query = query,
+            onQueryChange = { onIntent(ContainerBrowserIntent.QueryChange(it)) },
+            onClearQuery = { onIntent(ContainerBrowserIntent.ClearQuery) }
+        )
+    }
+}
+
+/**
+ * Displays a single-line search input field with built-in clear functionality.
+ *
+ * @param query Current search query displayed in the field.
+ * @param onQueryChange Invoked whenever the user modifies the search text.
+ * @param onClearQuery Invoked when the user taps the clear button.
+ */
+@Composable
+private fun SearchField(
+    query: String,
+    label: String = "Search",
+    onQueryChange: (query: String) -> Unit,
+    onClearQuery: () -> Unit
+) {
+    // Search field
+    OutlinedTextField(
+        value = query,
+        onValueChange = { onQueryChange(it) },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        label = { Text(label) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search"
+            )
+        },
+        trailingIcon = {
+            if (query.isNotBlank()) {
+                IconButton(
+                    onClick = { onClearQuery() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Clear Search"
+                    )
+                }
+            }
+        }
+    )
 }
 
 /**
