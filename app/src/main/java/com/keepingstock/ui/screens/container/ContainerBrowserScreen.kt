@@ -386,36 +386,38 @@ private fun ItemStatusPickerChip(
         ItemStatus.TAKEN_OUT -> "Checked out"
     }
 
-    AssistChip(
-        onClick = { expanded = true },
-        label = { Text(label) }
-    )
+    Box() {
+        AssistChip(
+            onClick = { expanded = true },
+            label = { Text(label) }
+        )
 
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { }
-    ) {
-        DropdownMenuItem(
-            text = { Text("Any status") },
-            onClick = {
-                expanded = false
-                onStatusChange(null)
-            }
-        )
-        DropdownMenuItem(
-            text = { Text("Stored") },
-            onClick = {
-                expanded = false
-                onStatusChange(ItemStatus.STORED)
-            }
-        )
-        DropdownMenuItem(
-            text = { Text("Taken Out") },
-            onClick = {
-                expanded = false
-                onStatusChange(ItemStatus.TAKEN_OUT)
-            }
-        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Any status") },
+                onClick = {
+                    expanded = false
+                    onStatusChange(null)
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Stored") },
+                onClick = {
+                    expanded = false
+                    onStatusChange(ItemStatus.STORED)
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Taken Out") },
+                onClick = {
+                    expanded = false
+                    onStatusChange(ItemStatus.TAKEN_OUT)
+                }
+            )
+        }
     }
 }
 
