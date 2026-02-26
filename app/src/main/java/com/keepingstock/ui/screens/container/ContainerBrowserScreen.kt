@@ -442,7 +442,14 @@ private fun SortMenu(
     sort: ContainerBrowserSort,
     onSortChange: (ContainerBrowserSort) -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
 
+    val label = when (sort) {
+        ContainerBrowserSort.NAME_ASC -> "Name A-Z"
+        ContainerBrowserSort.NAME_DESC -> "Name Z-A"
+        ContainerBrowserSort.CREATED_NEWEST -> "Created (newest)"
+        ContainerBrowserSort.CREATED_OLDEST -> "Created (oldest)"
+    }
 }
 
 /**
@@ -455,7 +462,13 @@ private fun LayoutMenu(
     layout: ContainerBrowserLayout,
     onLayoutChange: (ContainerBrowserLayout) -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
 
+    val label = when (layout) {
+        ContainerBrowserLayout.LIST -> "List"
+        ContainerBrowserLayout.GRID -> "Grid"
+        ContainerBrowserLayout.COMPACT -> "Compact"
+    }
 }
 
 /**
