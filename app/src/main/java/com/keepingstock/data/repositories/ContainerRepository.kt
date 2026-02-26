@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ContainerRepository {
     /**
-     * Create
+     * Create a container.
      * createdDate will be autofill, user do not need to select a date.
      */
     suspend fun createContainer(
@@ -36,12 +36,16 @@ interface ContainerRepository {
     ): Container
 
     /**
-     * Update
+     * Update a container.
+     * only name, description, image, and parentContainerID are editable.
+     * Cycle validation is expected to be enforced by ViewModel.
      */
     suspend fun updateContainer(container: Container)
 
     /**
-     * Delete
+     * Delete a container.
+     * Rule: container must be empty (no child containers, no items)
+     * Throws [IllegalStateException] if container is not empty.
      */
     suspend fun deleteContainer(container: Container)
 
@@ -61,10 +65,11 @@ interface ContainerRepository {
     fun observeChildContainers(parentContainerId: ContainerId): Flow<List<Container>>
 
     /**
-     * Search child containers by name
+     * Search direct child containers by name
+     * If searching for root containers, pass in null as parentContainerId
      */
     fun searchChildContainers(
-        parentContainerId: ContainerId,
+        parentContainerId: ContainerId?,
         query: String
     ): Flow<List<Container>>
 }

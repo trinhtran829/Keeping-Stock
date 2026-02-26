@@ -54,6 +54,13 @@ interface ContainerDao {
     """ )
     suspend fun countChildContainers(currentContainerId: Long): Long
 
+    /* ---------- count items belong to a container ---------- */
+    @Query("""
+        SELECT COUNT(*) FROM items
+        WHERE containerId = :containerId
+    """ )
+    suspend fun countItemsInContainer(containerId: Long): Long
+
     /* ---------- search direct child containers by name ---------- */
     @Query("""
         SELECT * FROM containers
@@ -63,6 +70,16 @@ interface ContainerDao {
     """ )
     fun searchChildContainers(
         currentContainerId: Long,
+        query: String
+    ): Flow<List<ContainerEntity>>
+
+    /* ---------- search containers by name ---------- */
+    @Query("""
+        SELECT * FROM containers
+        WHERE name LIKE '%' || :query || '%'
+        ORDER BY createdDate DESC
+    """ )
+    fun searchContainers(
         query: String
     ): Flow<List<ContainerEntity>>
 
