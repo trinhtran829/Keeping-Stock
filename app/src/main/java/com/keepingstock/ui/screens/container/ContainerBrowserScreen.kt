@@ -432,7 +432,10 @@ private fun ItemStatusPickerChip(
 /**
  * Displays the sorting and layout options available to the user
  *
- *
+ * @param sort: The currently selected sort options for the results
+ * @param layout: The currently selected display layout for the results.
+ * @param onSortChange: Invoked when the user selects a new sorting option
+ * @param onLayoutChange: Invoked when the user selects a new display layout.
  */
 @Composable
 private fun SortAndLayoutRow(
