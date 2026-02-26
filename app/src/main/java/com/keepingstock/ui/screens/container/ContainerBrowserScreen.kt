@@ -157,39 +157,39 @@ private fun ReadyContent(
         HorizontalDivider()
 
         // Empty state; not it's own state variant
-        if (uiState.emptyState != ContainerBrowserEmptyState.NONE) {
-            when (uiState.emptyState) {
-                ContainerBrowserEmptyState.EMPTY_CONTAINER -> {
-                    EmptyState(
-                        modifier = Modifier.fillMaxSize(),
-                        onAddContainer = { onAddContainer(uiState.containerId) },
-                        onAddItem = { onAddItem(uiState.containerId) }
-                    )
-                }
-
-                ContainerBrowserEmptyState.NO_RESULTS -> {
-                    NoResultsState(
-                        modifier = Modifier.fillMaxSize(),
-                        onClearQuery = { onIntent(ContainerBrowserIntent.ClearQuery) },
-                        onResetFilters = {
-                            onIntent(ContainerBrowserIntent.FilterChange(ContainerBrowserFilter()))
-                        },
-                    )
-                }
-
-                ContainerBrowserEmptyState.NONE -> Unit
+        when (uiState.emptyState) {
+            ContainerBrowserEmptyState.EMPTY_CONTAINER -> {
+                EmptyState(
+                    modifier = Modifier.fillMaxSize(),
+                    onAddContainer = { onAddContainer(uiState.containerId) },
+                    onAddItem = { onAddItem(uiState.containerId) }
+                )
+                return
             }
-        } else {
-            PopulatedStateContents(
-                subcontainers = uiState.subcontainers,
-                items = uiState.items,
-                containerId = uiState.containerId,
-                onAddContainer = onAddContainer,
-                onAddItem = onAddItem,
-                onOpenSubcontainer = onOpenSubcontainer,
-                onOpenItem = onOpenItem
-            )
+
+            ContainerBrowserEmptyState.NO_RESULTS -> {
+                NoResultsState(
+                    modifier = Modifier.fillMaxSize(),
+                    onClearQuery = { onIntent(ContainerBrowserIntent.ClearQuery) },
+                    onResetFilters = {
+                        onIntent(ContainerBrowserIntent.FilterChange(ContainerBrowserFilter()))
+                    },
+                )
+                return
+            }
+
+            ContainerBrowserEmptyState.NONE -> Unit
         }
+
+        PopulatedStateContents(
+            subcontainers = uiState.subcontainers,
+            items = uiState.items,
+            containerId = uiState.containerId,
+            onAddContainer = onAddContainer,
+            onAddItem = onAddItem,
+            onOpenSubcontainer = onOpenSubcontainer,
+            onOpenItem = onOpenItem
+        )
     }
 }
 
