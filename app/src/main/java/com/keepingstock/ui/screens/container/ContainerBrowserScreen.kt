@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ViewModule
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -531,6 +532,39 @@ private fun LayoutMenu(
         ContainerBrowserLayout.LIST -> "List"
         ContainerBrowserLayout.GRID -> "Grid"
         ContainerBrowserLayout.COMPACT -> "Compact"
+    }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        IconButton(
+            onClick = { expanded = true }
+        ) {
+            Icon(
+                imageVector = Icons.Default.ViewModule,
+                contentDescription = "Layout"
+            )
+        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("List") },
+                onClick = { expanded = false; onLayoutChange(ContainerBrowserLayout.LIST) }
+            )
+            DropdownMenuItem(
+                text = { Text("Grid") },
+                onClick = { expanded = false; onLayoutChange(ContainerBrowserLayout.GRID) }
+            )
+            DropdownMenuItem(
+                text = { Text("Compact") },
+                onClick = { expanded = false; onLayoutChange(ContainerBrowserLayout.COMPACT) }
+            )
+        }
     }
 }
 
