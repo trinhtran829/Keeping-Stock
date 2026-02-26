@@ -54,6 +54,13 @@ interface ContainerDao {
     """ )
     suspend fun countChildContainers(currentContainerId: Long): Long
 
+    /* ---------- count items belong to a container ---------- */
+    @Query("""
+        SELECT COUNT(*) FROM items
+        WHERE containerId = :containerId
+    """ )
+    suspend fun countItemsInContainer(containerId: Long): Long
+
     /* ---------- search direct child containers by name ---------- */
     @Query("""
         SELECT * FROM containers

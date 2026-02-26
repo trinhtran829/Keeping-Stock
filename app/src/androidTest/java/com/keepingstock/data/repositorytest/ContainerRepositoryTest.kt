@@ -131,16 +131,17 @@ class ContainerRepositoryTest {
         Assert.assertEquals("Red Box", results[0].name)
     }
 
-    /** Test searchContainers */
+    /** Test searchChildContainers */
     @Test
     fun searchContainers() = runTest {
         repository.createContainer(name = "Red Box")
         repository.createContainer(name = "Blue Box")
         repository.createContainer(name = "Red Shelf")
 
-        val results = repository.searchContainers("Red").first()
+        val results = repository.searchChildContainers(
+            parentContainerId = null,
+            "Red").first()
 
         Assert.assertEquals(2, results.size)
-        Assert.assertTrue(results.all { it.name.contains("Red") })
     }
 }

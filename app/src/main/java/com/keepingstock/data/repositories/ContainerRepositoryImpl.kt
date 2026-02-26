@@ -18,7 +18,7 @@ import java.util.Date
 
 class ContainerRepositoryImpl(private val containerDao: ContainerDao) : ContainerRepository {
     /**
-     * Create
+     * Create a container.
      * createdDate will be autofill, user do not need to select a date.
      */
     override suspend fun createContainer(
@@ -41,16 +41,26 @@ class ContainerRepositoryImpl(private val containerDao: ContainerDao) : Containe
     }
 
     /**
-     * Update
+     * Update a container.
+     * only name, description, image, and parentContainerID are editable.
+     * Cycle validation is expected to be enforced by ViewModel.
      */
     override suspend fun updateContainer(container: Container) {
         containerDao.update(container.toEntity())
     }
 
     /**
-     * Delete
+     * Delete a container.
+     * Rule: container must be empty (no child containers, no items)
+     * Throws [IllegalStateException] if container is not empty.
      */
     override suspend fun deleteContainer(container: Container) {
+        val childCount = containerDao.countChildContainers(container.id.value)
+        val itemCount = containerDao.countItemsInContainer(container.id.value)
+
+        if(childCount > 0 || itemCount > 0) {
+            throw IllegalStateException("Container is not empty")
+        }
         containerDao.delete(container.toEntity())
     }
 
@@ -80,23 +90,19 @@ class ContainerRepositoryImpl(private val containerDao: ContainerDao) : Containe
     }
 
     /**
-     * Search child containers by name
+     * Search direct child containers by name
+     * If searching for root containers, pass in null as parentContainerId
      */
     override fun searchChildContainers(
-        parentContainerId: ContainerId,
+        parentContainerId: ContainerId?,
         query: String
     ): Flow<List<Container>> {
-        return containerDao.searchChildContainers(parentContainerId.value, query)
-            .map { containerList -> containerList.map { it.toDomain() } }
-    }
-
-    /**
-     * Search containers by name
-     */
-    override fun searchContainers(
-        query: String
-    ): Flow<List<Container>> {
-        return containerDao.searchContainers(query)
-            .map { containerList -> containerList.map { it.toDomain() } }
+        if(parentContainerId == null) {
+            return containerDao.searchContainers(query)
+                .map { containerList -> containerList.map { it.toDomain() } }
+        } else {
+            return containerDao.searchChildContainers(parentContainerId.value, query)
+                .map { containerList -> containerList.map { it.toDomain() } }
+        }
     }
 }
