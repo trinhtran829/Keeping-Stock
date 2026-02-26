@@ -78,7 +78,7 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
          * TODO(REMOVE): Demo-only state toggle.
          */
         var demoMode by rememberSaveable(containerId?.value) { // key per container
-            mutableStateOf(DemoMode.POPULATED)
+            mutableStateOf(DemoMode.READY)
         }
 
         /*
@@ -92,7 +92,7 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
                 DemoMode.ERROR ->
                     ContainerBrowserUiState.Error("Demo error loading container.")
                 DemoMode.EMPTY ->
-                    demoContainerBrowserReadyState(containerId, empty = true, noResults = true)
+                    demoContainerBrowserReadyState(containerId, empty = true, noResults = false)
                 DemoMode.POPULATED ->
                     demoContainerBrowserReadyState(containerId, empty = false, noResults = true)
                 DemoMode.READY ->
@@ -226,8 +226,12 @@ private fun demoContainerBrowserReadyState(
             items = emptyList(),
             visibleSubcontainers = emptyList(),
             visibleItems = emptyList(),
-            query = "",
-            filter = ContainerBrowserFilter(),
+            query = if (noResults) "DEMO SEARCH TERM" else "",
+            filter = if (noResults) {
+                ContainerBrowserFilter(includeItems = false)
+            } else {
+                ContainerBrowserFilter()
+            },
             sort = ContainerBrowserSort.NAME_DESC,
             layout = ContainerBrowserLayout.LIST,
             emptyState = if (empty) {

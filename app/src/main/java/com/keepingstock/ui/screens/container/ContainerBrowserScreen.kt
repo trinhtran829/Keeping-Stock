@@ -671,8 +671,8 @@ private fun NoResultsState(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                OutlinedButton(onClick = onClearQuery) { Text("Clear search") }
-                Button(onClick = onResetFilters) { Text("Reset filters") }
+                Button(onClick = onClearQuery) { Text("Clear search") }
+                OutlinedButton(onClick = onResetFilters) { Text("Reset filters") }
             }
         }
     }
