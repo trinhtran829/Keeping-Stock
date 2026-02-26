@@ -461,7 +461,8 @@ private fun SortAndLayoutRow(
 /**
  * Displays the sorting menu.
  *
- *
+ * @param sort: The currently selected sort options for the results
+ * @param onSortChange: Invoked when the user selects a new sorting option
  */
 @Composable
 private fun SortMenu(
@@ -519,7 +520,8 @@ private fun SortMenu(
 /**
  * Displays the layout menu.
  *
- *
+ * @param layout: The currently selected display layout for the results.
+ * @param onLayoutChange: Invoked when the user selects a new display layout.
  */
 @Composable
 private fun LayoutMenu(
