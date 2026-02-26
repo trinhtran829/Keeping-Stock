@@ -401,7 +401,7 @@ private fun ItemStatusPickerChip(
 
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { }
+            onDismissRequest = { expanded = false }
         ) {
             DropdownMenuItem(
                 text = { Text("Any status") },
@@ -476,7 +476,7 @@ private fun SortMenu(
         ContainerBrowserSort.CREATED_OLDEST -> "Created (oldest)"
     }
 
-    Box() {
+    Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(
             onClick = { expanded = true }
         ) {
