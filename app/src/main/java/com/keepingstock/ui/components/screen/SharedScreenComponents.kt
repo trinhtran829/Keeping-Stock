@@ -1,14 +1,18 @@
 package com.keepingstock.ui.components.screen
 
 import android.R.attr.label
+import android.R.attr.onClick
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.CircularProgressIndicator
@@ -20,11 +24,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
+import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.thumbnail.ContainerThumbnail
 import com.keepingstock.ui.components.thumbnail.ItemThumbnail
+import java.util.Date
 
 /**
  * Generic LoadingState UI. Just uses a basic CircularProgressIndicator
@@ -214,4 +223,137 @@ fun ItemSummaryRow(
             }
         }
     }
+}
+
+@Composable
+private fun ContainerTile(
+    container: Container,
+    onClick: () -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            // Thumbnail at top
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1.8f),
+                contentAlignment = Alignment.Center
+            ) {
+                // Reuse thumbnail
+                ContainerThumbnail(
+                    imagePath = container.imageUri,
+                    modifier = Modifier.size(48.dp)
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = container.name,
+                style = MaterialTheme.typography.titleSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            container.description?.takeIf { it.isNotBlank() }?.let {
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ItemTile(
+    item: Item,
+    onClick: () -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1.8f),
+                contentAlignment = Alignment.Center
+            ) {
+                ItemThumbnail(
+                    imagePath = item.imageUri,
+                    modifier = Modifier.size(48.dp)
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = item.name,
+                style = MaterialTheme.typography.titleSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            // Subtitle for grid
+            val subtitle = buildString {
+                append(item.status.name)
+                if (!item.description.isNullOrBlank()) {
+                    append(" • ")
+                    append(item.description)
+                }
+            }
+
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun Preview_ContainerTile() {
+    ContainerTile(
+        container = Container(
+            id = ContainerId(1L),
+            name = "Garage",
+            description = "The location we store our tools and garden supplies. When there's " +
+                    "hail, we also store our cars here",
+            imageUri = "demo",
+            parentContainerId = null,
+            createdDate = Date()
+        ),
+        onClick = { }
+    )
+}
+
+@Preview
+@Composable
+private fun Preview_ItemTile() {
+    ItemTile(
+        item = Item(
+            id = ItemId(101L),
+            name = "Impact Driver",
+            description = "18V brushless",
+            containerId = ContainerId(1L),
+            status = ItemStatus.STORED
+        ),
+        onClick = { }
+    )
 }
