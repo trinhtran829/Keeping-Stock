@@ -807,10 +807,8 @@ private fun ListContents(
 }
 
 /**
- * Displays container and item results using a responsive grid layout.
- *
- * Uses LazyVerticalGrid with adaptive columns. Section headers span the full grid width,
- * and individual entries are rendered as tiles.
+ * Displays container and item results using a responsive grid layout. individual entries are
+ * rendered as tiles.
  *
  * @param visibleSubcontainers Subcontainers to display.
  * @param visibleItems Items to display.
@@ -846,7 +844,7 @@ private fun GridContents(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Containers header - full span
+        // Containers header
         item(
             span = { GridItemSpan(maxLineSpan) }
         ) {
@@ -866,7 +864,7 @@ private fun GridContents(
             )
         }
 
-        // Items header - full span
+        // Items header
         item(
             span = { GridItemSpan(maxLineSpan) }
         ) {
