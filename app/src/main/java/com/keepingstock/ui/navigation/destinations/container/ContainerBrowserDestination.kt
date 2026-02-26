@@ -203,28 +203,30 @@ private fun demoContainerBrowserReadyState(
     empty: Boolean,
     noResults: Boolean
 ): ContainerBrowserUiState.Ready {
+    val subcontainers = listOf(
+        Container(
+            id = ContainerId(1L),
+            name = "Garage",
+            imageUri = "demo",
+            description = "Tools and hardware",
+            parentContainerId = null
+        ),
+        Container(
+            id = ContainerId(2L),
+            name = "Kitchen",
+            description = "Appliances and misc",
+            parentContainerId = null
+        ),
+    )
+
     // Simple demo data based on whether we're at root or inside a container.
     return if (containerId == null) {
         ContainerBrowserUiState.Ready(
             containerId = null,
             containerName = "All Containers",
-            subcontainers = if (empty) emptyList() else listOf(
-                Container(
-                    id = ContainerId(1L),
-                    name = "Garage",
-                    imageUri = "demo",
-                    description = "Tools and hardware",
-                    parentContainerId = null
-                ),
-                Container(
-                    id = ContainerId(2L),
-                    name = "Kitchen",
-                    description = "Appliances and misc",
-                    parentContainerId = null
-                ),
-            ),
+            subcontainers = if (empty) emptyList() else subcontainers,
             items = emptyList(),
-            visibleSubcontainers = emptyList(),
+            visibleSubcontainers = subcontainers,
             visibleItems = emptyList(),
             query = if (noResults) "DEMO SEARCH TERM" else "",
             filter = if (noResults) {

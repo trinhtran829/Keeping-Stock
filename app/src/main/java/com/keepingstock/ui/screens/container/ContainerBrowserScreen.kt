@@ -1,6 +1,5 @@
 package com.keepingstock.ui.screens.container
 
-import android.R.attr.onClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -182,8 +181,8 @@ private fun ReadyContent(
         }
 
         PopulatedStateContents(
-            subcontainers = uiState.subcontainers,
-            items = uiState.items,
+            visibleSubcontainers = uiState.visibleSubcontainers,
+            visibleItems = uiState.visibleItems,
             containerId = uiState.containerId,
             onAddContainer = onAddContainer,
             onAddItem = onAddItem,
@@ -684,8 +683,8 @@ private fun NoResultsState(
  * Displays two sections ("Containers" and "Items") with optional add actions and summary rows
  * for each visible entry.
  *
- * @param subcontainers List of visible subcontainers to display.
- * @param items List of visible items to display.
+ * @param visibleSubcontainers List of visible subcontainers to display.
+ * @param visibleItems List of visible items to display.
  * @param containerId ID of the currently displayed container, or null for root.
  * @param onAddContainer Callback for creating a new subcontainer.
  * @param onAddItem Callback for creating a new item.
@@ -694,8 +693,8 @@ private fun NoResultsState(
  */
 @Composable
 private fun PopulatedStateContents(
-    subcontainers: List<Container>,
-    items: List<Item>,
+    visibleSubcontainers: List<Container>,
+    visibleItems: List<Item>,
     containerId: ContainerId?,
     onAddContainer: (ContainerId?) -> Unit,
     onAddItem: (ContainerId?) -> Unit,
@@ -715,8 +714,8 @@ private fun PopulatedStateContents(
             )
         }
 
-        if (subcontainers.isNotEmpty()) {
-            items(subcontainers, key = { it.id.value }) { container ->
+        if (visibleSubcontainers.isNotEmpty()) {
+            items(visibleSubcontainers, key = { it.id.value }) { container ->
                 ContainerSummaryRow(
                     modifier = Modifier,
                     container = container,
@@ -734,8 +733,8 @@ private fun PopulatedStateContents(
             )
         }
 
-        if (items.isNotEmpty()) {
-            items(items, key = { it.id.value }) { item ->
+        if (visibleItems.isNotEmpty()) {
+            items(visibleItems, key = { it.id.value }) { item ->
                 ItemSummaryRow(
                     modifier = Modifier,
                     item = item,
