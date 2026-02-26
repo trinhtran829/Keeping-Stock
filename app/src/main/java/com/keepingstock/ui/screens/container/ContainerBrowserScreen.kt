@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Info
@@ -56,7 +57,6 @@ import com.keepingstock.ui.components.screen.ContainerSummaryRow
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.LoadingContent
-import java.util.logging.Filter
 
 /**
  * Screen for browsing container contents. Render based on ContainerBrowserUiState.
@@ -259,6 +259,13 @@ private fun ControlsBar(
             filter = filter,
             onFilterChange = { onIntent(ContainerBrowserIntent.FilterChange(it)) }
         )
+
+        SortAndLayoutRow(
+            sort = sort,
+            layout = layout,
+            onSortChange = { onIntent(ContainerBrowserIntent.SortChange(it)) },
+            onLayoutChange = { onIntent(ContainerBrowserIntent.LayoutChange(it)) }
+        )
     }
 }
 
@@ -438,7 +445,15 @@ private fun SortAndLayoutRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        SortMenu(
+            sort = sort,
+            onSortChange = onSortChange
+        )
 
+        LayoutMenu(
+            layout = layout,
+            onLayoutChange = onLayoutChange
+        )
     }
 }
 
@@ -459,6 +474,44 @@ private fun SortMenu(
         ContainerBrowserSort.NAME_DESC -> "Name Z-A"
         ContainerBrowserSort.CREATED_NEWEST -> "Created (newest)"
         ContainerBrowserSort.CREATED_OLDEST -> "Created (oldest)"
+    }
+
+    Box() {
+        IconButton(
+            onClick = { expanded = true }
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.Sort,
+                contentDescription = "Sort"
+            )
+        }
+
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Name (A–Z)") },
+                onClick = { expanded = false; onSortChange(ContainerBrowserSort.NAME_ASC) }
+            )
+            DropdownMenuItem(
+                text = { Text("Name (Z–A)") },
+                onClick = { expanded = false; onSortChange(ContainerBrowserSort.NAME_DESC) }
+            )
+            DropdownMenuItem(
+                text = { Text("Created (newest)") },
+                onClick = { expanded = false; onSortChange(ContainerBrowserSort.CREATED_NEWEST) }
+            )
+            DropdownMenuItem(
+                text = { Text("Created (oldest)") },
+                onClick = { expanded = false; onSortChange(ContainerBrowserSort.CREATED_OLDEST) }
+            )
+        }
     }
 }
 
