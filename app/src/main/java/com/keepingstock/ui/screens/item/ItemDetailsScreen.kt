@@ -111,7 +111,7 @@ private fun ReadyContent(
 
         item {
             ItemDetailActionsCard(
-                itemId = uiState.itemId,
+                itemId = uiState.item.id,
                 onBack = onBack,
                 onEdit = onEdit,
                 onMove = onMove,
@@ -244,7 +244,7 @@ private fun ItemDetailMetadataCard(
         ) {
             DetailRow(
                 label = "Item ID",
-                value = uiState.itemId.value.toString()
+                value = uiState.item.id.value.toString()
             )
 
             DetailRow(

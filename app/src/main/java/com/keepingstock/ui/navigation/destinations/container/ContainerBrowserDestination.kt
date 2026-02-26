@@ -19,6 +19,10 @@ import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
+import com.keepingstock.core.contracts.intents.container.ContainerBrowserFilter
+import com.keepingstock.core.contracts.intents.container.ContainerBrowserLayout
+import com.keepingstock.core.contracts.intents.container.ContainerBrowserSort
+import com.keepingstock.core.contracts.uistates.container.ContainerBrowserEmptyState
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.navigation.NavDeps
@@ -214,43 +218,61 @@ private fun demoContainerBrowserReadyState(
                     parentContainerId = null
                 ),
             ),
-            items = emptyList()
+            items = emptyList(),
+            visibleSubcontainers = emptyList(),
+            visibleItems = emptyList(),
+            query = "",
+            filter = ContainerBrowserFilter(),
+            sort = ContainerBrowserSort.NAME_DESC,
+            layout = ContainerBrowserLayout.LIST,
+            emptyState = ContainerBrowserEmptyState.NONE
         )
     } else {
+        val items = if (empty) emptyList() else listOf(
+            Item(
+                id = ItemId(containerId.value * 100 + 1),
+                name = "Impact Driver",
+                description = "18V brushless",
+                containerId = containerId,
+                status = ItemStatus.STORED
+            ),
+            Item(
+                id = ItemId(containerId.value * 100 + 2),
+                name = "Reciprocating Saw",
+                description = "Corded",
+                containerId = containerId,
+                status = ItemStatus.STORED
+            )
+        )
+
+        val subcontainers = if (empty) emptyList() else listOf(
+            Container(
+                id = ContainerId(containerId.value * 10 + 1),
+                name = "Subcontainer A",
+                description = "Example subcontainer",
+                parentContainerId = containerId
+            ),
+            Container(
+                id = ContainerId(containerId.value * 10 + 2),
+                name = "Subcontainer B",
+                imageUri = "demo2",
+                description = "Another subcontainer",
+                parentContainerId = containerId
+            )
+        )
+
         ContainerBrowserUiState.Ready(
             containerId = containerId,
             containerName = "Container ${containerId.value}",
-            subcontainers = if (empty) emptyList() else listOf(
-                Container(
-                    id = ContainerId(containerId.value * 10 + 1),
-                    name = "Subcontainer A",
-                    description = "Example subcontainer",
-                    parentContainerId = containerId
-                ),
-                Container(
-                    id = ContainerId(containerId.value * 10 + 2),
-                    name = "Subcontainer B",
-                    imageUri = "demo2",
-                    description = "Another subcontainer",
-                    parentContainerId = containerId
-                )
-            ),
-            items = if (empty) emptyList() else listOf(
-                Item(
-                    id = ItemId(containerId.value * 100 + 1),
-                    name = "Impact Driver",
-                    description = "18V brushless",
-                    containerId = containerId,
-                    status = ItemStatus.STORED
-                ),
-                Item(
-                    id = ItemId(containerId.value * 100 + 2),
-                    name = "Reciprocating Saw",
-                    description = "Corded",
-                    containerId = containerId,
-                    status = ItemStatus.STORED
-                ),
-            )
+            subcontainers = subcontainers,
+            items = items,
+            visibleItems = items,
+            visibleSubcontainers = subcontainers,
+            query = "",
+            filter = ContainerBrowserFilter(),
+            sort = ContainerBrowserSort.NAME_DESC,
+            layout = ContainerBrowserLayout.LIST,
+            emptyState = ContainerBrowserEmptyState.NONE
         )
     }
 }

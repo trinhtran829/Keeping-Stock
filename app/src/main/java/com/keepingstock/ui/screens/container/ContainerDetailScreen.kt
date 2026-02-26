@@ -122,7 +122,7 @@ private fun ReadyContent(
 
         item {
             ContainerDetailActionsCard(
-                containerId = uiState.containerId,
+                containerId = uiState.container.id,
                 canDelete = uiState.canDelete,
                 onBack = onBack,
                 onEdit = onEdit,
@@ -255,7 +255,7 @@ private fun ContainerDetailMetadataCard(
         ) {
             DetailRow(
                 label = "Container ID",
-                value = uiState.containerId.value.toString()
+                value = uiState.container.id.value.toString()
             )
 
             DetailRow(

@@ -25,6 +25,7 @@ import com.keepingstock.ui.screens.container.ContainerDetailScreen
 import com.keepingstock.ui.components.navigation.ChipOption
 import com.keepingstock.ui.components.navigation.DemoMode
 import com.keepingstock.ui.components.navigation.DemoModeToggleRow
+import java.util.Date
 
 internal fun NavGraphBuilder.addContainerDetailsDestination(
     deps: NavDeps
@@ -112,7 +113,6 @@ private fun containerDetailTopBarConfig(uiState: ContainerDetailUiState): TopBar
  */
 private fun demoContainerDetailReadyState(containerId: ContainerId): ContainerDetailUiState.Ready {
     return ContainerDetailUiState.Ready(
-        containerId = containerId,
         container = Container(
             id = containerId,
             name = "Container ${containerId.value}",

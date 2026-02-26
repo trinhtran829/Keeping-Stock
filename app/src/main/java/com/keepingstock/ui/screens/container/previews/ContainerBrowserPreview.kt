@@ -6,6 +6,10 @@ import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.intents.container.ContainerBrowserFilter
+import com.keepingstock.core.contracts.intents.container.ContainerBrowserLayout
+import com.keepingstock.core.contracts.intents.container.ContainerBrowserSort
+import com.keepingstock.core.contracts.uistates.container.ContainerBrowserEmptyState
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
@@ -36,10 +40,17 @@ private fun Preview_ContainerBrowser_EmptyReady() {
     ContainerBrowserScreen(
         uiState = ContainerBrowserUiState.Ready(
             containerId = ContainerId(1L),
-                containerName = "Garage",
-                subcontainers = emptyList(),
-                items = emptyList()
-            )
+            containerName = "Garage",
+            subcontainers = emptyList(),
+            items = emptyList(),
+            visibleSubcontainers = emptyList(),
+            visibleItems = emptyList(),
+            query = "",
+            filter = ContainerBrowserFilter(),
+            sort = ContainerBrowserSort.NAME_DESC,
+            layout = ContainerBrowserLayout.LIST,
+            emptyState = ContainerBrowserEmptyState.EMPTY_CONTAINER
+        )
     )
 }
 
@@ -90,7 +101,14 @@ private fun Preview_ContainerBrowser_PopulatedReady() {
             containerId = ContainerId(1L),
             containerName = "Garage",
             subcontainers = subcontainers,
-            items = items
+            items = items,
+            visibleSubcontainers = subcontainers,
+            visibleItems = items,
+            query = "",
+            filter = ContainerBrowserFilter(),
+            sort = ContainerBrowserSort.NAME_DESC,
+            layout = ContainerBrowserLayout.LIST,
+            emptyState = ContainerBrowserEmptyState.NONE
         )
     )
 }

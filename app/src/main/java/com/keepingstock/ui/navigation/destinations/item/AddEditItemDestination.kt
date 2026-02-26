@@ -18,7 +18,7 @@ import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.Tag
 import com.keepingstock.core.contracts.TagId
-import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
+import com.keepingstock.core.contracts.intents.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.navigation.ChipOption

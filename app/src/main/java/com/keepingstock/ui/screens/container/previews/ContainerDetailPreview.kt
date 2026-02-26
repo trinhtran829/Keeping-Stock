@@ -7,6 +7,7 @@ import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
 import com.keepingstock.ui.screens.container.ContainerDetailScreen
+import java.util.Date
 
 /**
  * Provides previews for each UI State of the ContainerDetailScreen.
@@ -48,7 +49,6 @@ private fun Preview_ContainerDetail_Ready_CanDelete() {
     val containerId = ContainerId(1L)
     ContainerDetailScreen(
         uiState = ContainerDetailUiState.Ready(
-            containerId = containerId,
             container = Container(
                 id = containerId,
                 name = "Garage",
@@ -81,7 +81,6 @@ private fun Preview_ContainerDetail_Ready_DeleteBlocked() {
     val containerId = ContainerId(10L)
     ContainerDetailScreen(
         uiState = ContainerDetailUiState.Ready(
-            containerId = ContainerId(10L),
             container = Container(
                 id = containerId,
                 name = "Tool Chest Main",
