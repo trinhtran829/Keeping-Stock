@@ -2,6 +2,7 @@ package com.keepingstock.ui.components.screen
 
 import android.R.attr.label
 import android.R.attr.onClick
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -403,21 +404,34 @@ fun ItemCompactRow(
 
             Spacer(Modifier.width(10.dp))
 
-            Column(
-                Modifier.weight(1f)
+            Row (
+                Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = item.name,
                     style = MaterialTheme.typography.bodyLarge,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
                 )
+
+                // Vertical divider
+                Spacer(Modifier.width(8.dp))
+
+                Box(
+                    modifier = Modifier
+                        .height(16.dp)
+                        .width(1.dp)
+                        .background(MaterialTheme.colorScheme.outlineVariant)
+                )
+
+                Spacer(Modifier.width(8.dp))
 
                 Text(
                     text = item.status.name,
                     style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    maxLines = 1
                 )
             }
         }

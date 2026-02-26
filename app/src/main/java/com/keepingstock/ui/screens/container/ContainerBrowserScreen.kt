@@ -960,7 +960,7 @@ private fun CompactContents(
             )
         }
 
-        item { Spacer(Modifier.height(72.dp)) }
+        item { Spacer(Modifier.height(16.dp)) }
     }
 }
 
