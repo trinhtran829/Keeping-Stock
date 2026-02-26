@@ -158,11 +158,27 @@ private fun ReadyContent(
 
         // Empty state; not it's own state variant
         if (uiState.emptyState != ContainerBrowserEmptyState.NONE) {
-            EmptyState(
-                modifier = Modifier.fillMaxSize(),
-                onAddContainer = { onAddContainer(uiState.containerId) },
-                onAddItem = { onAddItem(uiState.containerId) }
-            )
+            when (uiState.emptyState) {
+                ContainerBrowserEmptyState.EMPTY_CONTAINER -> {
+                    EmptyState(
+                        modifier = Modifier.fillMaxSize(),
+                        onAddContainer = { onAddContainer(uiState.containerId) },
+                        onAddItem = { onAddItem(uiState.containerId) }
+                    )
+                }
+
+                ContainerBrowserEmptyState.NO_RESULTS -> {
+                    NoResultsState(
+                        modifier = Modifier.fillMaxSize(),
+                        onClearQuery = { onIntent(ContainerBrowserIntent.ClearQuery) },
+                        onResetFilters = {
+                            onIntent(ContainerBrowserIntent.FilterChange(ContainerBrowserFilter()))
+                        },
+                    )
+                }
+
+                ContainerBrowserEmptyState.NONE -> Unit
+            }
         } else {
             PopulatedStateContents(
                 subcontainers = uiState.subcontainers,
@@ -249,7 +265,6 @@ private fun ControlsBar(
             .padding(bottom = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Search field
         SearchField(
             query = query,
             onQueryChange = { onIntent(ContainerBrowserIntent.QueryChange(it)) },
@@ -615,6 +630,23 @@ private fun EmptyState(
             }
         }
     }
+}
+
+/**
+ * Empty state UI to show when the container has subcontainers and/or items, but none match the
+ * provided filter / query settings.
+ *
+ * @param modifier: Optional modifier for the screen container.
+ * @param onClearQuery Invoked when the user intends to clear the search field's query.
+ * @param onResetFilters: Invoked when the user intends to clear the current filter settings
+ */
+@Composable
+private fun NoResultsState(
+    modifier: Modifier,
+    onClearQuery: () -> Unit,
+    onResetFilters: () -> Unit
+) {
+
 }
 
 /**
