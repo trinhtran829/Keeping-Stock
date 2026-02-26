@@ -145,6 +145,14 @@ private fun ReadyContent(
             containerId = uiState.containerId
         )
 
+        ControlsBar(
+            query = uiState.query,
+            filter = uiState.filter,
+            sort = uiState.sort,
+            layout = uiState.layout,
+            onIntent = onIntent,
+        )
+
         HorizontalDivider()
 
         // Empty state; not it's own state variant
