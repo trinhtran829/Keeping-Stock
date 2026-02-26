@@ -208,7 +208,7 @@ private fun demoContainerBrowserReadyState(
             id = ContainerId(1L),
             name = "Garage",
             imageUri = "demo",
-            description = "Tools and hardware",
+            description = "Tools and hardware. Tools and hardware. Tools and hardware. Tools and hardware. Tools and hardware.",
             parentContainerId = null
         ),
         Container(
@@ -235,7 +235,7 @@ private fun demoContainerBrowserReadyState(
                 ContainerBrowserFilter()
             },
             sort = ContainerBrowserSort.NAME_DESC,
-            layout = ContainerBrowserLayout.LIST,
+            layout = ContainerBrowserLayout.GRID,
             emptyState = if (empty) {
                 ContainerBrowserEmptyState.EMPTY_CONTAINER
             } else if (noResults) {
@@ -288,7 +288,7 @@ private fun demoContainerBrowserReadyState(
             query = "",
             filter = ContainerBrowserFilter(),
             sort = ContainerBrowserSort.NAME_DESC,
-            layout = ContainerBrowserLayout.LIST,
+            layout = ContainerBrowserLayout.GRID,
             emptyState = ContainerBrowserEmptyState.NONE
         )
     }

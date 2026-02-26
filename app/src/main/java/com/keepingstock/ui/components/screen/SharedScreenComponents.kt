@@ -226,7 +226,7 @@ fun ItemSummaryRow(
 }
 
 @Composable
-private fun ContainerTile(
+fun ContainerTile(
     container: Container,
     onClick: () -> Unit
 ) {
@@ -235,7 +235,7 @@ private fun ContainerTile(
             .fillMaxWidth()
             .clickable(onClick = onClick)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(8.dp)) {
             // Thumbnail at top
             Box(
                 modifier = Modifier
@@ -255,7 +255,7 @@ private fun ContainerTile(
             Text(
                 text = container.name,
                 style = MaterialTheme.typography.titleSmall,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
 
@@ -264,7 +264,7 @@ private fun ContainerTile(
                 Text(
                     text = it,
                     style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
@@ -273,7 +273,7 @@ private fun ContainerTile(
 }
 
 @Composable
-private fun ItemTile(
+fun ItemTile(
     item: Item,
     onClick: () -> Unit
 ) {
@@ -283,7 +283,7 @@ private fun ItemTile(
             .clickable(onClick = onClick)
     ) {
         Column(
-            modifier = Modifier.padding(12.dp)
+            modifier = Modifier.padding(8.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -302,7 +302,7 @@ private fun ItemTile(
             Text(
                 text = item.name,
                 style = MaterialTheme.typography.titleSmall,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
 
@@ -319,7 +319,7 @@ private fun ItemTile(
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                maxLines = 2,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
