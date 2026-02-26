@@ -181,6 +181,7 @@ private fun ReadyContent(
         }
 
         PopulatedStateContents(
+            layout = uiState.layout,
             visibleSubcontainers = uiState.visibleSubcontainers,
             visibleItems = uiState.visibleItems,
             containerId = uiState.containerId,
@@ -693,6 +694,47 @@ private fun NoResultsState(
  */
 @Composable
 private fun PopulatedStateContents(
+    layout: ContainerBrowserLayout,
+    visibleSubcontainers: List<Container>,
+    visibleItems: List<Item>,
+    containerId: ContainerId?,
+    onAddContainer: (ContainerId?) -> Unit,
+    onAddItem: (ContainerId?) -> Unit,
+    onOpenSubcontainer: (ContainerId) -> Unit,
+    onOpenItem: (ItemId) -> Unit
+) {
+    when (layout) {
+        ContainerBrowserLayout.LIST ->
+            ListContents(
+                visibleSubcontainers = visibleSubcontainers,
+                visibleItems = visibleItems,
+                containerId = containerId,
+                onAddContainer = onAddContainer,
+                onAddItem = onAddItem,
+                onOpenSubcontainer = onOpenSubcontainer,
+                onOpenItem = onOpenItem
+            )
+
+        ContainerBrowserLayout.GRID -> { }
+
+        ContainerBrowserLayout.COMPACT -> { }
+    }
+}
+
+/**
+ * Displays container and item results in a basic vertical list layout. This layout uses summary
+ * row components for both containers and items.
+ *
+ * @param visibleSubcontainers Subcontainers to display.
+ * @param visibleItems Items to display.
+ * @param containerId ID of the current container, or null if root.
+ * @param onAddContainer Callback for adding a subcontainer.
+ * @param onAddItem Callback for adding an item.
+ * @param onOpenSubcontainer Invoked when a subcontainer row is selected.
+ * @param onOpenItem Invoked when an item row is selected.
+ */
+@Composable
+private fun ListContents(
     visibleSubcontainers: List<Container>,
     visibleItems: List<Item>,
     containerId: ContainerId?,
@@ -742,9 +784,6 @@ private fun PopulatedStateContents(
                 )
             }
         }
-
-        // breathing room above bottom bar
-        item { Spacer(Modifier.height(72.dp)) }
     }
 }
 
