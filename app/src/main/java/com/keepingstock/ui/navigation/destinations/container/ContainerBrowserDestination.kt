@@ -235,7 +235,7 @@ private fun demoContainerBrowserReadyState(
                 ContainerBrowserFilter()
             },
             sort = ContainerBrowserSort.NAME_DESC,
-            layout = ContainerBrowserLayout.GRID,
+            layout = ContainerBrowserLayout.COMPACT,
             emptyState = if (empty) {
                 ContainerBrowserEmptyState.EMPTY_CONTAINER
             } else if (noResults) {
@@ -288,7 +288,7 @@ private fun demoContainerBrowserReadyState(
             query = "",
             filter = ContainerBrowserFilter(),
             sort = ContainerBrowserSort.NAME_DESC,
-            layout = ContainerBrowserLayout.GRID,
+            layout = ContainerBrowserLayout.COMPACT,
             emptyState = ContainerBrowserEmptyState.NONE
         )
     }

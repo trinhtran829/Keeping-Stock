@@ -60,9 +60,11 @@ import com.keepingstock.core.contracts.intents.container.ContainerBrowserSort
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserEmptyState
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.ui.components.screen.ContainerCompactRow
 import com.keepingstock.ui.components.screen.ContainerSummaryRow
 import com.keepingstock.ui.components.screen.ContainerTile
 import com.keepingstock.ui.components.screen.ErrorContent
+import com.keepingstock.ui.components.screen.ItemCompactRow
 import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.ItemTile
 import com.keepingstock.ui.components.screen.LoadingContent
@@ -736,7 +738,17 @@ private fun PopulatedStateContents(
             )
         }
 
-        ContainerBrowserLayout.COMPACT -> { }
+        ContainerBrowserLayout.COMPACT -> {
+            CompactContents(
+                visibleSubcontainers = visibleSubcontainers,
+                visibleItems = visibleItems,
+                containerId = containerId,
+                onAddContainer = onAddContainer,
+                onAddItem = onAddItem,
+                onOpenSubcontainer = onOpenSubcontainer,
+                onOpenItem = onOpenItem
+            )
+        }
     }
 }
 
@@ -889,6 +901,66 @@ private fun GridContents(
                 onClick = { onOpenItem(item.id) }
             )
         }
+    }
+}
+
+/**
+ * Displays container and item results in a denser, compact list layout.
+ *
+ * @param visibleSubcontainers Subcontainers to display.
+ * @param visibleItems Items to display.
+ * @param containerId ID of the current container, or null if root.
+ * @param onAddContainer Callback for adding a subcontainer.
+ * @param onAddItem Callback for adding an item.
+ * @param onOpenSubcontainer Invoked when a subcontainer row is selected.
+ * @param onOpenItem Invoked when an item row is selected.
+ */
+@Composable
+private fun CompactContents(
+    visibleSubcontainers: List<Container>,
+    visibleItems: List<Item>,
+    containerId: ContainerId?,
+    onAddContainer: (ContainerId?) -> Unit,
+    onAddItem: (ContainerId?) -> Unit,
+    onOpenSubcontainer: (ContainerId) -> Unit,
+    onOpenItem: (ItemId) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        item {
+            SectionHeader(
+                sectionTitle = "Containers",
+                onAdd = { onAddContainer(containerId) }
+            )
+        }
+
+        items(visibleSubcontainers, key = { it.id.value }) { c ->
+            ContainerCompactRow (
+                container = c,
+                onClick = { onOpenSubcontainer(c.id) }
+            )
+        }
+
+        item { Spacer(Modifier.height(6.dp)) }
+
+        item {
+            SectionHeader(
+                sectionTitle = "Items",
+                onAdd = { onAddItem(containerId) }
+            )
+        }
+
+        items(visibleItems, key = { it.id.value }) { i ->
+            ItemCompactRow(
+                item = i,
+                onClick = { onOpenItem(i.id) }
+            )
+        }
+
+        item { Spacer(Modifier.height(72.dp)) }
     }
 }
 

@@ -345,7 +345,7 @@ fun ItemTile(
  * @param onClick Invoked when the row is selected.
  */
 @Composable
-private fun ContainerCompactRow(
+fun ContainerCompactRow(
     container: Container,
     onClick: () -> Unit
 ) {
@@ -383,7 +383,7 @@ private fun ContainerCompactRow(
  * @param onClick Invoked when the row is selected.
  */
 @Composable
-private fun ItemCompactRow(
+fun ItemCompactRow(
     item: Item,
     onClick: () -> Unit
 ) {
