@@ -91,9 +91,12 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
                 DemoMode.LOADING -> ContainerBrowserUiState.Loading
                 DemoMode.ERROR ->
                     ContainerBrowserUiState.Error("Demo error loading container.")
-                DemoMode.EMPTY -> demoContainerBrowserReadyState(containerId, empty = true)
-                DemoMode.POPULATED, DemoMode.READY ->
-                    demoContainerBrowserReadyState(containerId, empty = false)
+                DemoMode.EMPTY ->
+                    demoContainerBrowserReadyState(containerId, empty = true, noResults = true)
+                DemoMode.POPULATED ->
+                    demoContainerBrowserReadyState(containerId, empty = false, noResults = true)
+                DemoMode.READY ->
+                    demoContainerBrowserReadyState(containerId, empty = false, noResults = false)
             }
         }
 
@@ -120,8 +123,9 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
                 title = "Select demo mode:",
                 selected = demoMode,
                 options = listOf (
-                    ChipOption(DemoMode.POPULATED, "Populated"),
+                    ChipOption(DemoMode.READY, "Ready"),
                     ChipOption(DemoMode.EMPTY, "Empty"),
+                    ChipOption(DemoMode.POPULATED, "No Results"),
                     ChipOption(DemoMode.LOADING, "Loading"),
                     ChipOption(DemoMode.ERROR, "Error")
                 ),
@@ -196,7 +200,8 @@ private fun containerBrowserTopBarConfig(uiState: ContainerBrowserUiState): TopB
 
 private fun demoContainerBrowserReadyState(
     containerId: ContainerId?,
-    empty: Boolean
+    empty: Boolean,
+    noResults: Boolean
 ): ContainerBrowserUiState.Ready {
     // Simple demo data based on whether we're at root or inside a container.
     return if (containerId == null) {
@@ -225,7 +230,13 @@ private fun demoContainerBrowserReadyState(
             filter = ContainerBrowserFilter(),
             sort = ContainerBrowserSort.NAME_DESC,
             layout = ContainerBrowserLayout.LIST,
-            emptyState = ContainerBrowserEmptyState.NONE
+            emptyState = if (empty) {
+                ContainerBrowserEmptyState.EMPTY_CONTAINER
+            } else if (noResults) {
+                ContainerBrowserEmptyState.NO_RESULTS
+            } else {
+                ContainerBrowserEmptyState.NONE
+            }
         )
     } else {
         val items = if (empty) emptyList() else listOf(
