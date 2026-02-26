@@ -339,6 +339,92 @@ fun ItemTile(
 }
 
 /**
+ * Compact row representation of a container.
+ *
+ * @param container The container model to render.
+ * @param onClick Invoked when the row is selected.
+ */
+@Composable
+private fun ContainerCompactRow(
+    container: Container,
+    onClick: () -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .clickable(onClick = onClick)
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ContainerThumbnail(
+                imagePath = container.imageUri,
+                modifier = Modifier.size(24.dp)
+            )
+
+            Spacer(Modifier.width(10.dp))
+
+            Text(
+                text = container.name,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+/**
+ * Compact row representation of an item.
+ *
+ * @param item The item model to render.
+ * @param onClick Invoked when the row is selected.
+ */
+@Composable
+private fun ItemCompactRow(
+    item: Item,
+    onClick: () -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .clickable(onClick = onClick)
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ItemThumbnail(
+                imagePath = item.imageUri,
+                modifier = Modifier.size(24.dp)
+            )
+
+            Spacer(Modifier.width(10.dp))
+
+            Column(
+                Modifier.weight(1f)
+            ) {
+                Text(
+                    text = item.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Text(
+                    text = item.status.name,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+/**
  * Preview for the individual container tiles used in grid layouts
  */
 @Preview
@@ -365,6 +451,44 @@ private fun Preview_ContainerTile() {
 @Composable
 private fun Preview_ItemTile() {
     ItemTile(
+        item = Item(
+            id = ItemId(101L),
+            name = "Impact Driver",
+            description = "18V brushless",
+            containerId = ContainerId(1L),
+            status = ItemStatus.STORED
+        ),
+        onClick = { }
+    )
+}
+
+/**
+ * Preview for the individual container tiles used in grid layouts
+ */
+@Preview
+@Composable
+private fun Preview_ContainerCompactRow() {
+    ContainerCompactRow (
+        container = Container(
+            id = ContainerId(1L),
+            name = "Garage",
+            description = "The location we store our tools and garden supplies. When there's " +
+                    "hail, we also store our cars here",
+            imageUri = "demo",
+            parentContainerId = null,
+            createdDate = Date()
+        ),
+        onClick = { }
+    )
+}
+
+/**
+ * Preview for the individual item tiles used in grid layouts
+ */
+@Preview
+@Composable
+private fun Preview_ItemCompactRow() {
+    ItemCompactRow (
         item = Item(
             id = ItemId(101L),
             name = "Impact Driver",
