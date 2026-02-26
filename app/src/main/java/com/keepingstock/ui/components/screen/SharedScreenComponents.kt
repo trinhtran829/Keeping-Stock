@@ -225,6 +225,12 @@ fun ItemSummaryRow(
     }
 }
 
+/**
+ * Tile-style UI representation of a container for use in grid layouts.
+ *
+ * @param container The container model to render.
+ * @param onClick Invoked when the tile is selected.
+ */
 @Composable
 fun ContainerTile(
     container: Container,
@@ -272,6 +278,12 @@ fun ContainerTile(
     }
 }
 
+/**
+ * Tile-style UI representation of an item for use in grid layouts.
+ *
+ * @param item The item model to render.
+ * @param onClick Invoked when the tile is selected.
+ */
 @Composable
 fun ItemTile(
     item: Item,
@@ -326,6 +338,9 @@ fun ItemTile(
     }
 }
 
+/**
+ * Preview for the individual container tiles used in grid layouts
+ */
 @Preview
 @Composable
 private fun Preview_ContainerTile() {
@@ -343,6 +358,9 @@ private fun Preview_ContainerTile() {
     )
 }
 
+/**
+ * Preview for the individual item tiles used in grid layouts
+ */
 @Preview
 @Composable
 private fun Preview_ItemTile() {
