@@ -646,7 +646,36 @@ private fun NoResultsState(
     onClearQuery: () -> Unit,
     onResetFilters: () -> Unit
 ) {
+    Box(
+        modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(24.dp)
+        ) {
+            Text(
+                text = "No results found",
+                style = MaterialTheme.typography.titleMedium
+            )
 
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = "Try a different search or adjust your filters.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(onClick = onClearQuery) { Text("Clear search") }
+                Button(onClick = onResetFilters) { Text("Reset filters") }
+            }
+        }
+    }
 }
 
 /**
