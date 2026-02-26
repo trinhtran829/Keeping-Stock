@@ -1,36 +1,940 @@
 package com.keepingstock.ui.screens.item
 
+import android.net.Uri
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
+import coil.compose.AsyncImage
 import com.keepingstock.core.contracts.ContainerId
-import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.Tag
+import com.keepingstock.core.contracts.TagId
+import com.keepingstock.core.contracts.uistates.item.AddEditItemIntent
+import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
+import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.ui.components.screen.ErrorContent
+import com.keepingstock.ui.components.screen.LoadingContent
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
+/**
+ * Add/Edit Item screen that renders based on uiState and emits user intents.
+ *
+ * State handling:
+ * - [AddEditItemUiState.Loading] shows a loading indicator.
+ * - [AddEditItemUiState.Error] shows an error message.
+ * - [AddEditItemUiState.Ready] shows the editable form and emits [AddEditItemIntent]
+ *   events via [onIntent].
+ *
+ * Navigation:
+ * - [onNavigateBack] is called when the user confirms leaving (e.g. discard changes) or taps
+ *   Cancel when the form is not dirty.
+ *
+ * :param modifier: Modifier applied to the screen.
+ * :param uiState: Current UI state for the Add/Edit Item flow.
+ * :param onIntent: Callback for user intents (field edits, save, image changes, etc.).
+ * :param onNavigateBack: Callback to navigate up/back out of this screen.
+ *
+ * TODO: Large parts of this file overlap with AddEditContainerScreen. Consider extracting shared
+ *  composables (image card, discard dialog, actions card, etc.) into a common package.
+ */
 @Composable
 fun AddEditItemScreen(
-    itemId: ItemId?,
-    containerId: ContainerId?,
     modifier: Modifier = Modifier,
-    onSave: () -> Unit = {},
-    onCancel: () -> Unit = {}
+    uiState: AddEditItemUiState,
+    onIntent: (AddEditItemIntent) -> Unit = {},
+    onNavigateBack: () -> Unit = {}
 ) {
-    val mode = if (itemId == null) "ADD" else "EDIT"
-
     Column(modifier = modifier.padding(16.dp)) {
-        Text("Add/Edit Item Screen (placeholder)")
-        Text("mode = $mode")
-        Text("itemId = ${itemId ?: "null"}")
-        Text("containerId = ${containerId ?: "null"}")
+        when (uiState) {
+            AddEditItemUiState.Loading ->
+                LoadingContent(modifier.fillMaxSize())
 
-        Button(onClick = onSave, modifier = Modifier.padding(top = 12.dp)) {
-            Text("Save (placeholder)")
+            is AddEditItemUiState.Error ->
+                ErrorContent(modifier = modifier.fillMaxSize(), message = uiState.message)
+
+            is AddEditItemUiState.Ready ->
+                AddEditItemReadyContent(
+                    modifier = modifier.fillMaxSize(),
+                    uiState = uiState,
+                    onIntent = onIntent,
+                    onNavigateBack = onNavigateBack
+                )
         }
-        Button(onClick = onCancel, modifier = Modifier.padding(top = 12.dp)) {
-            Text("Cancel")
+    }
+}
+
+/**
+ * Ready-state content for Add/Edit Item.
+ *
+ * UI responsibilities:
+ * - Owns local, UI-only discard confirmation dialog state (not part of UiState).
+ * - Intercepts system back when [uiState.isDirty] and prompts for discard confirmation.
+ * - Hosts an Activity Result launcher to pick an image and emits [AddEditItemIntent.ImagePicked].
+ *
+ * :param modifier: Modifier applied to the scrolling content container.
+ * :param uiState: Ready state containing current field values, validation, and flags.
+ * :param onIntent: Callback for emitting user intents to the state owner (demo controller / VM).
+ * :param onNavigateBack: Callback invoked when navigation away from the screen is confirmed.
+ */
+@Composable
+private fun AddEditItemReadyContent(
+    modifier: Modifier,
+    uiState: AddEditItemUiState.Ready,
+    onIntent: (AddEditItemIntent) -> Unit,
+    onNavigateBack: () -> Unit
+) {
+    /**
+     * UI-only state: controls the discard confirmation dialog. Keeping this out of UiState
+     * prevents it from being treated as durable state.
+     *
+     * TODO: If we standardize on effects (ShowDialog), this can move to a one-off effect.
+     *  Otherwise we can keep as local UI state. Either approach is good.
+     */
+    var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
+
+    // Intercept system back when form is dirty (prompt discard)
+    AddEditItemBackHandling(
+        isDirty = uiState.isDirty,
+        onIntent = onIntent,
+        showDiscardDialog = showDiscardDialog,
+        onShowDiscardDialog = { showDiscardDialog = it },
+        onDiscardConfirmed = onNavigateBack
+    )
+
+    // Gets an object that can launch the system image picker.
+    val pickImageLauncher = rememberPickImageLauncher(onIntent)
+
+    // Main scrollable form content.
+    LazyColumn(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Item Details
+        item {
+            ItemFormCard(uiState = uiState, onIntent = onIntent)
+        }
+
+        // Item Image
+        item {
+            ItemImageCard(
+                imageUri = uiState.imageUri,
+                onPickImage = {
+                    onIntent(AddEditItemIntent.PickImageClicked) // TODO: Add to AddEditContainerScreen - not necessary but good form
+                    pickImageLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                },
+                onRemoveImage = { onIntent(AddEditItemIntent.RemoveImageClicked) }
+            )
+        }
+
+        // Tag editor section
+        item {
+            TagEditorCard(
+                uiState = uiState,
+                onIntent = onIntent
+            )
+        }
+
+        // Primary actions (save / cancel)
+        item {
+            ActionsCard(
+                isSaving = uiState.isSaving,
+                onSave = { onIntent(AddEditItemIntent.SaveClicked) },
+                onCancel = {
+                    if (uiState.isDirty) showDiscardDialog = true else onNavigateBack
+                }
+            )
+        }
+    }
+}
+
+/**
+ * Handles back navigation behavior for the Add/Edit Item form.
+ *
+ * Behavior:
+ * - When [isDirty] is true, intercepts the system back button and shows a discard confirmation dialog.
+ * - When [showDiscardDialog] is true, displays an [AlertDialog] allowing the user to discard changes
+ *   or cancel and stay on the screen.
+ *
+ * :param isDirty: Whether the form has unsaved changes.
+ * :param onIntent: Callback for emitting user intents to the state owner (demo controller / VM).
+ * :param showDiscardDialog: Controls whether the discard confirmation dialog is visible.
+ * :param onShowDiscardDialog: Setter for [showDiscardDialog].
+ * :param onDiscardConfirmed: Callback invoked when the user confirms discarding changes.
+ */
+@Composable
+private fun AddEditItemBackHandling(
+    isDirty: Boolean,
+    onIntent: (AddEditItemIntent) -> Unit,
+    showDiscardDialog: Boolean,
+    onShowDiscardDialog: (Boolean) -> Unit,
+    onDiscardConfirmed: () -> Unit
+) {
+    // Intercept system back when dirty.
+    BackHandler(enabled = isDirty) {
+        onShowDiscardDialog(true)
+    }
+
+    // Show alert dialog requesting confirmation of discard
+    if (showDiscardDialog) {
+        AlertDialog(
+            onDismissRequest = { onShowDiscardDialog(false) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onShowDiscardDialog(false)
+                        onIntent(AddEditItemIntent.DiscardChangesConfirmed)
+                        onDiscardConfirmed()
+                    }
+                ) { Text("Discard") }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        onShowDiscardDialog(false)
+                    }
+                ) { Text("Cancel") }
+            },
+            title = {
+                Text("Discard changes?")
+            },
+            text = {
+                Text("You have unsaved changes. Discard them and leave this screen?")
+            },
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true
+            )
+        )
+    }
+}
+
+/**
+ * Creates and remembers an Activity Result launcher for selecting an image from the system picker.
+ *
+ * When the picker returns a non-null [Uri], this emits [AddEditItemIntent.ImagePicked]
+ * through [onIntent]. The caller is responsible for invoking `launch(...)` on the returned
+ * launcher.
+ *
+ * :param onIntent: Callback used to emit [AddEditItemIntent] events.
+ * :return: A launcher that can start the visual media picker and deliver a picked image [Uri].
+ */
+@Composable
+private fun rememberPickImageLauncher(
+    onIntent: (AddEditItemIntent) -> Unit
+) = rememberLauncherForActivityResult(
+    contract = ActivityResultContracts.PickVisualMedia()
+) { uri: Uri? ->
+    if (uri != null)
+        onIntent(AddEditItemIntent.ImagePicked(uri.toString()))
+}
+
+/**
+ * Card section containing editable item fields:
+ * - name
+ * - description
+ * - container selection (demo picker)
+ * - status toggle (stored/taken out)
+ *
+ * :param uiState: Current form values and validation state.
+ * :param onIntent: Callback for emitting user intents (e.g., [AddEditItemIntent.NameChanged]).
+ */
+@Composable
+private fun ItemFormCard(
+    uiState: AddEditItemUiState.Ready,
+    onIntent: (AddEditItemIntent) -> Unit
+) {
+    ElevatedCard(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Name input (required)
+            OutlinedTextField(
+                value = uiState.name,
+                onValueChange = {
+                    onIntent(AddEditItemIntent.NameChanged(it))
+                },
+                label = { Text("Name") },
+                isError = uiState.validation.nameError != null,
+                supportingText = {
+                    uiState.validation.nameError?.let { Text(it) }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            // Description input (optional)
+            OutlinedTextField(
+                value = uiState.description,
+                onValueChange = {
+                    onIntent(AddEditItemIntent.DescriptionChanged(it))
+                },
+                label = { Text("Description") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3
+            )
+
+            HorizontalDivider()
+
+            // Parent Container display/picker
+            ParentSection(
+                canChangeParent = uiState.canChangeParent,
+                containerId = uiState.containerId,
+                containerName = uiState.containerName,
+                availableParents = uiState.availableParents,
+                onParentChanged = {
+                    onIntent(AddEditItemIntent.ContainerChanged(it))
+                }
+            )
+
+            // Status toggle: disabled/hidden when container/Id == null
+            if (uiState.containerId == null) {
+                Text(
+                    text = "Status: Taken Out (no container selected)",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                uiState.validation.containerError?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            } else {
+                StatusToggle(
+                    status = uiState.status,
+                    checkoutDate = uiState.checkoutDate,
+                    onChanged = { onIntent(AddEditItemIntent.StatusChanged(it)) }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Displays parent container information and, when allowed, provides UI for changing it.
+ *
+ * :param canChangeParent: Whether the parent container can be changed in the current mode.
+ * :param parentContainerId: Currently selected parent container id (null represents Root).
+ * :param parentContainerName: Display name for the currently selected parent (nullable).
+ * :param availableParents: Available parent options to choose from.
+ * :param onParentChanged: Callback for the newly selected parent id (null = Root).
+ */
+@Composable
+private fun ParentSection(
+    canChangeParent: Boolean,
+    containerId: ContainerId?,
+    containerName: String?,
+    availableParents: List<AddEditItemUiState.Ready.ParentOption>,
+    onParentChanged: (ContainerId?) -> Unit
+) {
+    if (canChangeParent) {
+        ParentPicker(
+            selectedId = containerId,
+            options = availableParents,
+            onSelected = onParentChanged
+        )
+    } else {
+        Text(
+            text = "Parent: ${containerName ?: "Root"}",
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+/**
+ * Demo parent selection UI.
+ *
+ * Current implementation:
+ * - Displays the current parent name.
+ * - Provides a "Change" button that cycles through [options] (no dropdown dependency).
+ *
+ * Future implementation:
+ * - Replace cycling behavior with a dropdown or hierarchical picker when the repository-backed
+ *   container tree is available.
+ *
+ * Assumption:
+ * - [options] is non-empty.
+ *
+ * :param selectedId: Currently selected parent container id (null = Root).
+ * :param options: List of selectable parent options.
+ * :param onSelected: Callback invoked when the selection changes.
+ */
+@Composable
+private fun ParentPicker(
+    selectedId: ContainerId?,
+    options: List<AddEditItemUiState.Ready.ParentOption>,
+    onSelected: (ContainerId?) -> Unit
+) {
+    // TODO: Replace cycling picker with dropdown/hierarchical picker when container tree is available.
+    val current = options.firstOrNull { it.id == selectedId } ?: options.first()
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text("Container", style = MaterialTheme.typography.labelLarge)
+
+        Row {
+            Text(
+                text = current.name,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f)
+            )
+
+            Spacer(Modifier.width(12.dp))
+
+            OutlinedButton(
+                onClick = {
+                    val idx = options.indexOfFirst { it.id == selectedId }.coerceAtLeast(0)
+                    val next = options[(idx + 1) % options.size]
+                    onSelected(next.id)
+                }
+            ) { Text("Change") }
+        }
+
+        Text(
+            text = "Tap Change to cycle container (demo). Replace with dropdown later.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+/**
+ * Status control for an item.
+ *
+ * Uses a switch to toggle between:
+ * - [ItemStatus.STORED]
+ * - [ItemStatus.TAKEN_OUT]
+ *
+ * When status is Taken Out and [checkoutDate] is present, displays the checkout date.
+ *
+ * :param status: Current status.
+ * :param checkoutDate: Date the item was checked out (nullable).
+ * :param onChanged: Callback invoked with the newly selected status.
+ */
+@Composable
+private fun StatusToggle(
+    status: ItemStatus,
+    checkoutDate: Date?,
+    onChanged: (ItemStatus) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = "Status",
+            style = MaterialTheme.typography.labelLarge
+        )
+
+        // TODO: Confirm whether this control should be a switch or radio buttons.
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                text = "Stored",
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .clickable { onChanged(ItemStatus.STORED) }
+            )
+
+            Switch(
+                checked = status == ItemStatus.TAKEN_OUT,
+                onCheckedChange = { checked ->
+                    onChanged(if (checked) ItemStatus.TAKEN_OUT else ItemStatus.STORED)
+                }
+            )
+
+            Text(
+                text = "Taken Out",
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .clickable { onChanged(ItemStatus.TAKEN_OUT) }
+            )
+        }
+
+        /*
+        // TODO: Original alternate implementation using radio buttons. Remove if switch is finalized.
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row {
+                RadioButton(
+                    selected = status == ItemStatus.STORED,
+                    onClick = { onChanged(ItemStatus.STORED) }
+                )
+                Text("Stored", modifier = Modifier.padding(top = 12.dp))
+            }
+
+            Row {
+                RadioButton(
+                    selected = status == ItemStatus.TAKEN_OUT,
+                    onClick = { onChanged(ItemStatus.TAKEN_OUT) }
+                )
+                Text("Taken Out", modifier = Modifier.padding(top = 12.dp))
+            }
+        }
+
+         */
+
+        if (status == ItemStatus.TAKEN_OUT && checkoutDate != null) {
+            Text(
+                text = "Date checked out: " + DateTimeFormatter.ofPattern("MM-dd-yyyy")
+                    .withZone(ZoneId.systemDefault()).format(checkoutDate.toInstant()),
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+/**
+ * Card section for viewing and editing the item image.
+ *
+ * - Displays a preview if [imageUri] is present, otherwise shows a placeholder message.
+ * - Exposes actions for picking/changing and removing the image.
+ *
+ * :param imageUri: Current image URI string (nullable/blank indicates no image).
+ * :param onPickImage: Invoked to launch the system image picker.
+ * :param onRemoveImage: Invoked to remove the current image from the form state.
+ */
+@Composable
+private fun ItemImageCard(
+    imageUri: String?,
+    onPickImage: () -> Unit,
+    onRemoveImage: () -> Unit
+) {
+    ElevatedCard(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Field title
+            Text("Image", style = MaterialTheme.typography.titleMedium)
+
+            // Get image preview or text indicated no image was selected
+            ImagePreview(imageUri = imageUri)
+
+            // Buttons for user action related to changing the picture
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(
+                    onClick = onPickImage
+                ) {
+                    Text(
+                        if (imageUri.isNullOrBlank()) "Pick image" else "Change image"
+                    )
+                }
+                OutlinedButton(
+                    onClick = onRemoveImage,
+                    enabled = !imageUri.isNullOrBlank()
+                ) {
+                    Text("Remove")
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Displays an image preview for the provided [imageUri], or a placeholder message when absent.
+ *
+ * :param imageUri: Image URI string to display (nullable/blank indicates no image).
+ */
+@Composable
+private fun ImagePreview(
+    imageUri: String?
+) {
+    // If URI is not available, show text
+    if (imageUri.isNullOrBlank()) {
+        Text(
+            text = "No image selected.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        return
+    }
+
+    // Show image
+    AsyncImage(
+        model = Uri.parse(imageUri),
+        contentDescription = null,
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(16f / 9f)
+            .clip(RoundedCornerShape(12.dp)),
+        contentScale = ContentScale.Crop
+    )
+}
+
+/**
+ * Card section containing primary form actions (Save/Cancel).
+ *
+ * - Save is disabled while [isSaving] is true.
+ * - Cancel delegates to [onCancel], which may prompt for discard confirmation when dirty.
+ *
+ * :param isSaving: Whether a save operation is in progress.
+ * :param onSave: Callback invoked when the user taps Save.
+ * :param onCancel: Callback invoked when the user taps Cancel.
+ */
+@Composable
+private fun ActionsCard(
+    isSaving: Boolean,
+    onSave: () -> Unit,
+    onCancel: () -> Unit
+) {
+    ElevatedCard(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = onSave,
+                    enabled = !isSaving,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(if (isSaving) "Saving…" else "Save")
+                }
+
+                OutlinedButton(
+                    onClick = onCancel,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Cancel")
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Card section for tag viewing/editing:
+ * - Displays selected tags (chips)
+ * - Accepts a query to add a new tag
+ * - Shows suggested tags based on the query
+ * - Shows recommended tags (e.g., ML Kit)
+ *
+ * :param uiState: Ready state containing tag-related fields.
+ * :param onIntent: Callback for emitting tag-related intents.
+ *
+ * TODO: Consider passing only tag-related fields rather than the entire uiState if this grows.
+ */
+@Composable
+fun TagEditorCard(
+    uiState: AddEditItemUiState.Ready,
+    onIntent: (AddEditItemIntent) -> Unit
+) {
+    ElevatedCard(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Card title
+                Text(
+                    text = "Tags",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                // Display selected / max
+                Text(
+                    text = "${uiState.selectedTags.size}/${uiState.maxTags}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            // Display current tags
+            SelectedTagChips(
+                tags = uiState.selectedTags,
+                onRemove = { onIntent(AddEditItemIntent.RemoveTagClicked(it)) }
+            )
+
+            HorizontalDivider()
+
+            // Display section for adding new tags (text field with suggested tags matching
+            // current query)
+            OutlinedTextField(
+                value = uiState.tagQuery,
+                onValueChange = { onIntent(AddEditItemIntent.QueryChanged(it)) },
+                label = { Text("Add a tag") },
+                supportingText = { uiState.inputError?.let { Text(it) } },
+                isError = uiState.inputError != null,
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            // Display suggested tags based on query
+            TagSuggestionList(
+                uiState = uiState,
+                onAddQuery = { onIntent(AddEditItemIntent.AddQueryAsTagClicked) },
+                onSelectExisting = { onIntent(AddEditItemIntent.ExistingTagSelected(it)) }
+            )
+
+            HorizontalDivider()
+
+            // Display recommended tags
+            RecommendedTagsRow(
+                uiState = uiState,
+                onSelect = { onIntent(AddEditItemIntent.RecommendedTagSelected(it)) },
+                onRefresh = { onIntent(AddEditItemIntent.RefreshRecommendations) }
+            )
+        }
+    }
+}
+
+/**
+ * Displays selected tags as chips in a wrapping layout.
+ *
+ * :param modifier: Modifier applied to the chip container.
+ * :param tags: Current selected tags.
+ * :param onRemove: Callback invoked with the [TagId] to remove.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun SelectedTagChips(
+    modifier: Modifier = Modifier,
+    tags: List<Tag>,
+    onRemove: (TagId) -> Unit
+) {
+    if (tags.isEmpty()) {
+        Text(
+            text = "No tags selected.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        return
+    }
+
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        tags.forEach { tag ->
+            SelectedTagChip(
+                name = tag.name,
+                onRemove = { onRemove(tag.id) }
+            )
+        }
+    }
+}
+
+/**
+ * A single selected-tag chip with a trailing remove icon.
+ *
+ * :param modifier: Modifier applied to the chip.
+ * :param name: Tag display name.
+ * :param onRemove: Invoked when the user taps the trailing remove icon.
+ */
+@Composable
+private fun SelectedTagChip(
+    modifier: Modifier = Modifier,
+    name: String,
+    onRemove: () -> Unit
+) {
+    // Layout constants (kept local for easy tuning).
+    val chipHeight = 32.dp
+    val removeButtonSize = 22.dp
+    val removeIconSize = 16.dp
+
+    InputChip(
+        modifier = modifier.height(chipHeight),
+        selected = true,
+        onClick = { /* TODO: Consult group on behavior, if any */ },
+        label = {
+            Text(
+                text = name,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1
+            )
+        },
+        trailingIcon = {
+            // Used box instead of IconButton - padding and alignment was weird
+            Box(
+                modifier = Modifier
+                    .size(removeButtonSize)
+                    .clip(CircleShape)
+                    .clickable(onClick = onRemove), // TODO: snackbar "Tag removed" with "Undo" option
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = "Remove $name",
+                    modifier = Modifier.size(removeIconSize)
+                )
+            }
+        }
+    )
+}
+
+/**
+ * Displays query-based tag suggestions.
+ *
+ * Behavior:
+ * - If [uiState.tagQuery] is non-blank, shows an 'Add "query"' button (when valid).
+ * - Shows suggested existing tags as chips that can be tapped to select.
+ *
+ * :param uiState: Ready state containing tag query, suggestions, and validation flags.
+ * :param onAddQuery: Called when the user chooses to add the current query as a new tag.
+ * :param onSelectExisting: Called when the user selects an existing suggested tag.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TagSuggestionList(
+    uiState: AddEditItemUiState.Ready,
+    onAddQuery: () -> Unit,
+    onSelectExisting: (TagId) -> Unit
+) {
+    if (uiState.tagQuery.isBlank() && uiState.tagSuggestions.isEmpty()) return
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        // Add query as-is
+        if (uiState.tagQuery.isNotBlank()) {
+            Button(
+                onClick = onAddQuery,
+                enabled = uiState.canAddMore && uiState.inputError == null,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Add \"${uiState.tagQuery}\"")
+            }
+        }
+
+        // Existing suggestions
+        Text(
+            text = "Suggested tags:",
+            style = MaterialTheme.typography.labelSmall
+        )
+
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            uiState.tagSuggestions.take(uiState.suggestionsLimit).forEach { tag ->
+                InputChip(
+                    modifier = Modifier.height(32.dp),
+                    selected = true,
+                    onClick = { onSelectExisting(tag.id) },
+                    label = {
+                        Text(
+                            text = tag.name,
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1
+                        )
+                    }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Displays recommended tags (e.g., ML Kit output) and a refresh action.
+ *
+ * :param uiState: Ready state containing recommendation fields.
+ * :param onSelect: Called when the user selects a recommended tag name.
+ * :param onRefresh: Called when the user requests refreshed recommendations.
+ *
+ * TODO: If recommendations later include confidence scores, update UI to display them.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RecommendedTagsRow(
+    uiState: AddEditItemUiState.Ready,
+    onSelect: (String) -> Unit,
+    onRefresh: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Recommended", style = MaterialTheme.typography.labelLarge)
+            TextButton(onClick = onRefresh, enabled = !uiState.isRecommending) {
+                Text(if (uiState.isRecommending) "Refreshing…" else "Refresh")
+            }
+        }
+
+        if (uiState.tagRecommendations.isEmpty()) {
+            Text(
+                text = "No recommendations yet.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            return
+        }
+
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            uiState.tagRecommendations.forEach { tagRec ->
+                InputChip(
+                    modifier = Modifier.height(32.dp),
+                    selected = true,
+                    onClick = { onSelect(tagRec) },
+                    label = {
+                        Text(
+                            text = tagRec,
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1
+                        )
+                    }
+                )
+            }
         }
     }
 }
