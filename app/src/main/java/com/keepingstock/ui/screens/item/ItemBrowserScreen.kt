@@ -147,26 +147,11 @@ private fun ReadyContent(
             BrowserEmptyState.NONE -> Unit
         }
 
-        // Populated state; scrolling list with individual sections for subcontainers/items
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            item {
-                Text("Items", style = MaterialTheme.typography.titleMedium)
-            }
-            items(uiData.items, key = { it.id.value }) { i ->
-                ItemSummaryRow(
-                    modifier = Modifier,
-                    item = i,
-                    onClick = { onOpenItem(i.id) }
-                )
-            }
-
-            // breathing room above bottom bar
-            item { Spacer(Modifier.height(72.dp)) }
-        }
+        ItemResults(
+            layout = uiData.layout,
+            visibleItems = uiData.visibleItems,
+            onOpenItem = onOpenItem
+        )
     }
 }
 
@@ -315,13 +300,31 @@ private fun ListContents(
     visibleItems: List<Item>,
     onOpenItem: (ItemId) -> Unit
 ) {
+    // Populated state; scrolling list with individual sections for subcontainers/items
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            Text("Items", style = MaterialTheme.typography.titleMedium)
+        }
 
+        items(visibleItems, key = { it.id.value }) { i ->
+            ItemSummaryRow(
+                modifier = Modifier,
+                item = i,
+                onClick = { onOpenItem(i.id) }
+            )
+        }
+
+        // breathing room above bottom bar
+        item { Spacer(Modifier.height(16.dp)) }
+    }
 }
 
 /**
  * Grid layout for Item Browser results.
- *
- * Uses a fixed column count consistent with ContainerBrowser’s grid MVP.
  *
  * @param visibleItems Items to display.
  * @param onOpenItem Invoked when an item tile is selected.
@@ -338,9 +341,6 @@ private fun GridContents(
 /**
  * Compact layout for Item Browser results.
  *
- * MVP implementation reuses [ItemSummaryRow]. If you have an ItemCompactRow in the container
- * package (or shared), swap it here.
- *
  * @param visibleItems Items to display.
  * @param onOpenItem Invoked when an item row is selected.
  */
@@ -349,5 +349,5 @@ private fun CompactContents(
     visibleItems: List<Item>,
     onOpenItem: (ItemId) -> Unit
 ) {
-    
+
 }
