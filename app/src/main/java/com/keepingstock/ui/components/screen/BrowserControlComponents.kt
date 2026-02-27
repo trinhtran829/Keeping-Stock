@@ -1,15 +1,20 @@
 package com.keepingstock.ui.components.screen
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ViewModule
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,7 +22,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.keepingstock.core.contracts.BrowserLayout
+import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.data.entities.ItemStatus
 
 /**
@@ -115,4 +125,199 @@ fun ItemStatusPickerChip(
             )
         }
     }
+}
+
+/**
+ * Displays the sorting and layout options available to the user
+ *
+ * @param sort: The currently selected sort options for the results
+ * @param layout: The currently selected display layout for the results.
+ * @param onSortChange: Invoked when the user selects a new sorting option
+ * @param onLayoutChange: Invoked when the user selects a new display layout.
+ */
+@Composable
+fun SortAndLayoutRow(
+    sort: BrowserSort,
+    layout: BrowserLayout,
+    onSortChange: (BrowserSort) -> Unit,
+    onLayoutChange: (BrowserLayout) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        SortMenu(
+            sort = sort,
+            onSortChange = onSortChange
+        )
+
+        LayoutMenu(
+            layout = layout,
+            onLayoutChange = onLayoutChange
+        )
+    }
+}
+
+/**
+ * Displays the sorting menu.
+ *
+ * @param sort: The currently selected sort options for the results
+ * @param onSortChange: Invoked when the user selects a new sorting option
+ */
+@Composable
+private fun SortMenu(
+    sort: BrowserSort,
+    onSortChange: (BrowserSort) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    val label = when (sort) {
+        BrowserSort.NAME_ASC -> "Name A-Z"
+        BrowserSort.NAME_DESC -> "Name Z-A"
+        BrowserSort.CREATED_NEWEST -> "Created (newest)"
+        BrowserSort.CREATED_OLDEST -> "Created (oldest)"
+    }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        IconButton(
+            onClick = { expanded = true }
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.Sort,
+                contentDescription = "Sort"
+            )
+        }
+
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Name (A–Z)") },
+                onClick = { expanded = false; onSortChange(BrowserSort.NAME_ASC) }
+            )
+            DropdownMenuItem(
+                text = { Text("Name (Z–A)") },
+                onClick = { expanded = false; onSortChange(BrowserSort.NAME_DESC) }
+            )
+            DropdownMenuItem(
+                text = { Text("Created (newest)") },
+                onClick = { expanded = false; onSortChange(BrowserSort.CREATED_NEWEST) }
+            )
+            DropdownMenuItem(
+                text = { Text("Created (oldest)") },
+                onClick = { expanded = false; onSortChange(BrowserSort.CREATED_OLDEST) }
+            )
+        }
+    }
+}
+
+/**
+ * Displays the layout menu.
+ *
+ * @param layout: The currently selected display layout for the results.
+ * @param onLayoutChange: Invoked when the user selects a new display layout.
+ */
+@Composable
+private fun LayoutMenu(
+    layout: BrowserLayout,
+    onLayoutChange: (BrowserLayout) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    val label = when (layout) {
+        BrowserLayout.LIST -> "List"
+        BrowserLayout.GRID -> "Grid"
+        BrowserLayout.COMPACT -> "Compact"
+    }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        IconButton(
+            onClick = { expanded = true }
+        ) {
+            Icon(
+                imageVector = Icons.Default.ViewModule,
+                contentDescription = "Layout"
+            )
+        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("List") },
+                onClick = { expanded = false; onLayoutChange(BrowserLayout.LIST) }
+            )
+            DropdownMenuItem(
+                text = { Text("Grid") },
+                onClick = { expanded = false; onLayoutChange(BrowserLayout.GRID) }
+            )
+            DropdownMenuItem(
+                text = { Text("Compact") },
+                onClick = { expanded = false; onLayoutChange(BrowserLayout.COMPACT) }
+            )
+        }
+    }
+}
+
+/**
+ * Preview of the search field row
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_SearchField() {
+    SearchField(
+        query = "",
+        onQueryChange = { },
+        onClearQuery = { }
+    )
+}
+
+/**
+ * Preview of the Sort and Layout Row
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_SortAndLayoutRow() {
+    SortAndLayoutRow(
+        sort = BrowserSort.NAME_ASC,
+        layout = BrowserLayout.LIST,
+        onSortChange = { },
+        onLayoutChange = { }
+    )
+}
+
+/**
+ * Preview of the Sort Menu
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_SortMenu() {
+    SortMenu(
+        sort = BrowserSort.NAME_ASC,
+        onSortChange = { }
+    )
+}
+
+/**
+ * Preview of the Layout Menu
+ */
+@Preview(showBackground = true)
+@Composable
+private fun Preview_LayoutMenu() {
+    LayoutMenu(
+        layout = BrowserLayout.LIST,
+        onLayoutChange = { }
+    )
 }

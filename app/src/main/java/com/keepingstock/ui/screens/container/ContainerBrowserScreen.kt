@@ -70,6 +70,7 @@ import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.ItemTile
 import com.keepingstock.ui.components.screen.LoadingContent
 import com.keepingstock.ui.components.screen.SearchField
+import com.keepingstock.ui.components.screen.SortAndLayoutRow
 
 /**
  * Screen for browsing container contents. Render based on ContainerBrowserUiState.
@@ -365,178 +366,6 @@ private fun FiltersRow(
                 label = { Text("Clear filters") },
             )
         }
-    }
-}
-
-/**
- * Displays the sorting and layout options available to the user
- *
- * @param sort: The currently selected sort options for the results
- * @param layout: The currently selected display layout for the results.
- * @param onSortChange: Invoked when the user selects a new sorting option
- * @param onLayoutChange: Invoked when the user selects a new display layout.
- */
-@Composable
-private fun SortAndLayoutRow(
-    sort: BrowserSort,
-    layout: BrowserLayout,
-    onSortChange: (BrowserSort) -> Unit,
-    onLayoutChange: (BrowserLayout) -> Unit,
-    onScan: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        SortMenu(
-            sort = sort,
-            onSortChange = onSortChange
-        )
-
-        LayoutMenu(
-            layout = layout,
-            onLayoutChange = onLayoutChange
-        )
-
-        QrScanMenuOption(
-            onScan = onScan
-        )
-    }
-}
-
-/**
- * Displays the sorting menu.
- *
- * @param sort: The currently selected sort options for the results
- * @param onSortChange: Invoked when the user selects a new sorting option
- */
-@Composable
-private fun SortMenu(
-    sort: BrowserSort,
-    onSortChange: (BrowserSort) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    val label = when (sort) {
-        BrowserSort.NAME_ASC -> "Name A-Z"
-        BrowserSort.NAME_DESC -> "Name Z-A"
-        BrowserSort.CREATED_NEWEST -> "Created (newest)"
-        BrowserSort.CREATED_OLDEST -> "Created (oldest)"
-    }
-
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(
-            onClick = { expanded = true }
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Default.Sort,
-                contentDescription = "Sort"
-            )
-        }
-
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("Name (A–Z)") },
-                onClick = { expanded = false; onSortChange(BrowserSort.NAME_ASC) }
-            )
-            DropdownMenuItem(
-                text = { Text("Name (Z–A)") },
-                onClick = { expanded = false; onSortChange(BrowserSort.NAME_DESC) }
-            )
-            DropdownMenuItem(
-                text = { Text("Created (newest)") },
-                onClick = { expanded = false; onSortChange(BrowserSort.CREATED_NEWEST) }
-            )
-            DropdownMenuItem(
-                text = { Text("Created (oldest)") },
-                onClick = { expanded = false; onSortChange(BrowserSort.CREATED_OLDEST) }
-            )
-        }
-    }
-}
-
-/**
- * Displays the layout menu.
- *
- * @param layout: The currently selected display layout for the results.
- * @param onLayoutChange: Invoked when the user selects a new display layout.
- */
-@Composable
-private fun LayoutMenu(
-    layout: BrowserLayout,
-    onLayoutChange: (BrowserLayout) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    val label = when (layout) {
-        BrowserLayout.LIST -> "List"
-        BrowserLayout.GRID -> "Grid"
-        BrowserLayout.COMPACT -> "Compact"
-    }
-
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(
-            onClick = { expanded = true }
-        ) {
-            Icon(
-                imageVector = Icons.Default.ViewModule,
-                contentDescription = "Layout"
-            )
-        }
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("List") },
-                onClick = { expanded = false; onLayoutChange(BrowserLayout.LIST) }
-            )
-            DropdownMenuItem(
-                text = { Text("Grid") },
-                onClick = { expanded = false; onLayoutChange(BrowserLayout.GRID) }
-            )
-            DropdownMenuItem(
-                text = { Text("Compact") },
-                onClick = { expanded = false; onLayoutChange(BrowserLayout.COMPACT) }
-            )
-        }
-    }
-}
-
-@Composable
-private fun QrScanMenuOption(
-    onScan: () -> Unit
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(
-            onClick = onScan
-        ) {
-            Icon(
-                imageVector = Icons.Default.QrCodeScanner,
-                contentDescription = "Scan"
-            )
-        }
-
-        Text(
-            text = "Scan",
-            style = MaterialTheme.typography.bodyMedium
-        )
     }
 }
 
@@ -1004,18 +833,7 @@ private fun Preview_ControlsBar() {
     )
 }
 
-/**
- * Preview of the search field row
- */
-@Preview(showBackground = true)
-@Composable
-private fun Preview_SearchField() {
-    SearchField(
-        query = "",
-        onQueryChange = { },
-        onClearQuery = { }
-    )
-}
+
 
 /**
  * Preview of the filter row
@@ -1041,44 +859,7 @@ private fun Preview_FilterRowOptionSelected() {
     )
 }
 
-/**
- * Preview of the Sort and Layout Row
- */
-@Preview(showBackground = true)
-@Composable
-private fun Preview_SortAndLayoutRow() {
-    SortAndLayoutRow(
-        sort = BrowserSort.NAME_ASC,
-        layout = BrowserLayout.LIST,
-        onSortChange = { },
-        onLayoutChange = { },
-        onScan = { }
-    )
-}
 
-/**
- * Preview of the Sort Menu
- */
-@Preview(showBackground = true)
-@Composable
-private fun Preview_SortMenu() {
-    SortMenu(
-        sort = BrowserSort.NAME_ASC,
-        onSortChange = { }
-    )
-}
-
-/**
- * Preview of the Layout Menu
- */
-@Preview(showBackground = true)
-@Composable
-private fun Preview_LayoutMenu() {
-    LayoutMenu(
-        layout = BrowserLayout.LIST,
-        onLayoutChange = { }
-    )
-}
 
 /**
  * Preview of the SectionHeader
