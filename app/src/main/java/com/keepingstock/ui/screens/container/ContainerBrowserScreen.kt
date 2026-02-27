@@ -65,6 +65,7 @@ import com.keepingstock.ui.components.screen.ContainerSummaryRow
 import com.keepingstock.ui.components.screen.ContainerTile
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.ItemCompactRow
+import com.keepingstock.ui.components.screen.ItemStatusPickerChip
 import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.ItemTile
 import com.keepingstock.ui.components.screen.LoadingContent
@@ -362,61 +363,6 @@ private fun FiltersRow(
             AssistChip(
                 onClick = { onFilterChange(ContainerBrowserFilter()) },
                 label = { Text("Clear filters") },
-            )
-        }
-    }
-}
-
-/**
- * Displays the Item Status Picker dropdown menu component, which allows the user to select
- * which item status items to show
- *
- * @param status: The item status to filter items with.
- * @param onStatusChange: Invoked when the user changes the desired status filter.
- */
-@Composable
-private fun ItemStatusPickerChip(
-    status: ItemStatus?,
-    onStatusChange: (ItemStatus?) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    val label = when (status) {
-        null -> "Any status"
-        ItemStatus.STORED -> "Stored"
-        ItemStatus.TAKEN_OUT -> "Checked out"
-    }
-
-    Box() {
-        AssistChip(
-            onClick = { expanded = true },
-            label = { Text(label) }
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("Any status") },
-                onClick = {
-                    expanded = false
-                    onStatusChange(null)
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Stored") },
-                onClick = {
-                    expanded = false
-                    onStatusChange(ItemStatus.STORED)
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Taken Out") },
-                onClick = {
-                    expanded = false
-                    onStatusChange(ItemStatus.TAKEN_OUT)
-                }
             )
         }
     }
