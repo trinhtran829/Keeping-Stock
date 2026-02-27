@@ -63,9 +63,6 @@ import com.keepingstock.ui.components.screen.SortAndLayoutRow
 /**
  * Screen for browsing container contents. Render based on ContainerBrowserUiState.
  *
- * TODO: Add addContainer and addItem buttons
- * TODO: Search/Filter/Sort feature
- *
  * @param modifier: Optional modifier for the top-level screen container.
  * @param uiState: Current state of loading, error, or container contents.
  * @param onIntent: Callbacks for user intent.
