@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.keepingstock.core.contracts.BrowserEmptyState
 import com.keepingstock.core.contracts.BrowserLayout
 import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.ContainerBrowserFilter
@@ -37,6 +38,7 @@ import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.ItemStatusPickerChip
 import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.LoadingContent
+import com.keepingstock.ui.components.screen.NoResultsState
 import com.keepingstock.ui.components.screen.SearchField
 import com.keepingstock.ui.components.screen.SortAndLayoutRow
 import com.keepingstock.ui.screens.item.ReadyContent
@@ -108,16 +110,39 @@ private fun ReadyContent(
             onAddItem = onAddItem
         )
 
+        ControlsBar(
+            query = uiData.query,
+            filter = uiData.filter,
+            sort = uiData.sort,
+            layout = uiData.layout,
+            onIntent = onIntent
+        )
+
         HorizontalDivider()
 
         // Empty state; not it's own state variant
-        // TODO: Update when uiData is finished
-        if (uiData.items.isEmpty()) {
-            EmptyState(
-                modifier = Modifier.fillMaxSize(),
-                onAddItem = onAddItem
-            )
-            return
+        when (uiData.emptyState) {
+            BrowserEmptyState.EMPTY -> {
+                EmptyState(
+                    modifier = Modifier.fillMaxSize(),
+                    onAddContainer = { },
+                    onAddItem = onAddItem,
+                    isItemBrowser = true
+                )
+                return
+            }
+
+            BrowserEmptyState.NO_RESULTS -> {
+                NoResultsState(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClearQuery = { onIntent(ItemBrowserIntent.ClearQuery) },
+                    onResetFilters = {
+                        onIntent(ItemBrowserIntent.FilterChange(ItemBrowserFilter()))
+                    }
+                )
+            }
+
+            BrowserEmptyState.NONE -> Unit
         }
 
         // Populated state; scrolling list with individual sections for subcontainers/items
@@ -247,44 +272,5 @@ private fun FiltersRow(
             status = filter.itemStatus,
             onStatusChange = { onFilterChange(filter.copy(itemStatus = it)) }
         )
-    }
-}
-
-/**
- * Empty-state UI shown when there are no items.
- *
- * @param modifier Modifier applied to the full-size empty-state container.
- * @param onAddContainer Invoked when user chooses to add a container.
- * @param onAddItem Invoked when user chooses to add an item.
- */
-@Composable
-private fun EmptyState(
-    modifier: Modifier,
-    onAddItem: () -> Unit
-) {
-    Box(
-        modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(12.dp)
-        ) {
-            Text(
-                text = "Nothing here yet",
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            Text(
-                text = "Add an item to get started.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            Button(onClick = onAddItem) { Text("Add item") }
-        }
     }
 }
