@@ -34,6 +34,7 @@ import com.keepingstock.core.contracts.intents.item.ItemBrowserIntent
 import com.keepingstock.core.contracts.uistates.item.ItemBrowserUiState
 import com.keepingstock.ui.components.screen.EmptyState
 import com.keepingstock.ui.components.screen.ErrorContent
+import com.keepingstock.ui.components.screen.ItemStatusPickerChip
 import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.LoadingContent
 import com.keepingstock.ui.components.screen.SearchField
@@ -213,6 +214,11 @@ private fun ControlsBar(
             onClearQuery = { onIntent(ItemBrowserIntent.ClearQuery) }
         )
 
+        FiltersRow(
+            filter = filter,
+            onFilterChange = { onIntent(ItemBrowserIntent.FilterChange(it)) }
+        )
+
         SortAndLayoutRow(
             sort = sort,
             layout = layout,
@@ -230,10 +236,18 @@ private fun ControlsBar(
  */
 @Composable
 private fun FiltersRow(
-    filter: ContainerBrowserFilter,
-    onFilterChange: (ContainerBrowserFilter) -> Unit
+    filter: ItemBrowserFilter,
+    onFilterChange: (ItemBrowserFilter) -> Unit
 ) {
-
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ItemStatusPickerChip(
+            status = filter.itemStatus,
+            onStatusChange = { onFilterChange(filter.copy(itemStatus = it)) }
+        )
+    }
 }
 
 /**
