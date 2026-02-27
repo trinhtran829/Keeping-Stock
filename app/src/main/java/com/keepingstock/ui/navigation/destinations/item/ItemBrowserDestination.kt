@@ -18,7 +18,7 @@ import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemBrowserFilter
 import com.keepingstock.core.contracts.ItemId
-import com.keepingstock.core.contracts.UiState
+import com.keepingstock.core.contracts.intents.item.ItemBrowserIntent
 import com.keepingstock.core.contracts.uistates.item.ItemBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.navigation.ChipOption
@@ -28,7 +28,6 @@ import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.item.ItemBrowserScreen
-import com.keepingstock.viewmodel.item.ItemBrowserUiData
 
 /**
  * Registers the Item Browser destination in AppNavGraph.
@@ -39,8 +38,8 @@ import com.keepingstock.viewmodel.item.ItemBrowserUiData
  * - Uses a demo UiState generator (demoContainerBrowserReadyState) and a DemoMode toggle row.
  *   This allows the screen to be demonstrated without a ViewModel.
  *
- * :param deps: Shared navigation dependencies
- * :param lastContainerIdState: Mutable state used by app shell to remember the last visited
+ * @param deps: Shared navigation dependencies
+ * @param lastContainerIdState: Mutable state used by app shell to remember the last visited
  *                          container.
  *
  * TODO: Replace demoMode + demo UiState with a real
@@ -72,15 +71,17 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
             }
         }
          */
-        val uiState = remember(demoMode) {
-            when (demoMode) {
-                DemoMode.LOADING -> ItemBrowserUiState.Loading()
-                DemoMode.ERROR -> ItemBrowserUiState.Error(
-                    message = "Error encountered when attempting to display all items."
-                )
-                DemoMode.EMPTY -> demoItemBrowserReadyState(true)
-                DemoMode.READY, DemoMode.POPULATED -> demoItemBrowserReadyState(false)
-            }
+        var uiState by remember(demoMode) {
+            mutableStateOf(
+                when (demoMode) {
+                    DemoMode.LOADING -> ItemBrowserUiState.Loading()
+                    DemoMode.ERROR -> ItemBrowserUiState.Error(
+                        message = "Error encountered when attempting to display all items."
+                    )
+                    DemoMode.EMPTY -> demoItemBrowserReadyState(true)
+                    DemoMode.READY, DemoMode.POPULATED -> demoItemBrowserReadyState(false)
+                }
+            )
         }
 
         // Build TopBarConfig from current UiState
@@ -117,7 +118,12 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
                 onOpenItem = { itemId ->
                     deps.navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
                 },
-                onIntent = { },
+                onIntent = { intent ->
+                    uiState = reduceDemoItemBrowserIntent(
+                        current = uiState,
+                        intent = intent
+                    )
+                },
                 onAddItem = {
                     deps.navController.navigate(NavRoute.AddEditItem.createRoute(containerId = null))
                 }
@@ -133,8 +139,8 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
  * - Ready/Error: "All Items" // TODO: different title for error state?
  * - Loading: "Loading…"
  *
- * :param uiState: The current UI state for the Item Browser screen.
- * :return: TopBarConfig used by the app scaffold's top bar.
+ * @param uiState: The current UI state for the Item Browser screen.
+ * @return: TopBarConfig used by the app scaffold's top bar.
  */
 private fun itemBrowserTopBarConfig(uiState: ItemBrowserUiState): TopBarConfig {
     val title = when (uiState) {
@@ -145,6 +151,46 @@ private fun itemBrowserTopBarConfig(uiState: ItemBrowserUiState): TopBarConfig {
     val showBack = false
 
     return TopBarConfig(title = title, showBack = showBack)
+}
+
+/**
+ * Demo-only reducer for ItemBrowserIntent.
+ *
+ * Applies user intents to the current ItemBrowserUiState in-memory so layout,
+ * query, filter, and sort controls can be demonstrated without a ViewModel.
+ *
+ * @param current: The current UI state.
+ * @param intent: The user intent emitted from the UI.
+ * @return: Updated UI state reflecting the applied intent.
+ *
+ * TODO(REMOVE): Delete when ContainerBrowserViewModel is implemented.
+ */
+private fun reduceDemoItemBrowserIntent(
+    current: ItemBrowserUiState,
+    intent: ItemBrowserIntent
+): ItemBrowserUiState {
+    val ready = current as? ItemBrowserUiState.Success ?: return current
+
+    return when (intent) {
+        is ItemBrowserIntent.QueryChange ->
+            ready.copy(query = intent.query)
+
+        ItemBrowserIntent.ClearQuery ->
+            ready.copy(query = "")
+
+        is ItemBrowserIntent.FilterChange ->
+            ready.copy(filter = intent.filter)
+
+        is ItemBrowserIntent.SortChange ->
+            ready.copy(sort = intent.sort)
+
+        is ItemBrowserIntent.LayoutChange ->
+            ready.copy(layout = intent.layout)
+
+        ItemBrowserIntent.Retry ->
+            // Demo-only: no loading transition; keep current state as-is.
+            current
+    }
 }
 
 /**
