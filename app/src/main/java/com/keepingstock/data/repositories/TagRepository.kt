@@ -13,47 +13,48 @@ import kotlinx.coroutines.flow.Flow
  * These links document the sample code that led to my code.
  */
 
-/**
- * Placeholder repository
- *
- * NOTE TO TEAM:
- * - This is a temporary implementation
- * - These function names are final and stable
- * - UI and Integration lead can start using them
- * - The real business logic will be implemented later
- *
- * This is to ensures the UI/ViewModels code can be develop while I continue to
- * work on these logic.
- */
-
 interface TagRepository {
     /**
      * Create tag
+     * Rule:
+     * Trim leading and trailing white spaces
+     * Collapse multiple white spaces into one
+     * Convert to lower case
+     * case insensitive prevent duplication - reuse existing tag if found
+     * Throws [IllegalStateException] if tag name is invalid
      */
     suspend fun createTag(name: String): Tag
 
     /**
      * Update tag
+     * Rule:
+     * Cannot rename to an existing name
+     * Throws [IllegalStateException] if target name is invalid
+     * Throws [IllegalStateException] if target name is taken
      */
     suspend fun updateTag(tag: Tag)
 
     /**
      * Delete tag
+     * Rule:
+     * Cannot delete tag still associate with an item
+     * Throws [IllegalStateException] if tag still associate with an item
      */
     suspend fun deleteTag(tag: Tag)
 
     /**
-     * Observe all tags
+     * Observe all tags, ordered alphabetically
      */
     fun observeAllTags(): Flow<List<Tag>>
 
     /**
-     * Search tags
+     * Search tags by name
      */
     fun searchTags(query: String): Flow<List<Tag>>
 
     /**
      * Get tag by name
+     * Normalize name before calling Dao
      */
     suspend fun getTagByName(name: String): Tag?
 
