@@ -1,7 +1,11 @@
 package com.keepingstock.core.contracts.uistates.item
 
+import com.keepingstock.core.contracts.BrowserEmptyState
+import com.keepingstock.core.contracts.BrowserLayout
+import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
+import com.keepingstock.core.contracts.ItemBrowserFilter
 import com.keepingstock.data.entities.ItemStatus
 
 /**
@@ -31,9 +35,13 @@ sealed interface ItemBrowserUiState {
      * When items is empty, the screen should show an "empty results" UI.
      */
     data class Success(
-        val query: String = "",
-        val items: List<Item> = emptyList(),
-        val containerId: ContainerId? = null
+        val items: List<Item>,
+        val visibleItems: List<Item>,
+        val query: String,
+        val filter: ItemBrowserFilter,
+        val sort: BrowserSort,
+        val layout: BrowserLayout,
+        val emptyState: BrowserEmptyState
     ) : ItemBrowserUiState
 
     /**

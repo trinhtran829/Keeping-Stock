@@ -25,10 +25,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
-import com.keepingstock.core.contracts.UiState
 import com.keepingstock.core.contracts.intents.item.ItemBrowserIntent
+import com.keepingstock.core.contracts.uistates.item.ItemBrowserUiState
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.LoadingContent
@@ -47,23 +46,24 @@ import com.keepingstock.viewmodel.item.ItemBrowserUiData
 @Composable
 fun ItemBrowserScreen(
     modifier: Modifier = Modifier,
-    uiState: UiState<ItemBrowserUiData>,
+    uiState: ItemBrowserUiState, // UiState<ItemBrowserUiData>,
     onIntent: (ItemBrowserIntent) -> Unit,
     onOpenItem: (itemId: ItemId) -> Unit = {},
     onAddItem: () -> Unit = {}
 ) {
 
     when (uiState) {
-        is UiState.Loading -> LoadingContent(modifier)
+        is ItemBrowserUiState.Loading -> LoadingContent(modifier)
 
-        is UiState.Error -> ErrorContent(
+        is ItemBrowserUiState.Error -> ErrorContent(
             modifier = modifier.fillMaxSize(),
             message = uiState.message
         )
 
-        is UiState.Success -> ReadyContent(
+        is ItemBrowserUiState.Success -> ReadyContent(
             modifier = modifier.fillMaxSize(),
-            items = uiState.data.items,
+            uiData = uiState,
+            onIntent = onIntent,
             onOpenItem = onOpenItem,
             onAddItem = onAddItem
         )
@@ -88,7 +88,7 @@ fun ItemBrowserScreen(
 @Composable
 private fun ReadyContent(
     modifier: Modifier,
-    uiData: ItemBrowserUiData,
+    uiData: ItemBrowserUiState.Success,
     onIntent: (ItemBrowserIntent) -> Unit,
     onOpenItem: (itemId: ItemId) -> Unit = {},
     onAddItem: () -> Unit = {}
@@ -103,7 +103,8 @@ private fun ReadyContent(
         HorizontalDivider()
 
         // Empty state; not it's own state variant
-        if (items.isEmpty()) {
+        // TODO: Update when uiData is finished
+        if (uiData.items.isEmpty()) {
             EmptyState(
                 modifier = Modifier.fillMaxSize(),
                 onAddItem = onAddItem
@@ -120,7 +121,7 @@ private fun ReadyContent(
             item {
                 Text("Items", style = MaterialTheme.typography.titleMedium)
             }
-            items(items, key = { it.id.value }) { i ->
+            items(uiData.items, key = { it.id.value }) { i ->
                 ItemSummaryRow(
                     modifier = Modifier,
                     item = i,
