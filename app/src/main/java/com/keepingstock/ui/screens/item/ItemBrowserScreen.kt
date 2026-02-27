@@ -1,5 +1,6 @@
 package com.keepingstock.ui.screens.item
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import com.keepingstock.core.contracts.BrowserEmptyState
 import com.keepingstock.core.contracts.BrowserLayout
 import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.ContainerBrowserFilter
+import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemBrowserFilter
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.intents.item.ItemBrowserIntent
@@ -273,4 +275,79 @@ private fun FiltersRow(
             onStatusChange = { onFilterChange(filter.copy(itemStatus = it)) }
         )
     }
+}
+
+
+/**
+ * Renders visible items in the selected [BrowserLayout].
+ *
+ * @param layout Selected layout for displaying results.
+ * @param visibleItems Items to display (already derived by ViewModel/reducer).
+ * @param onOpenItem Invoked when an item is selected.
+ */
+@Composable
+private fun ItemResults(
+    layout: BrowserLayout,
+    visibleItems: List<Item>,
+    onOpenItem: (ItemId) -> Unit
+) {
+    when (layout) {
+        BrowserLayout.LIST ->
+            ListContents(visibleItems = visibleItems, onOpenItem = onOpenItem)
+
+        BrowserLayout.GRID ->
+            GridContents(visibleItems = visibleItems, onOpenItem = onOpenItem)
+
+        BrowserLayout.COMPACT ->
+            CompactContents(visibleItems = visibleItems, onOpenItem = onOpenItem)
+    }
+}
+
+
+/**
+ * List layout for Item Browser results.
+ *
+ * @param visibleItems Items to display.
+ * @param onOpenItem Invoked when an item row is selected.
+ */
+@Composable
+private fun ListContents(
+    visibleItems: List<Item>,
+    onOpenItem: (ItemId) -> Unit
+) {
+
+}
+
+/**
+ * Grid layout for Item Browser results.
+ *
+ * Uses a fixed column count consistent with ContainerBrowser’s grid MVP.
+ *
+ * @param visibleItems Items to display.
+ * @param onOpenItem Invoked when an item tile is selected.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun GridContents(
+    visibleItems: List<Item>,
+    onOpenItem: (ItemId) -> Unit
+) {
+
+}
+
+/**
+ * Compact layout for Item Browser results.
+ *
+ * MVP implementation reuses [ItemSummaryRow]. If you have an ItemCompactRow in the container
+ * package (or shared), swap it here.
+ *
+ * @param visibleItems Items to display.
+ * @param onOpenItem Invoked when an item row is selected.
+ */
+@Composable
+private fun CompactContents(
+    visibleItems: List<Item>,
+    onOpenItem: (ItemId) -> Unit
+) {
+    
 }
