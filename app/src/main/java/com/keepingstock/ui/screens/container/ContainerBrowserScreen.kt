@@ -2,7 +2,6 @@ package com.keepingstock.ui.screens.container
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -25,12 +24,10 @@ import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -52,12 +49,14 @@ import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.screen.ContainerCompactRow
 import com.keepingstock.ui.components.screen.ContainerSummaryRow
 import com.keepingstock.ui.components.screen.ContainerTile
+import com.keepingstock.ui.components.screen.EmptyState
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.ItemCompactRow
 import com.keepingstock.ui.components.screen.ItemStatusPickerChip
 import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.ItemTile
 import com.keepingstock.ui.components.screen.LoadingContent
+import com.keepingstock.ui.components.screen.NoResultsState
 import com.keepingstock.ui.components.screen.SearchField
 import com.keepingstock.ui.components.screen.SortAndLayoutRow
 
@@ -167,7 +166,8 @@ private fun ReadyContent(
                     modifier = Modifier.fillMaxSize(),
                     onAddContainer = { onAddContainer(uiState.containerId) },
                     onAddItem = { onAddItem(uiState.containerId) },
-                    onScan = onScan
+                    onScan = onScan,
+                    isItemBrowser = false
                 )
                 return
             }
@@ -356,104 +356,7 @@ private fun FiltersRow(
     }
 }
 
-/**
- * Empty-state UI shown when a container has no subcontainers and no items.
- *
- * @param modifier Modifier applied to the full-size empty-state container.
- * @param onAddContainer Invoked when user chooses to add a container.
- * @param onAddItem Invoked when user chooses to add an item.
- */
-@Composable
-private fun EmptyState(
-    modifier: Modifier,
-    onAddContainer: () -> Unit,
-    onAddItem: () -> Unit,
-    onScan: () -> Unit
-) {
-    Box(
-        modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(24.dp)
-        ) {
-            Text(
-                text = "Nothing here yet",
-                style = MaterialTheme.typography.titleMedium
-            )
 
-            Spacer(Modifier.height(8.dp))
-
-            Text(
-                text = "Add a container or item to get started.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(onClick = onAddContainer) { Text("Add container") }
-
-                OutlinedButton(onClick = onAddItem) { Text("Add item") }
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-            TextButton(onClick = onScan) {
-                Icon(Icons.Default.QrCodeScanner, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Scan to find")
-            }
-        }
-    }
-}
-
-/**
- * Empty state UI to show when the container has subcontainers and/or items, but none match the
- * provided filter / query settings.
- *
- * @param modifier: Optional modifier for the screen container.
- * @param onClearQuery Invoked when the user intends to clear the search field's query.
- * @param onResetFilters: Invoked when the user intends to clear the current filter settings
- */
-@Composable
-private fun NoResultsState(
-    modifier: Modifier,
-    onClearQuery: () -> Unit,
-    onResetFilters: () -> Unit
-) {
-    Box(
-        modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(24.dp)
-        ) {
-            Text(
-                text = "No results found",
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            Text(
-                text = "Try a different search or adjust your filters.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Button(onClick = onClearQuery) { Text("Clear search") }
-                OutlinedButton(onClick = onResetFilters) { Text("Reset filters") }
-            }
-        }
-    }
-}
 
 /**
  * Component for the main scrollable content area for the Container Browser when data is available.
@@ -820,8 +723,6 @@ private fun Preview_ControlsBar() {
     )
 }
 
-
-
 /**
  * Preview of the filter row
  */
@@ -845,8 +746,6 @@ private fun Preview_FilterRowOptionSelected() {
         onFilterChange = { }
     )
 }
-
-
 
 /**
  * Preview of the SectionHeader
