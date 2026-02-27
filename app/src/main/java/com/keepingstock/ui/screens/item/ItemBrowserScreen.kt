@@ -25,12 +25,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.keepingstock.core.contracts.BrowserLayout
+import com.keepingstock.core.contracts.BrowserSort
+import com.keepingstock.core.contracts.ContainerBrowserFilter
+import com.keepingstock.core.contracts.ItemBrowserFilter
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.intents.item.ItemBrowserIntent
 import com.keepingstock.core.contracts.uistates.item.ItemBrowserUiState
+import com.keepingstock.ui.components.screen.EmptyState
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.LoadingContent
+import com.keepingstock.ui.components.screen.SearchField
+import com.keepingstock.ui.components.screen.SortAndLayoutRow
 import com.keepingstock.ui.screens.item.ReadyContent
 import com.keepingstock.viewmodel.item.ItemBrowserUiData
 
@@ -169,6 +176,64 @@ private fun ItemBrowserHeader(
             Text("Add")
         }
     }
+}
+
+/**
+ * Control bar for Item Browser that wires shared control components to [ItemBrowserIntent].
+ *
+ * Includes:
+ * - Search field
+ * - Item status filter
+ * - Sort and layout controls
+ *
+ * @param query Current search query.
+ * @param filter Current filter configuration.
+ * @param sort Current sort selection.
+ * @param layout Current layout selection.
+ * @param onIntent Callback for user intents.
+ */
+@Composable
+private fun ControlsBar(
+    query: String,
+    filter: ItemBrowserFilter,
+    sort: BrowserSort,
+    layout: BrowserLayout,
+    onIntent: (ItemBrowserIntent) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .padding(bottom = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        SearchField(
+            query = query,
+            onQueryChange = { onIntent(ItemBrowserIntent.QueryChange(it)) },
+            onClearQuery = { onIntent(ItemBrowserIntent.ClearQuery) }
+        )
+
+        SortAndLayoutRow(
+            sort = sort,
+            layout = layout,
+            onSortChange = { onIntent(ItemBrowserIntent.SortChange(it)) },
+            onLayoutChange = { onIntent(ItemBrowserIntent.LayoutChange(it)) }
+        )
+    }
+}
+
+/**
+ * Displays a set of available filters for the search results
+ *
+ * @param filter: The data class of current filter settings.
+ * @param onFilterChange: Invokes to intended user action callback for changing the filter settings.
+ */
+@Composable
+private fun FiltersRow(
+    filter: ContainerBrowserFilter,
+    onFilterChange: (ContainerBrowserFilter) -> Unit
+) {
+
 }
 
 /**
