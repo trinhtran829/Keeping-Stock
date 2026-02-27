@@ -8,6 +8,12 @@ import com.keepingstock.core.contracts.TagId
 import kotlinx.coroutines.flow.Flow
 
 /**
+ * This code was generated with the help of the following links
+ * https://developer.android.com/codelabs/basic-android-kotlin-compose-persisting-data-room?authuser=1&continue=https%3A%2F%2Fdeveloper.android.com%2Fcourses%2Fpathways%2Fandroid-basics-compose-unit-6-pathway-2%3Fauthuser%3D1%23codelab-https%3A%2F%2Fdeveloper.android.com%2Fcodelabs%2Fbasic-android-kotlin-compose-persisting-data-room#7
+ * These links document the sample code that led to my code.
+ */
+
+/**
  * Placeholder repository
  *
  * NOTE TO TEAM:

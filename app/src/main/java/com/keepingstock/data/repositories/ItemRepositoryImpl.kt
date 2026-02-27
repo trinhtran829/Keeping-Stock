@@ -4,10 +4,13 @@ import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.data.daos.ItemDao
+import com.keepingstock.data.daos.ItemTagDao
 import com.keepingstock.data.daos.ItemWithTagsDao
 import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.data.mapper.toDomain
+import com.keepingstock.data.mapper.toEntity
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import java.util.Date
 import kotlin.collections.emptyList
 
@@ -17,27 +20,17 @@ import kotlin.collections.emptyList
  * These links document the sample code that led to my code.
  */
 
-/**
- * Placeholder repository
- *
- * NOTE TO TEAM:
- * - This is a temporary implementation
- * - These function names are final and stable
- * - UI and Integration lead can start using them
- * - The real business logic will be implemented later
- *
- * This is to ensures the UI/ViewModels code can be develop while I continue to
- * work on these logic.
- */
-
 class ItemRepositoryImpl(
     private val itemDao: ItemDao,
     private val itemWithTagsDao: ItemWithTagsDao,
+    private val itemTagDao: ItemTagDao
     ) : ItemRepository {
+
     /**
      * Create an item
-     * Upon creation, depends on containerId, status and checkoutDate
-     * will be filled according to the rules.
+     * Rule:
+     * containerId == null -> status = TAKEN_OUT, checkoutDate = now
+     * containerId != null -> status = STORED, checkoutDate = null
      */
     override suspend fun createItem(
         name: String,
@@ -45,88 +38,128 @@ class ItemRepositoryImpl(
         imageUri: String?,
         containerId: ContainerId?
     ): Item {
-        // placeholder: return dummy Item
-        return Item(
+        var status: ItemStatus = ItemStatus.TAKEN_OUT
+        var checkoutDate: Date? = Date()
+
+        if (containerId != null) {
+            status = ItemStatus.STORED
+            checkoutDate = null
+        }
+
+        val item = Item(
             id = ItemId(0L),
             name = name,
             description = description,
             imageUri = imageUri,
             containerId = containerId,
-            status = ItemStatus.TAKEN_OUT,
+            status = status,
             createdDate = Date(),
-            checkoutDate = null,
+            checkoutDate = checkoutDate,
             tags = emptyList()
         )
+        val generatedId = itemDao.insert(item.toEntity())
+        return item.copy(id = ItemId(generatedId))
     }
 
     /**
      * Full item update
+     * Rule:
+     * containerId change to null -> status = TAKEN_OUT, checkoutDate unchanged
+     * containerId change to not-null -> status = unchanged, checkoutDate = unchanged
      */
     override suspend fun updateItem(item: Item){
-        // Placeholder: do nothing for now
+        val updatedItem: Item
+        if (item.containerId == null) {
+            updatedItem = item.copy(
+                status = ItemStatus.TAKEN_OUT
+            )
+        } else {
+            updatedItem = item
+        }
+        itemDao.update(updatedItem.toEntity())
     }
 
     /**
-     * Update only status
+     * Update only item's status
+     * Rule:
+     * STORED -> TAKEN_OUT, checkoutDate = now
+     * TAKEN_OUT -> STORED, checkoutDate = null
      */
     override suspend fun updateItemStatus(itemId: ItemId, status: ItemStatus) {
-        // Placeholder: do nothing for now
+        var checkoutDate: Date? = Date()
+        if(status == ItemStatus.STORED) {
+            checkoutDate = null
+        }
+        itemDao.updateItemStatus(
+            itemId = itemId.value,
+            status = status,
+            checkoutDate = checkoutDate
+        )
     }
 
     /**
-     * Delete
+     * Delete an item
+     * Also removes all item-tag rows associated with the item
      */
     override suspend fun deleteItem(item: Item) {
-        // Placeholder: do nothing for now
+        itemTagDao.deleteAllTagsForItem(item.id.value)
+        itemDao.delete(item.toEntity())
     }
 
     /**
      * Get item by Id
      */
     override suspend fun getItemById(itemId: ItemId): Item? {
-        // Placeholder: return a dummy ItemEntity
-        return Item(
-            id = itemId,
-            name = "Placeholder Item",
-            description = "Placeholder description",
-            imageUri = null,
-            containerId = null,
-            status = ItemStatus.TAKEN_OUT,
-            createdDate = Date(),
-            checkoutDate = Date(),
-            tags = emptyList()
-        )
+        return itemWithTagsDao.getItemWithTagsById(itemId.value)?.toDomain()
     }
 
     /**
      * Observe all items
      */
     override fun observeItem(): Flow<List<Item>> {
-        // Placeholder: return empty list
-        return flowOf(emptyList())
+        return itemWithTagsDao.getAllItemsWithTags()
+            .map { itemList -> itemList.map { it.toDomain() } }
+
     }
 
     /**
      * Observe items in a container
      */
     override fun observeItemInContainer(containerId: ContainerId): Flow<List<Item>> {
-        // Placeholder: return empty list
-        return flowOf(emptyList())
+        return itemWithTagsDao.getItemsInContainerWithTags(containerId.value)
+            .map { itemList -> itemList.map { it.toDomain() } }
     }
 
     /**
      * Observe items NOT in a container (unsorted)
      */
     override fun observeItemUnsorted(): Flow<List<Item>> {
-        // Placeholder: return empty list
-        return flowOf(emptyList())
+        return itemWithTagsDao.getUnsortedItemsWithTags()
+            .map { itemList -> itemList.map { it.toDomain() } }
     }
 
     /**
      * Search items where query match item's or tag's name
      */
     override fun searchItemsByNameOrTag(query: String): Flow<List<Item>> {
-        // Placeholder: return empty list
-        return flowOf(emptyList())
+        return itemWithTagsDao.searchByItemOrTagName(query)
+            .map { itemList -> itemList.map { it.toDomain() } }
+    }
+
+    /**
+     * Search items where query match item's name
+     */
+    override fun searchItemsByName(query: String): Flow<List<Item>> {
+        return itemWithTagsDao.searchItemsByName(query)
+            .map { itemList -> itemList.map { it.toDomain() } }
+    }
+
+    /**
+     * Search items where query match tag's name
+     */
+    override fun searchItemsByTagName(query: String): Flow<List<Item>> {
+        return itemWithTagsDao.searchItemsByTagName(query)
+            .map { itemList -> itemList.map { it.toDomain() }
+        }
     }
 }
