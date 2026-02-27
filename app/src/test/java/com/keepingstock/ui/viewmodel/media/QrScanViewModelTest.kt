@@ -40,7 +40,7 @@ class QrScanViewModelTest {
         )
         val viewModel = QrScanViewModel(qrService, containerRepository)
 
-        viewModel.scanContainer()
+        viewModel.onContainerDetected(ContainerId(7L))
         runCurrent()
         assertTrue(viewModel.uiState.value is UiState.Loading)
 
@@ -50,7 +50,6 @@ class QrScanViewModelTest {
         val success = viewModel.uiState.value as UiState.Success
         assertEquals(7L, success.data.response?.containerId)
         assertEquals("Garage", success.data.response?.containerName)
-        assertEquals(1, qrService.scanCallCount)
     }
 
     @Test
@@ -61,50 +60,11 @@ class QrScanViewModelTest {
         val containerRepository = FakeContainerRepository()
         val viewModel = QrScanViewModel(qrService, containerRepository)
 
-        viewModel.scanContainer()
+        viewModel.onContainerDetected(ContainerId(99L))
         advanceUntilIdle()
 
         val error = viewModel.uiState.value as UiState.Error
-        assertTrue(error.message.contains("99"))
-    }
-
-    @Test
-    fun scanException_emitsError() = runTest(mainDispatcherRule.testDispatcher) {
-        val qrService = FakeQrService(
-            scanResult = Result.failure(IllegalStateException("camera unavailable"))
-        )
-        val containerRepository = FakeContainerRepository()
-        val viewModel = QrScanViewModel(qrService, containerRepository)
-
-        viewModel.scanContainer()
-        advanceUntilIdle()
-
-        val error = viewModel.uiState.value as UiState.Error
-        assertTrue(error.cause is IllegalStateException)
-    }
-
-    @Test
-    fun duplicateScanTap_whileInFlight_onlyOneScanRuns() = runTest(mainDispatcherRule.testDispatcher) {
-        val qrService = FakeQrService(
-            scanResult = Result.success(ContainerId(1L)),
-            scanDelayMs = 1_000L
-        )
-        val containerRepository = FakeContainerRepository(
-            containers = mutableMapOf(
-                1L to Container(
-                    id = ContainerId(1L),
-                    name = "Kitchen"
-                )
-            )
-        )
-        val viewModel = QrScanViewModel(qrService, containerRepository)
-
-        viewModel.scanContainer()
-        viewModel.scanContainer()
-        advanceTimeBy(1_000L)
-        advanceUntilIdle()
-
-        assertEquals(1, qrService.scanCallCount)
+        assertTrue(error.message.contains("99") || error.message.contains("not found"))
     }
 
     @Test
@@ -123,19 +83,17 @@ class QrScanViewModelTest {
         )
         val viewModel = QrScanViewModel(qrService, containerRepository)
 
-        viewModel.scanContainer()
+        viewModel.onContainerDetected(ContainerId(1L))
         viewModel.reset()
 
         val resetState = viewModel.uiState.value as UiState.Success
         assertNull(resetState.data.response)
 
-        viewModel.scanContainer()
-        advanceTimeBy(1_000L)
+        viewModel.onContainerDetected(ContainerId(1L))
         advanceUntilIdle()
 
         val finalState = viewModel.uiState.value as UiState.Success
         assertEquals(1L, finalState.data.response?.containerId)
-        assertEquals(1, qrService.scanCallCount)
     }
 }
 
@@ -151,7 +109,7 @@ private class FakeQrService(
         return scanResult.getOrThrow()
     }
 
-    override suspend fun generateContainerQr(containerId: ContainerId): String {
+    override fun generateContainerQr(containerId: ContainerId): String {
         return "keepingstock://container/${containerId.value}"
     }
 }

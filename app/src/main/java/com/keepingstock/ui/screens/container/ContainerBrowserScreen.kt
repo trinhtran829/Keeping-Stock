@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
@@ -93,7 +94,8 @@ fun ContainerBrowserScreen(
     onOpenItem: (itemId: ItemId) -> Unit = {},
     onOpenContainerInfo: (containerId: ContainerId) -> Unit = {},
     onAddContainer: (parentContainerId: ContainerId?) -> Unit = {},
-    onAddItem: (containerId: ContainerId?) -> Unit = {}
+    onAddItem: (containerId: ContainerId?) -> Unit = {},
+    onScan: () -> Unit = {}
 ) {
     when (uiState) {
         ContainerBrowserUiState.Loading -> LoadingContent(modifier)
@@ -112,7 +114,8 @@ fun ContainerBrowserScreen(
             onOpenItem = onOpenItem,
             onOpenContainerInfo = onOpenContainerInfo,
             onAddContainer = onAddContainer,
-            onAddItem = onAddItem
+            onAddItem = onAddItem,
+            onScan = onScan
         )
     }
 }
@@ -145,7 +148,8 @@ private fun ReadyContent(
     onOpenItem: (itemId: ItemId) -> Unit = {},
     onOpenContainerInfo: (containerId: ContainerId) -> Unit = {},
     onAddContainer: (parentContainerId: ContainerId?) -> Unit = {},
-    onAddItem: (containerId: ContainerId?) -> Unit = {}
+    onAddItem: (containerId: ContainerId?) -> Unit = {},
+    onScan: () -> Unit = {}
 ) {
     Column() {
         // Content header; mainly counts and info button
@@ -172,7 +176,8 @@ private fun ReadyContent(
                 EmptyState(
                     modifier = Modifier.fillMaxSize(),
                     onAddContainer = { onAddContainer(uiState.containerId) },
-                    onAddItem = { onAddItem(uiState.containerId) }
+                    onAddItem = { onAddItem(uiState.containerId) },
+                    onScan = onScan
                 )
                 return
             }
@@ -267,7 +272,8 @@ private fun ControlsBar(
     filter: ContainerBrowserFilter,
     sort: ContainerBrowserSort,
     layout: ContainerBrowserLayout,
-    onIntent: (ContainerBrowserIntent) -> Unit
+    onIntent: (ContainerBrowserIntent) -> Unit,
+    onScan: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -468,7 +474,8 @@ private fun SortAndLayoutRow(
     sort: ContainerBrowserSort,
     layout: ContainerBrowserLayout,
     onSortChange: (ContainerBrowserSort) -> Unit,
-    onLayoutChange: (ContainerBrowserLayout) -> Unit
+    onLayoutChange: (ContainerBrowserLayout) -> Unit,
+    onScan: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -483,6 +490,10 @@ private fun SortAndLayoutRow(
         LayoutMenu(
             layout = layout,
             onLayoutChange = onLayoutChange
+        )
+
+        QrScanMenuOption(
+            onScan = onScan
         )
     }
 }
@@ -599,6 +610,29 @@ private fun LayoutMenu(
     }
 }
 
+@Composable
+private fun QrScanMenuOption(
+    onScan: () -> Unit = {}
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = onScan
+        ) {
+            Icon(
+                imageVector = Icons.Default.QrCodeScanner,
+                contentDescription = "Scan"
+            )
+        }
+
+        Text(
+            text = "Scan",
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
 /**
  * Empty-state UI shown when a container has no subcontainers and no items.
  *
@@ -610,7 +644,8 @@ private fun LayoutMenu(
 private fun EmptyState(
     modifier: Modifier,
     onAddContainer: () -> Unit,
-    onAddItem: () -> Unit
+    onAddItem: () -> Unit,
+    onScan: () -> Unit
 ) {
     Box(
         modifier,
@@ -638,6 +673,14 @@ private fun EmptyState(
                 Button(onClick = onAddContainer) { Text("Add container") }
 
                 OutlinedButton(onClick = onAddItem) { Text("Add item") }
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            TextButton(onClick = onScan) {
+                Icon(Icons.Default.QrCodeScanner, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Scan to find")
             }
         }
     }

@@ -160,6 +160,9 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
                 },
                 onAddItem = { cid ->
                     deps.navController.navigate(NavRoute.AddEditItem.createRoute(containerId = cid))
+                },
+                onScan = {
+                    deps.navController.navigate(NavRoute.QRScan.route)
                 }
             )
         }
