@@ -27,8 +27,7 @@ class QrScanViewModelTest {
     @Test
     fun scanSuccess_emitsLoadingThenSuccess() = runTest(mainDispatcherRule.testDispatcher) {
         val qrService = FakeQrService(
-            scanResult = Result.success(ContainerId(7L)),
-            scanDelayMs = 1_000L
+            scanResult = Result.success(ContainerId(7L))
         )
         val containerRepository = FakeContainerRepository(
             containers = mutableMapOf(
@@ -36,16 +35,17 @@ class QrScanViewModelTest {
                     id = ContainerId(7L),
                     name = "Garage"
                 )
-            )
+            ),
+            delayMs = 1_000L
         )
         val viewModel = QrScanViewModel(qrService, containerRepository)
 
         viewModel.onContainerDetected(ContainerId(7L))
         runCurrent()
-        assertTrue(viewModel.uiState.value is UiState.Loading)
+        assertTrue("State should be Loading after onContainerDetected", viewModel.uiState.value is UiState.Loading)
 
         advanceTimeBy(1_000L)
-        advanceUntilIdle()
+        runCurrent()
 
         val success = viewModel.uiState.value as UiState.Success
         assertEquals(7L, success.data.response?.containerId)
@@ -70,8 +70,7 @@ class QrScanViewModelTest {
     @Test
     fun reset_clearsStateAndAllowsNextScan() = runTest(mainDispatcherRule.testDispatcher) {
         val qrService = FakeQrService(
-            scanResult = Result.success(ContainerId(1L)),
-            scanDelayMs = 1_000L
+            scanResult = Result.success(ContainerId(1L))
         )
         val containerRepository = FakeContainerRepository(
             containers = mutableMapOf(
@@ -84,6 +83,7 @@ class QrScanViewModelTest {
         val viewModel = QrScanViewModel(qrService, containerRepository)
 
         viewModel.onContainerDetected(ContainerId(1L))
+        advanceUntilIdle()
         viewModel.reset()
 
         val resetState = viewModel.uiState.value as UiState.Success
@@ -115,10 +115,14 @@ private class FakeQrService(
 }
 
 private class FakeContainerRepository(
-    val containers: MutableMap<Long, Container> = mutableMapOf()
+    val containers: MutableMap<Long, Container> = mutableMapOf(),
+    private val delayMs: Long = 0L
 ) : ContainerRepository {
 
-    override suspend fun getContainer(id: ContainerId): Container? = containers[id.value]
+    override suspend fun getContainer(id: ContainerId): Container? {
+        if (delayMs > 0) delay(delayMs)
+        return containers[id.value]
+    }
 
     override suspend fun getRootContainers(): List<Container> {
         return containers.values.filter { it.parentContainerId == null }.sortedBy { it.name }
