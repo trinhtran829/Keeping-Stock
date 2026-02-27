@@ -13,6 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -37,8 +41,10 @@ import com.keepingstock.core.contracts.intents.item.ItemBrowserIntent
 import com.keepingstock.core.contracts.uistates.item.ItemBrowserUiState
 import com.keepingstock.ui.components.screen.EmptyState
 import com.keepingstock.ui.components.screen.ErrorContent
+import com.keepingstock.ui.components.screen.ItemCompactRow
 import com.keepingstock.ui.components.screen.ItemStatusPickerChip
 import com.keepingstock.ui.components.screen.ItemSummaryRow
+import com.keepingstock.ui.components.screen.ItemTile
 import com.keepingstock.ui.components.screen.LoadingContent
 import com.keepingstock.ui.components.screen.NoResultsState
 import com.keepingstock.ui.components.screen.SearchField
@@ -335,7 +341,34 @@ private fun GridContents(
     visibleItems: List<Item>,
     onOpenItem: (ItemId) -> Unit
 ) {
+    val gridState = rememberLazyGridState()
 
+    LazyVerticalGrid(
+        state = gridState,
+        columns = GridCells.Fixed(3),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = 12.dp,
+            end = 12.dp,
+            top = 8.dp,
+            bottom = 16.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(
+            items = visibleItems,
+            key = { it.id.value }
+        ) { item ->
+            ItemTile(
+                item = item,
+                onClick = { onOpenItem(item.id) }
+            )
+        }
+
+        // breathing room above bottom bar
+        item { Spacer(Modifier.height(16.dp)) }
+    }
 }
 
 /**
@@ -349,5 +382,18 @@ private fun CompactContents(
     visibleItems: List<Item>,
     onOpenItem: (ItemId) -> Unit
 ) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        items(visibleItems, key = { it.id.value }) { i ->
+            ItemCompactRow(
+                item = i,
+                onClick = { onOpenItem(i.id) }
+            )
+        }
 
+        item { Spacer(Modifier.height(16.dp)) }
+    }
 }
