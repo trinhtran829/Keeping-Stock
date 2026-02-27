@@ -32,6 +32,7 @@ import com.keepingstock.core.contracts.intents.item.ItemBrowserIntent
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.LoadingContent
+import com.keepingstock.ui.screens.item.ReadyContent
 import com.keepingstock.viewmodel.item.ItemBrowserUiData
 
 /**
@@ -52,69 +53,52 @@ fun ItemBrowserScreen(
     onAddItem: () -> Unit = {}
 ) {
 
-        when (uiState) {
-            is UiState.Loading -> LoadingContent(modifier)
+    when (uiState) {
+        is UiState.Loading -> LoadingContent(modifier)
 
-            is UiState.Error -> ErrorContent(
-                modifier = modifier.fillMaxSize(),
-                message = uiState.message
-            )
+        is UiState.Error -> ErrorContent(
+            modifier = modifier.fillMaxSize(),
+            message = uiState.message
+        )
 
-            is UiState.Success -> ReadyContent(
-                modifier = modifier.fillMaxSize(),
-                items = uiState.data.items,
-                onOpenItem = onOpenItem,
-                onAddItem = onAddItem
-            )
-        }
+        is UiState.Success -> ReadyContent(
+            modifier = modifier.fillMaxSize(),
+            items = uiState.data.items,
+            onOpenItem = onOpenItem,
+            onAddItem = onAddItem
+        )
+    }
 }
 
 /**
- * Ready-state UI for the Item Browser. Does the heavy-lifting
+ * Ready-state UI for the Item Browser.
  *
- * - If item list is empty, shows the empty-state.
- * - Otherwise, renders items in a single scrolling list.
+ * - Shows a header row with item count and an Add action.
+ * - Shows shared browser controls (search + status filter + sort + layout).
+ * - Shows empty states based on [BrowserEmptyState].
+ * - Renders results using the selected [BrowserLayout].
  *
  * TODO(FUTURE): Add a grid/tile layout option. Keep row composables reusable by both layouts.
  *
- * :param modifier: Optional modifier for the screen container.
- * :param items: List of items in this container.
- * :param onOpenItem: User intent to open an item detail view.
- * :param onAddItem: User intent to add an item under containerId.
+ * @param modifier: Optional modifier for the screen container.
+ * @param items: List of items in this container.
+ * @param onOpenItem: User intent to open an item detail view.
+ * @param onAddItem: User intent to add an item under containerId.
  */
 @Composable
 private fun ReadyContent(
     modifier: Modifier,
-    items: List<Item>,
+    uiData: ItemBrowserUiData,
+    onIntent: (ItemBrowserIntent) -> Unit,
     onOpenItem: (itemId: ItemId) -> Unit = {},
     onAddItem: () -> Unit = {}
 ) {
     Column() {
         // Content header; mainly counts
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val counts = "${items.size} items"
-            Text(
-                text = counts,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
-            )
-
-            TextButton(
-                onClick = onAddItem
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add item"
-                )
-                Spacer(Modifier.width(4.dp))
-                Text("Add")
-            }
-        }
+        ItemBrowserHeader(
+            itemCount = uiData.items.size,
+            onAddItem = onAddItem
+        )
 
         HorizontalDivider()
 
@@ -151,11 +135,47 @@ private fun ReadyContent(
 }
 
 /**
+ * Header row for the Item Browser.
+ *
+ * Displays an item count and an Add button.
+ *
+ * @param itemCount Total number of items available (unfiltered).
+ * @param onAddItem Invoked when the user taps the Add button.
+ */
+@Composable
+private fun ItemBrowserHeader(
+    itemCount: Int,
+    onAddItem: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "$itemCount items",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
+
+        TextButton(onClick = onAddItem) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add item"
+            )
+            Spacer(Modifier.width(4.dp))
+            Text("Add")
+        }
+    }
+}
+
+/**
  * Empty-state UI shown when there are no items.
  *
- * :param modifier Modifier applied to the full-size empty-state container.
- * :param onAddContainer Invoked when user chooses to add a container.
- * :param onAddItem Invoked when user chooses to add an item.
+ * @param modifier Modifier applied to the full-size empty-state container.
+ * @param onAddContainer Invoked when user chooses to add a container.
+ * @param onAddItem Invoked when user chooses to add an item.
  */
 @Composable
 private fun EmptyState(
