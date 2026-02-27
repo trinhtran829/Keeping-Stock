@@ -1,6 +1,8 @@
 package com.keepingstock.core.contracts.intents.container
 
-import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.core.contracts.BrowserLayout
+import com.keepingstock.core.contracts.BrowserSort
+import com.keepingstock.core.contracts.ContainerBrowserFilter
 
 /**
  * Intents emitted by the Container Browser UI and handled by the corresponding ViewModel.
@@ -72,7 +74,7 @@ sealed interface ContainerBrowserIntent {
      *
      * :param sort: The selected sort mode.
      */
-    data class SortChange(val sort: ContainerBrowserSort) : ContainerBrowserIntent
+    data class SortChange(val sort: BrowserSort) : ContainerBrowserIntent
 
     /**
      * Updates the preferred layout mode for displaying results. This intent is emitted when
@@ -84,7 +86,7 @@ sealed interface ContainerBrowserIntent {
      *
      * :param layout: The selected layout mode.
      */
-    data class LayoutChange(val layout: ContainerBrowserLayout) : ContainerBrowserIntent
+    data class LayoutChange(val layout: BrowserLayout) : ContainerBrowserIntent
 
     /**
      * Request that the VM retry loading container details after a failure
@@ -97,6 +99,7 @@ sealed interface ContainerBrowserIntent {
     data object Retry : ContainerBrowserIntent
 }
 
+/*
 // TODO: Do we need other filters? I thought being able to filter by if it's taken out
 //  or not would be a nice touch. Aside from that, I just put two boolean flags for
 //  if visible results should include only containers/items
@@ -118,3 +121,5 @@ enum class ContainerBrowserLayout {
     GRID,
     COMPACT
 }
+
+ */

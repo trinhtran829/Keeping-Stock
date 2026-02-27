@@ -2,13 +2,13 @@ package com.keepingstock.ui.screens.container.previews
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.keepingstock.core.contracts.BrowserLayout
+import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.ContainerBrowserFilter
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
-import com.keepingstock.core.contracts.intents.container.ContainerBrowserFilter
-import com.keepingstock.core.contracts.intents.container.ContainerBrowserLayout
-import com.keepingstock.core.contracts.intents.container.ContainerBrowserSort
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserEmptyState
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
@@ -47,8 +47,8 @@ private fun Preview_ContainerBrowser_EmptyReady() {
             visibleItems = emptyList(),
             query = "",
             filter = ContainerBrowserFilter(),
-            sort = ContainerBrowserSort.NAME_DESC,
-            layout = ContainerBrowserLayout.LIST,
+            sort = BrowserSort.NAME_DESC,
+            layout = BrowserLayout.LIST,
             emptyState = ContainerBrowserEmptyState.EMPTY_CONTAINER
         )
     )
@@ -106,8 +106,8 @@ private fun Preview_ContainerBrowser_PopulatedReady() {
             visibleItems = items,
             query = "",
             filter = ContainerBrowserFilter(),
-            sort = ContainerBrowserSort.NAME_DESC,
-            layout = ContainerBrowserLayout.LIST,
+            sort = BrowserSort.NAME_DESC,
+            layout = BrowserLayout.LIST,
             emptyState = ContainerBrowserEmptyState.NONE
         )
     )

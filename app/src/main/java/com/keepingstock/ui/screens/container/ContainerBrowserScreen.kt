@@ -49,14 +49,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.keepingstock.core.contracts.BrowserLayout
+import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.ContainerBrowserFilter
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
-import com.keepingstock.core.contracts.intents.container.ContainerBrowserFilter
 import com.keepingstock.core.contracts.intents.container.ContainerBrowserIntent
-import com.keepingstock.core.contracts.intents.container.ContainerBrowserLayout
-import com.keepingstock.core.contracts.intents.container.ContainerBrowserSort
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserEmptyState
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
@@ -258,7 +258,7 @@ private fun ContentHeader(
 
 /**
  * The component between the header and the content, which allows the user to control the content
- * via searching, filtering, and display modes ([ContainerBrowserLayout])
+ * via searching, filtering, and display modes ([BrowserLayout])
  *
  * @param query: The string entered into the search bar
  * @param filter: The data class of filter settings currently in place to filter the results of
@@ -271,8 +271,8 @@ private fun ContentHeader(
 private fun ControlsBar(
     query: String,
     filter: ContainerBrowserFilter,
-    sort: ContainerBrowserSort,
-    layout: ContainerBrowserLayout,
+    sort: BrowserSort,
+    layout: BrowserLayout,
     onIntent: (ContainerBrowserIntent) -> Unit,
     onScan: () -> Unit
 ) {
@@ -473,10 +473,10 @@ private fun ItemStatusPickerChip(
  */
 @Composable
 private fun SortAndLayoutRow(
-    sort: ContainerBrowserSort,
-    layout: ContainerBrowserLayout,
-    onSortChange: (ContainerBrowserSort) -> Unit,
-    onLayoutChange: (ContainerBrowserLayout) -> Unit,
+    sort: BrowserSort,
+    layout: BrowserLayout,
+    onSortChange: (BrowserSort) -> Unit,
+    onLayoutChange: (BrowserLayout) -> Unit,
     onScan: () -> Unit
 ) {
     Row(
@@ -508,16 +508,16 @@ private fun SortAndLayoutRow(
  */
 @Composable
 private fun SortMenu(
-    sort: ContainerBrowserSort,
-    onSortChange: (ContainerBrowserSort) -> Unit
+    sort: BrowserSort,
+    onSortChange: (BrowserSort) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     val label = when (sort) {
-        ContainerBrowserSort.NAME_ASC -> "Name A-Z"
-        ContainerBrowserSort.NAME_DESC -> "Name Z-A"
-        ContainerBrowserSort.CREATED_NEWEST -> "Created (newest)"
-        ContainerBrowserSort.CREATED_OLDEST -> "Created (oldest)"
+        BrowserSort.NAME_ASC -> "Name A-Z"
+        BrowserSort.NAME_DESC -> "Name Z-A"
+        BrowserSort.CREATED_NEWEST -> "Created (newest)"
+        BrowserSort.CREATED_OLDEST -> "Created (oldest)"
     }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -541,19 +541,19 @@ private fun SortMenu(
         ) {
             DropdownMenuItem(
                 text = { Text("Name (A–Z)") },
-                onClick = { expanded = false; onSortChange(ContainerBrowserSort.NAME_ASC) }
+                onClick = { expanded = false; onSortChange(BrowserSort.NAME_ASC) }
             )
             DropdownMenuItem(
                 text = { Text("Name (Z–A)") },
-                onClick = { expanded = false; onSortChange(ContainerBrowserSort.NAME_DESC) }
+                onClick = { expanded = false; onSortChange(BrowserSort.NAME_DESC) }
             )
             DropdownMenuItem(
                 text = { Text("Created (newest)") },
-                onClick = { expanded = false; onSortChange(ContainerBrowserSort.CREATED_NEWEST) }
+                onClick = { expanded = false; onSortChange(BrowserSort.CREATED_NEWEST) }
             )
             DropdownMenuItem(
                 text = { Text("Created (oldest)") },
-                onClick = { expanded = false; onSortChange(ContainerBrowserSort.CREATED_OLDEST) }
+                onClick = { expanded = false; onSortChange(BrowserSort.CREATED_OLDEST) }
             )
         }
     }
@@ -567,15 +567,15 @@ private fun SortMenu(
  */
 @Composable
 private fun LayoutMenu(
-    layout: ContainerBrowserLayout,
-    onLayoutChange: (ContainerBrowserLayout) -> Unit
+    layout: BrowserLayout,
+    onLayoutChange: (BrowserLayout) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     val label = when (layout) {
-        ContainerBrowserLayout.LIST -> "List"
-        ContainerBrowserLayout.GRID -> "Grid"
-        ContainerBrowserLayout.COMPACT -> "Compact"
+        BrowserLayout.LIST -> "List"
+        BrowserLayout.GRID -> "Grid"
+        BrowserLayout.COMPACT -> "Compact"
     }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -598,15 +598,15 @@ private fun LayoutMenu(
         ) {
             DropdownMenuItem(
                 text = { Text("List") },
-                onClick = { expanded = false; onLayoutChange(ContainerBrowserLayout.LIST) }
+                onClick = { expanded = false; onLayoutChange(BrowserLayout.LIST) }
             )
             DropdownMenuItem(
                 text = { Text("Grid") },
-                onClick = { expanded = false; onLayoutChange(ContainerBrowserLayout.GRID) }
+                onClick = { expanded = false; onLayoutChange(BrowserLayout.GRID) }
             )
             DropdownMenuItem(
                 text = { Text("Compact") },
-                onClick = { expanded = false; onLayoutChange(ContainerBrowserLayout.COMPACT) }
+                onClick = { expanded = false; onLayoutChange(BrowserLayout.COMPACT) }
             )
         }
     }
@@ -750,7 +750,7 @@ private fun NoResultsState(
  */
 @Composable
 private fun PopulatedStateContents(
-    layout: ContainerBrowserLayout,
+    layout: BrowserLayout,
     visibleSubcontainers: List<Container>,
     visibleItems: List<Item>,
     containerId: ContainerId?,
@@ -761,7 +761,7 @@ private fun PopulatedStateContents(
     onScan: () -> Unit
 ) {
     when (layout) {
-        ContainerBrowserLayout.LIST ->
+        BrowserLayout.LIST ->
             ListContents(
                 visibleSubcontainers = visibleSubcontainers,
                 visibleItems = visibleItems,
@@ -773,7 +773,7 @@ private fun PopulatedStateContents(
                 onScan = onScan
             )
 
-        ContainerBrowserLayout.GRID -> {
+        BrowserLayout.GRID -> {
             GridContents(
                 visibleSubcontainers = visibleSubcontainers,
                 visibleItems = visibleItems,
@@ -786,7 +786,7 @@ private fun PopulatedStateContents(
             )
         }
 
-        ContainerBrowserLayout.COMPACT -> {
+        BrowserLayout.COMPACT -> {
             CompactContents(
                 visibleSubcontainers = visibleSubcontainers,
                 visibleItems = visibleItems,
@@ -1092,8 +1092,8 @@ private fun Preview_ControlsBar() {
     ControlsBar(
         query = "DEMO SEARCH",
         filter = ContainerBrowserFilter(false),
-        sort = ContainerBrowserSort.NAME_ASC,
-        layout = ContainerBrowserLayout.LIST,
+        sort = BrowserSort.NAME_ASC,
+        layout = BrowserLayout.LIST,
         onIntent = { },
         onScan = { }
     )
@@ -1143,8 +1143,8 @@ private fun Preview_FilterRowOptionSelected() {
 @Composable
 private fun Preview_SortAndLayoutRow() {
     SortAndLayoutRow(
-        sort = ContainerBrowserSort.NAME_ASC,
-        layout = ContainerBrowserLayout.LIST,
+        sort = BrowserSort.NAME_ASC,
+        layout = BrowserLayout.LIST,
         onSortChange = { },
         onLayoutChange = { },
         onScan = { }
@@ -1158,7 +1158,7 @@ private fun Preview_SortAndLayoutRow() {
 @Composable
 private fun Preview_SortMenu() {
     SortMenu(
-        sort = ContainerBrowserSort.NAME_ASC,
+        sort = BrowserSort.NAME_ASC,
         onSortChange = { }
     )
 }
@@ -1170,7 +1170,7 @@ private fun Preview_SortMenu() {
 @Composable
 private fun Preview_LayoutMenu() {
     LayoutMenu(
-        layout = ContainerBrowserLayout.LIST,
+        layout = BrowserLayout.LIST,
         onLayoutChange = { }
     )
 }

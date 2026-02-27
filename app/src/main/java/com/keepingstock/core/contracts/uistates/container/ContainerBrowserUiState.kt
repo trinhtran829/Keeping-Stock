@@ -1,11 +1,11 @@
 package com.keepingstock.core.contracts.uistates.container
 
+import com.keepingstock.core.contracts.BrowserLayout
+import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.ContainerBrowserFilter
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
-import com.keepingstock.core.contracts.intents.container.ContainerBrowserFilter
-import com.keepingstock.core.contracts.intents.container.ContainerBrowserLayout
-import com.keepingstock.core.contracts.intents.container.ContainerBrowserSort
 
 /**
  * UI state for the Container Browser screen.
@@ -81,8 +81,8 @@ sealed interface ContainerBrowserUiState {
         // UI control state
         val query: String,
         val filter: ContainerBrowserFilter,
-        val sort: ContainerBrowserSort,
-        val layout: ContainerBrowserLayout,
+        val sort: BrowserSort,
+        val layout: BrowserLayout,
 
         // Because showing "Nothing here yet" for empty search/filter results doesn't make
         // sense, so I'll need the VM to specify what kind of empty state it's in.
