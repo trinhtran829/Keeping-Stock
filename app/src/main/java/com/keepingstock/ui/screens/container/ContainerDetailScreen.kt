@@ -96,7 +96,7 @@ private fun ReadyContent(
         }
 
         item {
-            ContainerQrCard(uiState.containerId)
+            ContainerQrCard(uiState.container.id)
         }
 
         item {
