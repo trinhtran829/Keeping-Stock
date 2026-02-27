@@ -1,5 +1,6 @@
 package com.keepingstock.core.contracts.uistates.container
 
+import com.keepingstock.core.contracts.BrowserEmptyState
 import com.keepingstock.core.contracts.BrowserLayout
 import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.Container
@@ -86,7 +87,7 @@ sealed interface ContainerBrowserUiState {
 
         // Because showing "Nothing here yet" for empty search/filter results doesn't make
         // sense, so I'll need the VM to specify what kind of empty state it's in.
-        val emptyState: ContainerBrowserEmptyState
+        val emptyState: BrowserEmptyState
     ) : ContainerBrowserUiState
 
     /**
@@ -97,15 +98,4 @@ sealed interface ContainerBrowserUiState {
         val message: String,
         val cause: Throwable? = null
     ) : ContainerBrowserUiState
-}
-
-/**
- * EMPTY_CONTAINER: show message “There's nothing here yet!”
- * NO_RESULTS: show “No results found”
- * NONE: Not empty, render list
- */
-enum class ContainerBrowserEmptyState {
-    NONE,
-    EMPTY_CONTAINER,
-    NO_RESULTS
 }

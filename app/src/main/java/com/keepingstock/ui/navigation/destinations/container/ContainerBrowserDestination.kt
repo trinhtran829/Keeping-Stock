@@ -14,6 +14,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.keepingstock.core.contracts.BrowserEmptyState
 import com.keepingstock.core.contracts.BrowserLayout
 import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.Container
@@ -23,7 +24,6 @@ import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.intents.container.ContainerBrowserIntent
-import com.keepingstock.core.contracts.uistates.container.ContainerBrowserEmptyState
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.navigation.NavDeps
@@ -292,11 +292,11 @@ private fun demoContainerBrowserReadyState(
             sort = BrowserSort.NAME_ASC,
             layout = BrowserLayout.COMPACT,
             emptyState = if (empty) {
-                ContainerBrowserEmptyState.EMPTY_CONTAINER
+                BrowserEmptyState.EMPTY
             } else if (noResults) {
-                ContainerBrowserEmptyState.NO_RESULTS
+                BrowserEmptyState.NO_RESULTS
             } else {
-                ContainerBrowserEmptyState.NONE
+                BrowserEmptyState.NONE
             }
         )
     } else {
@@ -344,7 +344,7 @@ private fun demoContainerBrowserReadyState(
             filter = ContainerBrowserFilter(),
             sort = BrowserSort.NAME_ASC,
             layout = BrowserLayout.COMPACT,
-            emptyState = ContainerBrowserEmptyState.NONE
+            emptyState = BrowserEmptyState.NONE
         )
     }
 }

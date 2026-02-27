@@ -2,6 +2,7 @@ package com.keepingstock.ui.screens.container.previews
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.keepingstock.core.contracts.BrowserEmptyState
 import com.keepingstock.core.contracts.BrowserLayout
 import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.Container
@@ -9,7 +10,6 @@ import com.keepingstock.core.contracts.ContainerBrowserFilter
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
-import com.keepingstock.core.contracts.uistates.container.ContainerBrowserEmptyState
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
@@ -49,7 +49,7 @@ private fun Preview_ContainerBrowser_EmptyReady() {
             filter = ContainerBrowserFilter(),
             sort = BrowserSort.NAME_DESC,
             layout = BrowserLayout.LIST,
-            emptyState = ContainerBrowserEmptyState.EMPTY_CONTAINER
+            emptyState = BrowserEmptyState.EMPTY
         )
     )
 }
@@ -108,7 +108,7 @@ private fun Preview_ContainerBrowser_PopulatedReady() {
             filter = ContainerBrowserFilter(),
             sort = BrowserSort.NAME_DESC,
             layout = BrowserLayout.LIST,
-            emptyState = ContainerBrowserEmptyState.NONE
+            emptyState = BrowserEmptyState.NONE
         )
     )
 }

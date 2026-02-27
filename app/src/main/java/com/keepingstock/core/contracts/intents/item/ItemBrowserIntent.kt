@@ -1,8 +1,8 @@
 package com.keepingstock.core.contracts.intents.item
 
-import com.keepingstock.core.contracts.uistates.item.ItemBrowserFilter
-import com.keepingstock.core.contracts.uistates.item.ItemBrowserLayout
-import com.keepingstock.core.contracts.uistates.item.ItemBrowserSort
+import com.keepingstock.core.contracts.BrowserLayout
+import com.keepingstock.core.contracts.BrowserSort
+import com.keepingstock.core.contracts.ItemBrowserFilter
 
 /**
  * Intents emitted by the Item Browser UI and handled by the corresponding ViewModel.
@@ -54,7 +54,7 @@ sealed interface ItemBrowserIntent {
      *
      * :param sort: The selected sort mode.
      */
-    data class SortChange(val sort: ItemBrowserSort) : ItemBrowserIntent
+    data class SortChange(val sort: BrowserSort) : ItemBrowserIntent
 
     /**
      * Updates the preferred layout mode for displaying results. This intent is emitted when
@@ -66,7 +66,7 @@ sealed interface ItemBrowserIntent {
      *
      * :param layout: The selected layout mode.
      */
-    data class LayoutChange(val layout: ItemBrowserLayout) : ItemBrowserIntent
+    data class LayoutChange(val layout: BrowserLayout) : ItemBrowserIntent
 
     /**
      * Requests that the VM retry loading item data after a failure.

@@ -49,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.keepingstock.core.contracts.BrowserEmptyState
 import com.keepingstock.core.contracts.BrowserLayout
 import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.Container
@@ -57,7 +58,6 @@ import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.intents.container.ContainerBrowserIntent
-import com.keepingstock.core.contracts.uistates.container.ContainerBrowserEmptyState
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.screen.ContainerCompactRow
@@ -172,7 +172,7 @@ private fun ReadyContent(
 
         // Empty state; not it's own state variant
         when (uiState.emptyState) {
-            ContainerBrowserEmptyState.EMPTY_CONTAINER -> {
+            BrowserEmptyState.EMPTY -> {
                 EmptyState(
                     modifier = Modifier.fillMaxSize(),
                     onAddContainer = { onAddContainer(uiState.containerId) },
@@ -182,7 +182,7 @@ private fun ReadyContent(
                 return
             }
 
-            ContainerBrowserEmptyState.NO_RESULTS -> {
+            BrowserEmptyState.NO_RESULTS -> {
                 NoResultsState(
                     modifier = Modifier.fillMaxSize(),
                     onClearQuery = { onIntent(ContainerBrowserIntent.ClearQuery) },
@@ -193,7 +193,7 @@ private fun ReadyContent(
                 return
             }
 
-            ContainerBrowserEmptyState.NONE -> Unit
+            BrowserEmptyState.NONE -> Unit
         }
 
         PopulatedStateContents(

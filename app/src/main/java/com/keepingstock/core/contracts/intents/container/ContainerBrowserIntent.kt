@@ -98,28 +98,3 @@ sealed interface ContainerBrowserIntent {
      */
     data object Retry : ContainerBrowserIntent
 }
-
-/*
-// TODO: Do we need other filters? I thought being able to filter by if it's taken out
-//  or not would be a nice touch. Aside from that, I just put two boolean flags for
-//  if visible results should include only containers/items
-data class ContainerBrowserFilter(
-    val includeContainers: Boolean = true,
-    val includeItems: Boolean = true,
-    val itemStatus: ItemStatus? = null // null = any
-)
-
-// Simple enums
-enum class ContainerBrowserSort {
-    NAME_ASC,
-    NAME_DESC,
-    CREATED_NEWEST,
-    CREATED_OLDEST
-}
-enum class ContainerBrowserLayout {
-    LIST,
-    GRID,
-    COMPACT
-}
-
- */
