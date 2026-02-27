@@ -1,11 +1,17 @@
 package com.keepingstock.ui.screens.item.previews
 
+import android.R.attr.data
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.keepingstock.core.contracts.BrowserEmptyState
+import com.keepingstock.core.contracts.BrowserLayout
+import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
+import com.keepingstock.core.contracts.ItemBrowserFilter
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.UiState
+import com.keepingstock.core.contracts.uistates.item.ItemBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.screens.item.ItemBrowserScreen
 import com.keepingstock.viewmodel.item.ItemBrowserUiData
@@ -18,7 +24,7 @@ import com.keepingstock.viewmodel.item.ItemBrowserUiData
 @Composable
 private fun Preview_ItemBrowser_Loading() {
     ItemBrowserScreen(
-        uiState = UiState.Loading,
+        uiState = ItemBrowserUiState.Loading(),
         onIntent = { }
     )
 }
@@ -27,7 +33,7 @@ private fun Preview_ItemBrowser_Loading() {
 @Composable
 private fun Preview_ItemBrowser_Error() {
     ItemBrowserScreen(
-        uiState = UiState.Error("Failed to load container."),
+        uiState = ItemBrowserUiState.Error(message = "Failed to load container."),
         onIntent = { }
     )
 }
@@ -36,10 +42,14 @@ private fun Preview_ItemBrowser_Error() {
 @Composable
 private fun Preview_ItemBrowser_EmptyReady() {
     ItemBrowserScreen(
-        uiState = UiState.Success(
-            data = ItemBrowserUiData (
-                items = emptyList()
-            )
+        uiState = ItemBrowserUiState.Success(
+            items = emptyList(),
+            visibleItems = emptyList(),
+            query = "",
+            filter = ItemBrowserFilter(),
+            sort = BrowserSort.NAME_ASC,
+            layout = BrowserLayout.COMPACT,
+            emptyState = BrowserEmptyState.EMPTY,
         ),
         onIntent = { }
     )
@@ -73,10 +83,14 @@ private fun Preview_ItemBrowser_PopulatedReady() {
     )
 
     ItemBrowserScreen(
-        uiState = UiState.Success(
-            data = ItemBrowserUiData(
-                items = items
-            )
+        uiState = ItemBrowserUiState.Success(
+            items = items,
+            visibleItems = items,
+            query = "",
+            filter = ItemBrowserFilter(),
+            sort = BrowserSort.NAME_ASC,
+            layout = BrowserLayout.COMPACT,
+            emptyState = BrowserEmptyState.NONE,
         ),
         onIntent = { }
     )

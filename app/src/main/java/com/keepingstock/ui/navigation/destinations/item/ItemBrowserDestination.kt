@@ -11,10 +11,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.keepingstock.core.contracts.BrowserEmptyState
+import com.keepingstock.core.contracts.BrowserLayout
+import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
+import com.keepingstock.core.contracts.ItemBrowserFilter
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.UiState
+import com.keepingstock.core.contracts.uistates.item.ItemBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.navigation.ChipOption
 import com.keepingstock.ui.components.navigation.DemoMode
@@ -55,11 +60,23 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
         }
 
         // TODO(REPLACE): Replace this with ViewModel uiState
+        /*
         val uiState = remember(demoMode) {
             when (demoMode) {
                 DemoMode.LOADING -> UiState.Loading
                 DemoMode.ERROR -> UiState.Error(
                     "Error encountered when attempting to display all items."
+                )
+                DemoMode.EMPTY -> demoItemBrowserReadyState(true)
+                DemoMode.READY, DemoMode.POPULATED -> demoItemBrowserReadyState(false)
+            }
+        }
+         */
+        val uiState = remember(demoMode) {
+            when (demoMode) {
+                DemoMode.LOADING -> ItemBrowserUiState.Loading()
+                DemoMode.ERROR -> ItemBrowserUiState.Error(
+                    message = "Error encountered when attempting to display all items."
                 )
                 DemoMode.EMPTY -> demoItemBrowserReadyState(true)
                 DemoMode.READY, DemoMode.POPULATED -> demoItemBrowserReadyState(false)
@@ -119,11 +136,11 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
  * :param uiState: The current UI state for the Item Browser screen.
  * :return: TopBarConfig used by the app scaffold's top bar.
  */
-private fun itemBrowserTopBarConfig(uiState: UiState<ItemBrowserUiData>): TopBarConfig {
+private fun itemBrowserTopBarConfig(uiState: ItemBrowserUiState): TopBarConfig {
     val title = when (uiState) {
-        is UiState.Success -> "All Items"
-        is UiState.Loading -> "Loading…"
-        is UiState.Error -> "All Items"
+        is ItemBrowserUiState.Success -> "All Items"
+        is ItemBrowserUiState.Loading -> "Loading…"
+        is ItemBrowserUiState.Error -> "All Items"
     }
     val showBack = false
 
@@ -138,10 +155,10 @@ private fun itemBrowserTopBarConfig(uiState: UiState<ItemBrowserUiData>): TopBar
  * Prompt: "Please generate data for a sample object with the following class signature:"
  */
 private fun demoItemBrowserReadyState(isEmpty: Boolean):
-        UiState.Success<ItemBrowserUiData> {
+        ItemBrowserUiState.Success {
     val containerId = ContainerId(1L)
 
-    val items = if (isEmpty) emptyList<Item>() else listOf(
+    val items = if (isEmpty) emptyList() else listOf(
         Item(
             id = ItemId(containerId.value * 100 + 1),
             name = "Impact Driver",
@@ -158,7 +175,13 @@ private fun demoItemBrowserReadyState(isEmpty: Boolean):
         ),
     )
 
-    return UiState.Success(
-        data = ItemBrowserUiData(items = items)
+    return ItemBrowserUiState.Success(
+        items = items,
+        visibleItems = items,
+        query = "",
+        filter = ItemBrowserFilter(),
+        sort = BrowserSort.NAME_ASC,
+        layout = BrowserLayout.COMPACT,
+        emptyState = if (isEmpty) BrowserEmptyState.EMPTY else BrowserEmptyState.NONE,
     )
 }
