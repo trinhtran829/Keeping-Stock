@@ -1,5 +1,7 @@
 package com.keepingstock.ui.screens.container
 
+import android.R.attr.onClick
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
@@ -53,9 +60,13 @@ import com.keepingstock.core.contracts.intents.container.ContainerBrowserSort
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserEmptyState
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.ui.components.screen.ContainerCompactRow
 import com.keepingstock.ui.components.screen.ContainerSummaryRow
+import com.keepingstock.ui.components.screen.ContainerTile
 import com.keepingstock.ui.components.screen.ErrorContent
+import com.keepingstock.ui.components.screen.ItemCompactRow
 import com.keepingstock.ui.components.screen.ItemSummaryRow
+import com.keepingstock.ui.components.screen.ItemTile
 import com.keepingstock.ui.components.screen.LoadingContent
 
 /**
@@ -181,6 +192,7 @@ private fun ReadyContent(
         }
 
         PopulatedStateContents(
+            layout = uiState.layout,
             visibleSubcontainers = uiState.visibleSubcontainers,
             visibleItems = uiState.visibleItems,
             containerId = uiState.containerId,
@@ -693,6 +705,67 @@ private fun NoResultsState(
  */
 @Composable
 private fun PopulatedStateContents(
+    layout: ContainerBrowserLayout,
+    visibleSubcontainers: List<Container>,
+    visibleItems: List<Item>,
+    containerId: ContainerId?,
+    onAddContainer: (ContainerId?) -> Unit,
+    onAddItem: (ContainerId?) -> Unit,
+    onOpenSubcontainer: (ContainerId) -> Unit,
+    onOpenItem: (ItemId) -> Unit
+) {
+    when (layout) {
+        ContainerBrowserLayout.LIST ->
+            ListContents(
+                visibleSubcontainers = visibleSubcontainers,
+                visibleItems = visibleItems,
+                containerId = containerId,
+                onAddContainer = onAddContainer,
+                onAddItem = onAddItem,
+                onOpenSubcontainer = onOpenSubcontainer,
+                onOpenItem = onOpenItem
+            )
+
+        ContainerBrowserLayout.GRID -> {
+            GridContents(
+                visibleSubcontainers = visibleSubcontainers,
+                visibleItems = visibleItems,
+                containerId = containerId,
+                onAddContainer = onAddContainer,
+                onAddItem = onAddItem,
+                onOpenSubcontainer = onOpenSubcontainer,
+                onOpenItem = onOpenItem
+            )
+        }
+
+        ContainerBrowserLayout.COMPACT -> {
+            CompactContents(
+                visibleSubcontainers = visibleSubcontainers,
+                visibleItems = visibleItems,
+                containerId = containerId,
+                onAddContainer = onAddContainer,
+                onAddItem = onAddItem,
+                onOpenSubcontainer = onOpenSubcontainer,
+                onOpenItem = onOpenItem
+            )
+        }
+    }
+}
+
+/**
+ * Displays container and item results in a basic vertical list layout. This layout uses summary
+ * row components for both containers and items.
+ *
+ * @param visibleSubcontainers Subcontainers to display.
+ * @param visibleItems Items to display.
+ * @param containerId ID of the current container, or null if root.
+ * @param onAddContainer Callback for adding a subcontainer.
+ * @param onAddItem Callback for adding an item.
+ * @param onOpenSubcontainer Invoked when a subcontainer row is selected.
+ * @param onOpenItem Invoked when an item row is selected.
+ */
+@Composable
+private fun ListContents(
     visibleSubcontainers: List<Container>,
     visibleItems: List<Item>,
     containerId: ContainerId?,
@@ -742,9 +815,152 @@ private fun PopulatedStateContents(
                 )
             }
         }
+    }
+}
 
-        // breathing room above bottom bar
-        item { Spacer(Modifier.height(72.dp)) }
+/**
+ * Displays container and item results using a responsive grid layout. individual entries are
+ * rendered as tiles.
+ *
+ * @param visibleSubcontainers Subcontainers to display.
+ * @param visibleItems Items to display.
+ * @param containerId ID of the current container, or null if root.
+ * @param onAddContainer Callback for adding a subcontainer.
+ * @param onAddItem Callback for adding an item.
+ * @param onOpenSubcontainer Invoked when a container tile is selected.
+ * @param onOpenItem Invoked when an item tile is selected.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun GridContents(
+    visibleSubcontainers: List<Container>,
+    visibleItems: List<Item>,
+    containerId: ContainerId?,
+    onAddContainer: (ContainerId?) -> Unit,
+    onAddItem: (ContainerId?) -> Unit,
+    onOpenSubcontainer: (ContainerId) -> Unit,
+    onOpenItem: (ItemId) -> Unit
+) {
+    val gridState = rememberLazyGridState()
+
+    LazyVerticalGrid(
+        state = gridState,
+        columns = GridCells.Fixed(3),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = 12.dp,
+            end = 12.dp,
+            top = 8.dp,
+            bottom = 16.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Containers header
+        item(
+            span = { GridItemSpan(maxLineSpan) }
+        ) {
+            SectionHeader(
+                sectionTitle = "Containers",
+                onAdd = { onAddContainer(containerId) }
+            )
+        }
+
+        items(
+            items = visibleSubcontainers,
+            key = { it.id.value }
+        ) { container ->
+            ContainerTile (
+                container = container,
+                onClick = { onOpenSubcontainer(container.id) }
+            )
+        }
+
+        // Items header
+        item(
+            span = { GridItemSpan(maxLineSpan) }
+        ) {
+            Spacer(Modifier.height(4.dp))
+        }
+
+        item(
+            span = { GridItemSpan(maxLineSpan) }
+        ) {
+            SectionHeader(
+                sectionTitle = "Items",
+                onAdd = { onAddItem(containerId) }
+            )
+        }
+
+        items(
+            items = visibleItems,
+            key = { it.id.value }
+        ) { item ->
+            ItemTile(
+                item = item,
+                onClick = { onOpenItem(item.id) }
+            )
+        }
+    }
+}
+
+/**
+ * Displays container and item results in a denser, compact list layout.
+ *
+ * @param visibleSubcontainers Subcontainers to display.
+ * @param visibleItems Items to display.
+ * @param containerId ID of the current container, or null if root.
+ * @param onAddContainer Callback for adding a subcontainer.
+ * @param onAddItem Callback for adding an item.
+ * @param onOpenSubcontainer Invoked when a subcontainer row is selected.
+ * @param onOpenItem Invoked when an item row is selected.
+ */
+@Composable
+private fun CompactContents(
+    visibleSubcontainers: List<Container>,
+    visibleItems: List<Item>,
+    containerId: ContainerId?,
+    onAddContainer: (ContainerId?) -> Unit,
+    onAddItem: (ContainerId?) -> Unit,
+    onOpenSubcontainer: (ContainerId) -> Unit,
+    onOpenItem: (ItemId) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        item {
+            SectionHeader(
+                sectionTitle = "Containers",
+                onAdd = { onAddContainer(containerId) }
+            )
+        }
+
+        items(visibleSubcontainers, key = { it.id.value }) { c ->
+            ContainerCompactRow (
+                container = c,
+                onClick = { onOpenSubcontainer(c.id) }
+            )
+        }
+
+        item { Spacer(Modifier.height(6.dp)) }
+
+        item {
+            SectionHeader(
+                sectionTitle = "Items",
+                onAdd = { onAddItem(containerId) }
+            )
+        }
+
+        items(visibleItems, key = { it.id.value }) { i ->
+            ItemCompactRow(
+                item = i,
+                onClick = { onOpenItem(i.id) }
+            )
+        }
+
+        item { Spacer(Modifier.height(16.dp)) }
     }
 }
 

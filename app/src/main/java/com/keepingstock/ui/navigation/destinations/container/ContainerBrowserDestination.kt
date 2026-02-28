@@ -20,6 +20,7 @@ import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.intents.container.ContainerBrowserFilter
+import com.keepingstock.core.contracts.intents.container.ContainerBrowserIntent
 import com.keepingstock.core.contracts.intents.container.ContainerBrowserLayout
 import com.keepingstock.core.contracts.intents.container.ContainerBrowserSort
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserEmptyState
@@ -86,18 +87,20 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
          *
          * TODO(REMOVE): Replace with ViewModel-provided UiState.
          */
-        val uiState = remember(containerId, demoMode) {
-            when (demoMode) {
-                DemoMode.LOADING -> ContainerBrowserUiState.Loading
-                DemoMode.ERROR ->
-                    ContainerBrowserUiState.Error("Demo error loading container.")
-                DemoMode.EMPTY ->
-                    demoContainerBrowserReadyState(containerId, empty = true, noResults = false)
-                DemoMode.POPULATED ->
-                    demoContainerBrowserReadyState(containerId, empty = false, noResults = true)
-                DemoMode.READY ->
-                    demoContainerBrowserReadyState(containerId, empty = false, noResults = false)
-            }
+        var uiState: ContainerBrowserUiState by remember(containerId?.value, demoMode) {
+            mutableStateOf(
+                when (demoMode) {
+                    DemoMode.LOADING -> ContainerBrowserUiState.Loading
+                    DemoMode.ERROR ->
+                        ContainerBrowserUiState.Error("Demo error loading container.")
+                    DemoMode.EMPTY ->
+                        demoContainerBrowserReadyState(containerId, empty = true, noResults = false)
+                    DemoMode.POPULATED ->
+                        demoContainerBrowserReadyState(containerId, empty = false, noResults = true)
+                    DemoMode.READY ->
+                        demoContainerBrowserReadyState(containerId, empty = false, noResults = false)
+                }
+            )
         }
 
         // Build TopBarConfig from current UiState
@@ -135,6 +138,12 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
             ContainerBrowserScreen(
                 modifier = Modifier.fillMaxSize(),
                 uiState = uiState,
+                onIntent = { intent ->
+                    uiState = reduceDemoContainerBrowserIntent(
+                        current = uiState,
+                        intent = intent
+                    )
+                },
                 onOpenSubcontainer = { subId ->
                     deps.navController.navigate(NavRoute.ContainerBrowser.createRoute(subId))
                 },
@@ -184,6 +193,49 @@ private fun containerBrowserTopBarConfig(uiState: ContainerBrowserUiState): TopB
 }
 
 /**
+ * Demo-only reducer for ContainerBrowserIntent.
+ *
+ * Applies user intents to the current ContainerBrowserUiState in-memory so layout,
+ * query, filter, and sort controls can be demonstrated without a ViewModel.
+ *
+ * @param current The current UI state.
+ * @param intent The user intent emitted from the UI.
+ * @return Updated UI state reflecting the applied intent.
+ *
+ * TODO(REMOVE): Delete when ContainerBrowserViewModel is implemented.
+ */
+private fun reduceDemoContainerBrowserIntent(
+    current: ContainerBrowserUiState,
+    intent: ContainerBrowserIntent
+): ContainerBrowserUiState {
+    val ready = current as? ContainerBrowserUiState.Ready ?: return current
+
+    return when (intent) {
+        is ContainerBrowserIntent.QueryChange ->
+            ready.copy(query = intent.query)
+
+        is ContainerBrowserIntent.QuerySubmit ->
+            ready.copy(query = intent.query)
+
+        ContainerBrowserIntent.ClearQuery ->
+            ready.copy(query = "")
+
+        is ContainerBrowserIntent.FilterChange ->
+            ready.copy(filter = intent.filter)
+
+        is ContainerBrowserIntent.SortChange ->
+            ready.copy(sort = intent.sort)
+
+        is ContainerBrowserIntent.LayoutChange ->
+            ready.copy(layout = intent.layout)
+
+        ContainerBrowserIntent.Retry ->
+            // Demo-only: no loading transition; keep current state as-is.
+            current
+    }
+}
+
+/**
  * Demo Ready-state builder for the Container Browser. Produces sample data so the UI can be
  * tested/rendered without a ViewModel.
  *
@@ -208,7 +260,7 @@ private fun demoContainerBrowserReadyState(
             id = ContainerId(1L),
             name = "Garage",
             imageUri = "demo",
-            description = "Tools and hardware",
+            description = "Tools and hardware. Tools and hardware. Tools and hardware. Tools and hardware. Tools and hardware.",
             parentContainerId = null
         ),
         Container(
@@ -234,8 +286,8 @@ private fun demoContainerBrowserReadyState(
             } else {
                 ContainerBrowserFilter()
             },
-            sort = ContainerBrowserSort.NAME_DESC,
-            layout = ContainerBrowserLayout.LIST,
+            sort = ContainerBrowserSort.NAME_ASC,
+            layout = ContainerBrowserLayout.COMPACT,
             emptyState = if (empty) {
                 ContainerBrowserEmptyState.EMPTY_CONTAINER
             } else if (noResults) {
@@ -287,8 +339,8 @@ private fun demoContainerBrowserReadyState(
             visibleSubcontainers = subcontainers,
             query = "",
             filter = ContainerBrowserFilter(),
-            sort = ContainerBrowserSort.NAME_DESC,
-            layout = ContainerBrowserLayout.LIST,
+            sort = ContainerBrowserSort.NAME_ASC,
+            layout = ContainerBrowserLayout.COMPACT,
             emptyState = ContainerBrowserEmptyState.NONE
         )
     }
