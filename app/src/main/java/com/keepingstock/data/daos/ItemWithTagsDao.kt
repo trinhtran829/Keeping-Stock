@@ -25,6 +25,23 @@ interface ItemWithTagsDao {
     """)
     fun getAllItemsWithTags(): Flow<List<ItemWithTags>>
 
+    /* ---------- observe all unsorted items with their associated tags ---------- */
+    @Transaction
+    @Query("""
+        SELECT * FROM items
+        WHERE containerId IS NULL
+        ORDER BY items.createdDate DESC
+    """)
+    fun getUnsortedItemsWithTags(): Flow<List<ItemWithTags>>
+
+    /* ---------- get item by ID with associated tags ---------- */
+    @Transaction
+    @Query("""
+        SELECT * FROM items
+        WHERE itemId = :itemId
+    """)
+    suspend fun getItemWithTagsById(itemId: Long): ItemWithTags?
+
     /* ---------- observe items in a specific container with associated tags ---------- */
     @Transaction
     @Query("""
@@ -70,6 +87,30 @@ interface ItemWithTagsDao {
     """)
     fun searchItemsByTag(
         tagId: Long,
+    ): Flow<List<ItemWithTags>>
+
+    /* ---------- observe items by item's name ---------- */
+    @Transaction
+    @Query("""
+        SELECT * FROM items
+        WHERE name LIKE '%' || :query || '%'
+        ORDER BY items.createdDate DESC
+    """)
+    fun searchItemsByName(
+        query: String
+    ): Flow<List<ItemWithTags>>
+
+    /* ---------- observe items by tag name ---------- */
+    @Transaction
+    @Query("""
+        SELECT DISTINCT items.* FROM items
+        INNER JOIN item_tag ON items.itemId = item_tag.itemId
+        INNER JOIN tags ON item_tag.tagId = tags.tagId
+        WHERE tags.name LIKE '%' || :query || '%'
+        ORDER BY items.createdDate DESC
+    """)
+    fun searchItemsByTagName(
+        query: String
     ): Flow<List<ItemWithTags>>
 
     /* ---------- observe items in a container associated with a specific tag ---------- */

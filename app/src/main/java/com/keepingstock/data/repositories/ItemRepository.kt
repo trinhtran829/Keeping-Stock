@@ -12,24 +12,12 @@ import kotlinx.coroutines.flow.Flow
 * These links document the sample code that led to my code.
 */
 
-/**
- * Placeholder repository
- *
- * NOTE TO TEAM:
- * - This is a temporary implementation
- * - These function names are final and stable
- * - UI and Integration lead can start using them
- * - The real business logic will be implemented later
- *
- * This is to ensures the UI/ViewModels code can be develop while I continue to
- * work on these logic.
- */
-
 interface ItemRepository {
     /**
      * Create an item
-     * Upon creation, depends on containerId, status and checkoutDate
-     * will be filled according to the rules.
+     * Rule:
+     * containerId == null -> status = TAKEN_OUT, checkoutDate = now
+     * containerId != null -> status = STORED, checkoutDate = null
      */
     suspend fun createItem(
         name: String,
@@ -40,11 +28,17 @@ interface ItemRepository {
 
     /**
      * Full item update
+     * Rule:
+     * containerId change to null -> status = TAKEN_OUT, checkoutDate unchanged
+     * containerId change to not-null -> status = unchanged, checkoutDate = unchanged
      */
     suspend fun updateItem(item: Item)
 
     /**
-     * Update only status
+     * Update only item's status
+     * Rule:
+     * STORED -> TAKEN_OUT, checkoutDate = now
+     * TAKEN_OUT -> STORED, checkoutDate = null
      */
     suspend fun updateItemStatus(
         itemId: ItemId,
@@ -52,7 +46,8 @@ interface ItemRepository {
     )
 
     /**
-     * Delete
+     * Delete an item
+     * Also removes all item-tag rows associated with the item
      */
     suspend fun deleteItem(item: Item)
 
@@ -80,4 +75,14 @@ interface ItemRepository {
      * Search items where query match item's or tag's name
      */
     fun searchItemsByNameOrTag(query: String): Flow<List<Item>>
+
+    /**
+     * Search items where query match item's name
+     */
+    fun searchItemsByName(query: String): Flow<List<Item>>
+
+    /**
+     * Search items where query match tag's name
+     */
+    fun searchItemsByTagName(query: String): Flow<List<Item>>
 }
