@@ -2,7 +2,6 @@ package com.keepingstock.ui.screens.item
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,7 +19,6 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.BrowserEmptyState
 import com.keepingstock.core.contracts.BrowserLayout
 import com.keepingstock.core.contracts.BrowserSort
-import com.keepingstock.core.contracts.ContainerBrowserFilter
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemBrowserFilter
 import com.keepingstock.core.contracts.ItemId
@@ -50,7 +47,6 @@ import com.keepingstock.ui.components.screen.NoResultsState
 import com.keepingstock.ui.components.screen.SearchField
 import com.keepingstock.ui.components.screen.SortAndLayoutRow
 import com.keepingstock.ui.screens.item.ReadyContent
-import com.keepingstock.viewmodel.item.ItemBrowserUiData
 
 /**
  * Screen for browsing all items.
@@ -67,7 +63,8 @@ fun ItemBrowserScreen(
     uiState: ItemBrowserUiState, // UiState<ItemBrowserUiData>,
     onIntent: (ItemBrowserIntent) -> Unit,
     onOpenItem: (itemId: ItemId) -> Unit = {},
-    onAddItem: () -> Unit = {}
+    onAddItem: () -> Unit = {},
+    onScan: () -> Unit = {}
 ) {
 
     when (uiState) {
@@ -83,7 +80,8 @@ fun ItemBrowserScreen(
             uiData = uiState,
             onIntent = onIntent,
             onOpenItem = onOpenItem,
-            onAddItem = onAddItem
+            onAddItem = onAddItem,
+            onScan
         )
     }
 }
@@ -109,7 +107,8 @@ private fun ReadyContent(
     uiData: ItemBrowserUiState.Success,
     onIntent: (ItemBrowserIntent) -> Unit,
     onOpenItem: (itemId: ItemId) -> Unit = {},
-    onAddItem: () -> Unit = {}
+    onAddItem: () -> Unit = {},
+    onScan: () -> Unit
 ) {
     Column() {
         // Content header; mainly counts
@@ -123,7 +122,8 @@ private fun ReadyContent(
             filter = uiData.filter,
             sort = uiData.sort,
             layout = uiData.layout,
-            onIntent = onIntent
+            onIntent = onIntent,
+            onScan = onScan
         )
 
         HorizontalDivider()
@@ -135,7 +135,8 @@ private fun ReadyContent(
                     modifier = Modifier.fillMaxSize(),
                     onAddContainer = { },
                     onAddItem = onAddItem,
-                    isItemBrowser = true
+                    isItemBrowser = true,
+                    onScan = onScan
                 )
                 return
             }
@@ -217,7 +218,8 @@ private fun ControlsBar(
     filter: ItemBrowserFilter,
     sort: BrowserSort,
     layout: BrowserLayout,
-    onIntent: (ItemBrowserIntent) -> Unit
+    onIntent: (ItemBrowserIntent) -> Unit,
+    onScan: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -241,7 +243,8 @@ private fun ControlsBar(
             sort = sort,
             layout = layout,
             onSortChange = { onIntent(ItemBrowserIntent.SortChange(it)) },
-            onLayoutChange = { onIntent(ItemBrowserIntent.LayoutChange(it)) }
+            onLayoutChange = { onIntent(ItemBrowserIntent.LayoutChange(it)) },
+            onScan = onScan
         )
     }
 }

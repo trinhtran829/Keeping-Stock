@@ -126,6 +126,9 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
                 },
                 onAddItem = {
                     deps.navController.navigate(NavRoute.AddEditItem.createRoute(containerId = null))
+                },
+                onScan = {
+                    deps.navController.navigate(NavRoute.QRScan.route)
                 }
             )
         }
