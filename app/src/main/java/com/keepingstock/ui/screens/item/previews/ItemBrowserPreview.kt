@@ -14,7 +14,6 @@ import com.keepingstock.core.contracts.UiState
 import com.keepingstock.core.contracts.uistates.item.ItemBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.screens.item.ItemBrowserScreen
-import com.keepingstock.viewmodel.item.ItemBrowserUiData
 
 /**
  * Provides previews for each UI State of the ContainerBrowserScreen

@@ -2,21 +2,27 @@ package com.keepingstock.viewmodel.item
 
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
+import com.keepingstock.core.contracts.ItemBrowserFilter
 import com.keepingstock.core.contracts.ItemId
-import com.keepingstock.core.contracts.ItemRepository
-import com.keepingstock.core.contracts.Tag
-import com.keepingstock.core.contracts.UiState
+import com.keepingstock.core.contracts.intents.item.ItemBrowserIntent
+import com.keepingstock.core.contracts.uistates.item.ItemBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.data.repositories.ItemRepository
 import com.keepingstock.testutil.MainDispatcherRule
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.advanceTimeBy
+import com.keepingstock.ui.viewmodel.item.ItemBrowserViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.util.Date
 
 class ItemBrowserViewModelTest {
 
@@ -24,156 +30,163 @@ class ItemBrowserViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun searchQuery_emitsSuccessFromSearch() = runTest(mainDispatcherRule.testDispatcher) {
+    fun init_emitsSuccess() = runTest(mainDispatcherRule.testDispatcher) {
         val repository = FakeItemRepository().apply {
-            searchResultsByQuery["drill"] = listOf(
-                testItem(id = 1L, name = "Drill")
-            )
+            setItems(listOf(testItem(id = 1L, name = "Drill")))
         }
         val viewModel = ItemBrowserViewModel(repository)
-
-        viewModel.updateSearchQuery("drill")
-        advanceTimeBy(301L)
         advanceUntilIdle()
 
-        val successState = viewModel.uiState.value as UiState.Success
-        assertEquals(1, successState.data.items.size)
-        assertEquals("Drill", successState.data.items.first().name)
-        assertEquals(1, repository.searchCallCount)
+        val state = viewModel.uiState.value as ItemBrowserUiState.Success
+        assertEquals(1, state.items.size)
+        assertEquals("Drill", state.items.first().name)
     }
 
     @Test
-    fun containerFilter_emitsSuccessFromContainerItems() = runTest(mainDispatcherRule.testDispatcher) {
+    fun queryChange_filtersVisibleItems() = runTest(mainDispatcherRule.testDispatcher) {
         val repository = FakeItemRepository().apply {
-            containerResults[10L] = listOf(
-                testItem(id = 2L, name = "Saw", containerId = ContainerId(10L))
-            )
+            setItems(listOf(
+                testItem(id = 1L, name = "Drill"),
+                testItem(id = 2L, name = "Saw")
+            ))
         }
         val viewModel = ItemBrowserViewModel(repository)
-
-        viewModel.setContainer(ContainerId(10L))
-        advanceTimeBy(301L)
         advanceUntilIdle()
 
-        val successState = viewModel.uiState.value as UiState.Success
-        assertEquals(1, successState.data.items.size)
-        assertEquals(10L, successState.data.containerId?.value)
-        assertEquals(1, repository.containerCallCount)
+        viewModel.onIntent(ItemBrowserIntent.QueryChange("drill"))
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ItemBrowserUiState.Success
+        assertEquals(2, state.items.size)           // raw list unchanged
+        assertEquals(1, state.visibleItems.size)
+        assertEquals("Drill", state.visibleItems.first().name)
+    }
+
+    @Test
+    fun clearQuery_restoresAllVisibleItems() = runTest(mainDispatcherRule.testDispatcher) {
+        val repository = FakeItemRepository().apply {
+            setItems(listOf(
+                testItem(id = 1L, name = "Drill"),
+                testItem(id = 2L, name = "Saw")
+            ))
+        }
+        val viewModel = ItemBrowserViewModel(repository)
+        advanceUntilIdle()
+
+        viewModel.onIntent(ItemBrowserIntent.QueryChange("drill"))
+        advanceUntilIdle()
+        assertEquals(1, (viewModel.uiState.value as ItemBrowserUiState.Success).visibleItems.size)
+
+        viewModel.onIntent(ItemBrowserIntent.ClearQuery)
+        advanceUntilIdle()
+        assertEquals(2, (viewModel.uiState.value as ItemBrowserUiState.Success).visibleItems.size)
+    }
+
+    @Test
+    fun filter_storedInRootOnly_filtersCorrectly() = runTest(mainDispatcherRule.testDispatcher) {
+        val repository = FakeItemRepository().apply {
+            setItems(listOf(
+                testItem(id = 1L, name = "In Container", containerId = ContainerId(1L)),
+                testItem(id = 2L, name = "Root Item")
+            ))
+        }
+        val viewModel = ItemBrowserViewModel(repository)
+        advanceUntilIdle()
+
+        viewModel.onIntent(ItemBrowserIntent.FilterChange(ItemBrowserFilter(storedInRootOnly = true)))
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ItemBrowserUiState.Success
+        assertEquals(1, state.visibleItems.size)
+        assertEquals("Root Item", state.visibleItems.first().name)
     }
 
     @Test
     fun repositoryFailure_emitsError() = runTest(mainDispatcherRule.testDispatcher) {
         val repository = FakeItemRepository().apply {
-            searchErrorsByQuery["broken"] = IllegalStateException("search failed")
+            shouldThrow = IllegalStateException("load failed")
         }
         val viewModel = ItemBrowserViewModel(repository)
-
-        viewModel.updateSearchQuery("broken")
-        advanceTimeBy(301L)
         advanceUntilIdle()
 
-        val errorState = viewModel.uiState.value as UiState.Error
-        assertTrue(errorState.cause is IllegalStateException)
+        assertTrue(viewModel.uiState.value is ItemBrowserUiState.Error)
     }
 
     @Test
-    fun rapidQueryChanges_onlyLatestResultWins() = runTest(mainDispatcherRule.testDispatcher) {
+    fun retry_afterError_reloadsSuccessfully() = runTest(mainDispatcherRule.testDispatcher) {
         val repository = FakeItemRepository().apply {
-            searchDelayByQuery["old"] = 5_000L
-            searchDelayByQuery["new"] = 10L
-            searchResultsByQuery["old"] = listOf(testItem(id = 1L, name = "Old"))
-            searchResultsByQuery["new"] = listOf(testItem(id = 2L, name = "New"))
+            shouldThrow = IllegalStateException("temporary failure")
         }
         val viewModel = ItemBrowserViewModel(repository)
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value is ItemBrowserUiState.Error)
 
-        viewModel.updateSearchQuery("old")
-        advanceTimeBy(301L)
-        runCurrent()
+        repository.shouldThrow = null
+        repository.setItems(listOf(testItem(id = 1L, name = "Hammer")))
 
-        viewModel.updateSearchQuery("new")
-        advanceTimeBy(301L)
+        viewModel.onIntent(ItemBrowserIntent.Retry)
         advanceUntilIdle()
 
-        val successState = viewModel.uiState.value as UiState.Success
-        assertEquals("New", successState.data.items.first().name)
-        assertTrue(repository.startedSearchQueries.contains("old"))
-        assertTrue(repository.completedSearchQueries.contains("new"))
-        assertTrue(!repository.completedSearchQueries.contains("old"))
-    }
-
-    @Test
-    fun retry_afterError_reloadsLastRequest() = runTest(mainDispatcherRule.testDispatcher) {
-        val repository = FakeItemRepository().apply {
-            searchErrorsByQuery["hammer"] = IllegalStateException("temporary failure")
-        }
-        val viewModel = ItemBrowserViewModel(repository)
-
-        viewModel.updateSearchQuery("hammer")
-        advanceTimeBy(301L)
-        advanceUntilIdle()
-        assertTrue(viewModel.uiState.value is UiState.Error)
-
-        repository.searchErrorsByQuery.remove("hammer")
-        repository.searchResultsByQuery["hammer"] = listOf(
-            testItem(id = 3L, name = "Hammer")
-        )
-
-        viewModel.retry()
-        advanceUntilIdle()
-
-        val successState = viewModel.uiState.value as UiState.Success
-        assertEquals("Hammer", successState.data.items.first().name)
-        assertTrue(repository.searchCallCount >= 2)
+        val state = viewModel.uiState.value as ItemBrowserUiState.Success
+        assertEquals("Hammer", state.items.first().name)
     }
 }
+
+// ---------------------------------------------------------------------------
+// Fake repository backed by MutableStateFlow for testability
+// ---------------------------------------------------------------------------
 
 private class FakeItemRepository : ItemRepository {
-    val searchResultsByQuery = mutableMapOf<String, List<Item>>()
-    val searchErrorsByQuery = mutableMapOf<String, Throwable>()
-    val searchDelayByQuery = mutableMapOf<String, Long>()
-    val containerResults = mutableMapOf<Long, List<Item>>()
+    private val _items = MutableStateFlow<List<Item>>(emptyList())
+    var shouldThrow: Throwable? = null
 
-    var searchCallCount: Int = 0
-    var containerCallCount: Int = 0
+    fun setItems(items: List<Item>) { _items.value = items }
 
-    val startedSearchQueries = mutableListOf<String>()
-    val completedSearchQueries = mutableListOf<String>()
-
-    override suspend fun getItem(id: ItemId): Item? = null
-
-    override suspend fun searchItems(query: String, tags: List<Tag>): List<Item> {
-        searchCallCount += 1
-        startedSearchQueries += query
-
-        searchErrorsByQuery[query]?.let { throw it }
-
-        val delayMs = searchDelayByQuery[query] ?: 0L
-        if (delayMs > 0) delay(delayMs)
-
-        val result = searchResultsByQuery[query] ?: emptyList()
-        completedSearchQueries += query
-        return result
+    override fun observeItem(): Flow<List<Item>> = flow {
+        shouldThrow?.let { throw it }
+        emitAll(_items)
     }
 
-    override suspend fun getItemsInContainer(containerId: ContainerId): List<Item> {
-        containerCallCount += 1
-        return containerResults[containerId.value] ?: emptyList()
-    }
+    override fun observeItemInContainer(containerId: ContainerId): Flow<List<Item>> =
+        _items.map { list -> list.filter { it.containerId == containerId } }
 
-    override suspend fun upsertItem(item: Item): Item = item
+    override fun observeItemUnsorted(): Flow<List<Item>> =
+        _items.map { list -> list.filter { it.containerId == null } }
 
-    override suspend fun deleteItem(id: ItemId) = Unit
+    override fun searchItemsByNameOrTag(query: String): Flow<List<Item>> =
+        _items.map { list -> list.filter { it.name.contains(query, ignoreCase = true) } }
+
+    override fun searchItemsByName(query: String): Flow<List<Item>> =
+        _items.map { list -> list.filter { it.name.contains(query, ignoreCase = true) } }
+
+    override fun searchItemsByTagName(query: String): Flow<List<Item>> = flowOf(emptyList())
+
+    override suspend fun createItem(
+        name: String, description: String?, imageUri: String?, containerId: ContainerId?
+    ): Item = error("unused in tests")
+
+    override suspend fun updateItem(item: Item) = error("unused in tests")
+
+    override suspend fun updateItemStatus(itemId: ItemId, status: ItemStatus) =
+        error("unused in tests")
+
+    override suspend fun deleteItem(item: Item) = error("unused in tests")
+
+    override suspend fun getItemById(itemId: ItemId): Item? = null
 }
+
+// ---------------------------------------------------------------------------
+// Test helpers
+// ---------------------------------------------------------------------------
 
 private fun testItem(
     id: Long,
     name: String,
     containerId: ContainerId? = null
-): Item {
-    return Item(
-        id = ItemId(id),
-        name = name,
-        containerId = containerId,
-        status = if (containerId == null) ItemStatus.TAKEN_OUT else ItemStatus.STORED
-    )
-}
+): Item = Item(
+    id = ItemId(id),
+    name = name,
+    containerId = containerId,
+    status = if (containerId == null) ItemStatus.TAKEN_OUT else ItemStatus.STORED,
+    createdDate = Date()
+)
