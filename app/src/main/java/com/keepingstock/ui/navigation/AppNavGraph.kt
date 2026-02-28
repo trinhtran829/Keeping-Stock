@@ -84,7 +84,7 @@ fun AppNavGraph(
         // ----------------------
         // Register Core Browsers
         // ----------------------
-        addItemBrowserDestination(deps, lastContainerId = { lastContainerIdState.value })
+        addItemBrowserDestination(deps)
         addContainerBrowserDestination(deps, lastContainerIdState)
 
         // ------------------------

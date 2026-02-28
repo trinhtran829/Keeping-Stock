@@ -53,7 +53,7 @@ class ItemBrowserViewModel(
     }
 
     private suspend fun startObserving() {
-        _uiState.value = ItemBrowserUiState.Loading()
+        _uiState.value = ItemBrowserUiState.Loading(query = _controlState.value.query)
         try {
             combine(itemRepository.observeItem(), _controlState) { allItems, controls ->
                 buildSuccessState(allItems, controls)

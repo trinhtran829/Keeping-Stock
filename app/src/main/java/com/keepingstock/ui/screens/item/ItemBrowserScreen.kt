@@ -46,7 +46,6 @@ import com.keepingstock.ui.components.screen.LoadingContent
 import com.keepingstock.ui.components.screen.NoResultsState
 import com.keepingstock.ui.components.screen.SearchField
 import com.keepingstock.ui.components.screen.SortAndLayoutRow
-import com.keepingstock.ui.screens.item.ReadyContent
 
 /**
  * Screen for browsing all items.
@@ -149,6 +148,7 @@ private fun ReadyContent(
                         onIntent(ItemBrowserIntent.FilterChange(ItemBrowserFilter()))
                     }
                 )
+                return
             }
 
             BrowserEmptyState.NONE -> Unit
