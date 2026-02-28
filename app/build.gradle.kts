@@ -60,7 +60,11 @@ dependencies {
     // ML Kit
     implementation(libs.mlkit.image.labeling)
     implementation(libs.mlkit.obj.detection)
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
     implementation(libs.kotlinx.coroutines.play.services)
+
+    // ZXing for QR generation
+    implementation("com.google.zxing:core:3.5.4")
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

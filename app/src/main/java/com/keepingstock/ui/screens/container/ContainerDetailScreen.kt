@@ -1,6 +1,7 @@
 package com.keepingstock.ui.screens.container
 
-import android.net.Uri
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -24,15 +26,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.keepingstock.R
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
+import com.keepingstock.platform.services.MlKitQrService
 import com.keepingstock.ui.components.screen.DetailRow
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
@@ -108,12 +116,15 @@ private fun ReadyContent(
     onDelete: (ContainerId) -> Unit = {}
 ) {
     LazyColumn(
-        modifier = modifier
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
             ContainerDetailHeaderCard(uiState)
+        }
+
+        item {
+            ContainerQrCard(uiState.container.id)
         }
 
         item {
@@ -149,6 +160,48 @@ private fun ReadyContent(
  *
  * :param uiState: Ready state used as the source of truth for display.
  */
+@Composable
+private fun ContainerQrCard(containerId: ContainerId) {
+    val context = LocalContext.current
+    val qrService = remember { MlKitQrService(context) }
+    val qrBitmap = remember(containerId) { qrService.generateQrBitmap(containerId) }
+
+    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.QrCode, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Container QR Code", style = MaterialTheme.typography.titleMedium)
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            if (qrBitmap != null) {
+                Image(
+                    bitmap = qrBitmap.asImageBitmap(),
+                    contentDescription = "QR Code for container ${containerId.value}",
+                    modifier = Modifier
+                        .size(200.dp)
+                        .background(Color.White)
+                        .padding(8.dp),
+                    contentScale = ContentScale.Fit
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "Scan this to quickly open this container",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                Text("Failed to generate QR Code")
+            }
+        }
+    }
+}
+
 @Composable
 private fun ContainerDetailHeaderCard(
     uiState: ContainerDetailUiState.Ready
@@ -196,7 +249,7 @@ private fun ContainerDetailHeaderCard(
                 val model: Any = when (imageUri) {
                     "demo" -> R.drawable.demo_img_cat
                     "demo2" -> R.drawable.demo_img_llama
-                    else -> Uri.parse(imageUri)
+                    else -> imageUri.toUri()
                 }
 
                 HorizontalDivider()

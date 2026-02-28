@@ -14,7 +14,7 @@ interface CameraService {
 
 interface QrService {
     suspend fun scanContainerQr(): ContainerId
-    suspend fun generateContainerQr(containerId: ContainerId): String
+    fun generateContainerQr(containerId: ContainerId): String
 }
 
 interface ImageLabelService {

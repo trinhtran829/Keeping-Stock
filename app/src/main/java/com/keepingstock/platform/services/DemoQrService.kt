@@ -26,7 +26,7 @@ class DemoQrService(
         return scanned
     }
 
-    override suspend fun generateContainerQr(containerId: ContainerId): String {
+    override fun generateContainerQr(containerId: ContainerId): String {
         return "keepingstock://container/${containerId.value}"
     }
 }
