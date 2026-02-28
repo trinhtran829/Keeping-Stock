@@ -78,7 +78,7 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
          * TODO(REMOVE): Demo-only state toggle.
          */
         var demoMode by rememberSaveable(containerId?.value) { // key per container
-            mutableStateOf(DemoMode.POPULATED)
+            mutableStateOf(DemoMode.READY)
         }
 
         /*
@@ -91,9 +91,12 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
                 DemoMode.LOADING -> ContainerBrowserUiState.Loading
                 DemoMode.ERROR ->
                     ContainerBrowserUiState.Error("Demo error loading container.")
-                DemoMode.EMPTY -> demoContainerBrowserReadyState(containerId, empty = true)
-                DemoMode.POPULATED, DemoMode.READY ->
-                    demoContainerBrowserReadyState(containerId, empty = false)
+                DemoMode.EMPTY ->
+                    demoContainerBrowserReadyState(containerId, empty = true, noResults = false)
+                DemoMode.POPULATED ->
+                    demoContainerBrowserReadyState(containerId, empty = false, noResults = true)
+                DemoMode.READY ->
+                    demoContainerBrowserReadyState(containerId, empty = false, noResults = false)
             }
         }
 
@@ -120,8 +123,9 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
                 title = "Select demo mode:",
                 selected = demoMode,
                 options = listOf (
-                    ChipOption(DemoMode.POPULATED, "Populated"),
+                    ChipOption(DemoMode.READY, "Ready"),
                     ChipOption(DemoMode.EMPTY, "Empty"),
+                    ChipOption(DemoMode.POPULATED, "No Results"),
                     ChipOption(DemoMode.LOADING, "Loading"),
                     ChipOption(DemoMode.ERROR, "Error")
                 ),
@@ -196,36 +200,49 @@ private fun containerBrowserTopBarConfig(uiState: ContainerBrowserUiState): TopB
 
 private fun demoContainerBrowserReadyState(
     containerId: ContainerId?,
-    empty: Boolean
+    empty: Boolean,
+    noResults: Boolean
 ): ContainerBrowserUiState.Ready {
+    val subcontainers = listOf(
+        Container(
+            id = ContainerId(1L),
+            name = "Garage",
+            imageUri = "demo",
+            description = "Tools and hardware",
+            parentContainerId = null
+        ),
+        Container(
+            id = ContainerId(2L),
+            name = "Kitchen",
+            description = "Appliances and misc",
+            parentContainerId = null
+        ),
+    )
+
     // Simple demo data based on whether we're at root or inside a container.
     return if (containerId == null) {
         ContainerBrowserUiState.Ready(
             containerId = null,
             containerName = "All Containers",
-            subcontainers = if (empty) emptyList() else listOf(
-                Container(
-                    id = ContainerId(1L),
-                    name = "Garage",
-                    imageUri = "demo",
-                    description = "Tools and hardware",
-                    parentContainerId = null
-                ),
-                Container(
-                    id = ContainerId(2L),
-                    name = "Kitchen",
-                    description = "Appliances and misc",
-                    parentContainerId = null
-                ),
-            ),
+            subcontainers = if (empty) emptyList() else subcontainers,
             items = emptyList(),
-            visibleSubcontainers = emptyList(),
+            visibleSubcontainers = subcontainers,
             visibleItems = emptyList(),
-            query = "",
-            filter = ContainerBrowserFilter(),
+            query = if (noResults) "DEMO SEARCH TERM" else "",
+            filter = if (noResults) {
+                ContainerBrowserFilter(includeItems = false)
+            } else {
+                ContainerBrowserFilter()
+            },
             sort = ContainerBrowserSort.NAME_DESC,
             layout = ContainerBrowserLayout.LIST,
-            emptyState = ContainerBrowserEmptyState.NONE
+            emptyState = if (empty) {
+                ContainerBrowserEmptyState.EMPTY_CONTAINER
+            } else if (noResults) {
+                ContainerBrowserEmptyState.NO_RESULTS
+            } else {
+                ContainerBrowserEmptyState.NONE
+            }
         )
     } else {
         val items = if (empty) emptyList() else listOf(
