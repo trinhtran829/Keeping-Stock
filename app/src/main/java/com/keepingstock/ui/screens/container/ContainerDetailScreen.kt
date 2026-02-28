@@ -67,25 +67,23 @@ fun ContainerDetailScreen(
     onMove: (ContainerId) -> Unit = {},
     onDelete: (ContainerId) -> Unit = {}
 ) {
-    Column(modifier = modifier.padding(16.dp)) {
-        when (uiState) {
-            ContainerDetailUiState.Loading -> LoadingContent(modifier)
+    when (uiState) {
+        ContainerDetailUiState.Loading -> LoadingContent(modifier)
 
-            is ContainerDetailUiState.Error -> ErrorContent(
-                modifier = modifier,
-                message = uiState.message
-                // TODO: uiState.cause not displayed yet
-            )
+        is ContainerDetailUiState.Error -> ErrorContent(
+            modifier = modifier,
+            message = uiState.message
+            // TODO: uiState.cause not displayed yet
+        )
 
-            is ContainerDetailUiState.Ready -> ReadyContent(
-                modifier = modifier,
-                uiState = uiState,
-                onBack = onBack,
-                onEdit = onEdit,
-                onMove = onMove,
-                onDelete = onDelete
-            )
-        }
+        is ContainerDetailUiState.Ready -> ReadyContent(
+            modifier = modifier,
+            uiState = uiState,
+            onBack = onBack,
+            onEdit = onEdit,
+            onMove = onMove,
+            onDelete = onDelete
+        )
     }
 }
 
