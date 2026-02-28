@@ -61,10 +61,10 @@ fun EmptyState(
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (!isItemBrowser) {
-                    Button(onClick = onAddContainer) { Text("Add container") }
+                    OutlinedButton(onClick = onAddContainer) { Text("Add container") }
                 }
 
-                OutlinedButton(onClick = onAddItem) { Text("Add item") }
+                Button(onClick = onAddItem) { Text("Add item") }
             }
 
             Spacer(Modifier.height(12.dp))
@@ -117,8 +117,8 @@ fun NoResultsState(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Button(onClick = onClearQuery) { Text("Clear search") }
-                OutlinedButton(onClick = onResetFilters) { Text("Reset filters") }
+                OutlinedButton(onClick = onClearQuery) { Text("Clear search") }
+                Button(onClick = onResetFilters) { Text("Reset filters") }
             }
         }
     }

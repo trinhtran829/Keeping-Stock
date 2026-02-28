@@ -1,7 +1,7 @@
 package com.keepingstock.ui.screens.item
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,10 +12,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,14 +28,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.keepingstock.core.contracts.BrowserEmptyState
+import com.keepingstock.core.contracts.BrowserLayout
+import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.Item
+import com.keepingstock.core.contracts.ItemBrowserFilter
 import com.keepingstock.core.contracts.ItemId
-import com.keepingstock.core.contracts.UiState
 import com.keepingstock.core.contracts.intents.item.ItemBrowserIntent
+import com.keepingstock.core.contracts.uistates.item.ItemBrowserUiState
+import com.keepingstock.ui.components.screen.EmptyState
 import com.keepingstock.ui.components.screen.ErrorContent
+import com.keepingstock.ui.components.screen.ItemCompactRow
+import com.keepingstock.ui.components.screen.ItemStatusPickerChip
 import com.keepingstock.ui.components.screen.ItemSummaryRow
+import com.keepingstock.ui.components.screen.ItemTile
 import com.keepingstock.ui.components.screen.LoadingContent
-import com.keepingstock.viewmodel.item.ItemBrowserUiData
+import com.keepingstock.ui.components.screen.NoResultsState
+import com.keepingstock.ui.components.screen.SearchField
+import com.keepingstock.ui.components.screen.SortAndLayoutRow
+import com.keepingstock.ui.screens.item.ReadyContent
 
 /**
  * Screen for browsing all items.
@@ -46,145 +60,343 @@ import com.keepingstock.viewmodel.item.ItemBrowserUiData
 @Composable
 fun ItemBrowserScreen(
     modifier: Modifier = Modifier,
-    uiState: UiState<ItemBrowserUiData>,
+    uiState: ItemBrowserUiState, // UiState<ItemBrowserUiData>,
     onIntent: (ItemBrowserIntent) -> Unit,
     onOpenItem: (itemId: ItemId) -> Unit = {},
-    onAddItem: () -> Unit = {}
+    onAddItem: () -> Unit = {},
+    onScan: () -> Unit = {}
 ) {
 
-        when (uiState) {
-            is UiState.Loading -> LoadingContent(modifier)
+    when (uiState) {
+        is ItemBrowserUiState.Loading -> LoadingContent(modifier)
 
-            is UiState.Error -> ErrorContent(
-                modifier = modifier.fillMaxSize(),
-                message = uiState.message
-            )
+        is ItemBrowserUiState.Error -> ErrorContent(
+            modifier = modifier.fillMaxSize(),
+            message = uiState.message
+        )
 
-            is UiState.Success -> ReadyContent(
-                modifier = modifier.fillMaxSize(),
-                items = uiState.data.items,
-                onOpenItem = onOpenItem,
-                onAddItem = onAddItem
-            )
-        }
+        is ItemBrowserUiState.Success -> ReadyContent(
+            modifier = modifier.fillMaxSize(),
+            uiData = uiState,
+            onIntent = onIntent,
+            onOpenItem = onOpenItem,
+            onAddItem = onAddItem,
+            onScan
+        )
+    }
 }
 
 /**
- * Ready-state UI for the Item Browser. Does the heavy-lifting
+ * Ready-state UI for the Item Browser.
  *
- * - If item list is empty, shows the empty-state.
- * - Otherwise, renders items in a single scrolling list.
+ * - Shows a header row with item count and an Add action.
+ * - Shows shared browser controls (search + status filter + sort + layout).
+ * - Shows empty states based on [BrowserEmptyState].
+ * - Renders results using the selected [BrowserLayout].
  *
  * TODO(FUTURE): Add a grid/tile layout option. Keep row composables reusable by both layouts.
  *
- * :param modifier: Optional modifier for the screen container.
- * :param items: List of items in this container.
- * :param onOpenItem: User intent to open an item detail view.
- * :param onAddItem: User intent to add an item under containerId.
+ * @param modifier: Optional modifier for the screen container.
+ * @param items: List of items in this container.
+ * @param onOpenItem: User intent to open an item detail view.
+ * @param onAddItem: User intent to add an item under containerId.
  */
 @Composable
 private fun ReadyContent(
     modifier: Modifier,
-    items: List<Item>,
+    uiData: ItemBrowserUiState.Success,
+    onIntent: (ItemBrowserIntent) -> Unit,
     onOpenItem: (itemId: ItemId) -> Unit = {},
-    onAddItem: () -> Unit = {}
+    onAddItem: () -> Unit = {},
+    onScan: () -> Unit
 ) {
     Column() {
         // Content header; mainly counts
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val counts = "${items.size} items"
-            Text(
-                text = counts,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
-            )
+        ItemBrowserHeader(
+            itemCount = uiData.items.size,
+            onAddItem = onAddItem
+        )
 
-            TextButton(
-                onClick = onAddItem
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add item"
-                )
-                Spacer(Modifier.width(4.dp))
-                Text("Add")
-            }
-        }
+        ControlsBar(
+            query = uiData.query,
+            filter = uiData.filter,
+            sort = uiData.sort,
+            layout = uiData.layout,
+            onIntent = onIntent,
+            onScan = onScan
+        )
 
         HorizontalDivider()
 
         // Empty state; not it's own state variant
-        if (items.isEmpty()) {
-            EmptyState(
-                modifier = Modifier.fillMaxSize(),
-                onAddItem = onAddItem
-            )
-            return
-        }
-
-        // Populated state; scrolling list with individual sections for subcontainers/items
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            item {
-                Text("Items", style = MaterialTheme.typography.titleMedium)
+        when (uiData.emptyState) {
+            BrowserEmptyState.EMPTY -> {
+                EmptyState(
+                    modifier = Modifier.fillMaxSize(),
+                    onAddContainer = { },
+                    onAddItem = onAddItem,
+                    isItemBrowser = true,
+                    onScan = onScan
+                )
+                return
             }
-            items(items, key = { it.id.value }) { i ->
-                ItemSummaryRow(
-                    modifier = Modifier,
-                    item = i,
-                    onClick = { onOpenItem(i.id) }
+
+            BrowserEmptyState.NO_RESULTS -> {
+                NoResultsState(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClearQuery = { onIntent(ItemBrowserIntent.ClearQuery) },
+                    onResetFilters = {
+                        onIntent(ItemBrowserIntent.FilterChange(ItemBrowserFilter()))
+                    }
                 )
             }
 
-            // breathing room above bottom bar
-            item { Spacer(Modifier.height(72.dp)) }
+            BrowserEmptyState.NONE -> Unit
+        }
+
+        ItemResults(
+            layout = uiData.layout,
+            visibleItems = uiData.visibleItems,
+            onOpenItem = onOpenItem
+        )
+    }
+}
+
+/**
+ * Header row for the Item Browser.
+ *
+ * Displays an item count and an Add button.
+ *
+ * @param itemCount Total number of items available (unfiltered).
+ * @param onAddItem Invoked when the user taps the Add button.
+ */
+@Composable
+private fun ItemBrowserHeader(
+    itemCount: Int,
+    onAddItem: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "$itemCount items",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
+
+        TextButton(onClick = onAddItem) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add item"
+            )
+            Spacer(Modifier.width(4.dp))
+            Text("Add")
         }
     }
 }
 
 /**
- * Empty-state UI shown when there are no items.
+ * Control bar for Item Browser that wires shared control components to [ItemBrowserIntent].
  *
- * :param modifier Modifier applied to the full-size empty-state container.
- * :param onAddContainer Invoked when user chooses to add a container.
- * :param onAddItem Invoked when user chooses to add an item.
+ * Includes:
+ * - Search field
+ * - Item status filter
+ * - Sort and layout controls
+ *
+ * @param query Current search query.
+ * @param filter Current filter configuration.
+ * @param sort Current sort selection.
+ * @param layout Current layout selection.
+ * @param onIntent Callback for user intents.
  */
 @Composable
-private fun EmptyState(
-    modifier: Modifier,
-    onAddItem: () -> Unit
+private fun ControlsBar(
+    query: String,
+    filter: ItemBrowserFilter,
+    sort: BrowserSort,
+    layout: BrowserLayout,
+    onIntent: (ItemBrowserIntent) -> Unit,
+    onScan: () -> Unit
 ) {
-    Box(
-        modifier,
-        contentAlignment = Alignment.Center
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .padding(bottom = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(12.dp)
-        ) {
-            Text(
-                text = "Nothing here yet",
-                style = MaterialTheme.typography.titleMedium
-            )
+        SearchField(
+            query = query,
+            onQueryChange = { onIntent(ItemBrowserIntent.QueryChange(it)) },
+            onClearQuery = { onIntent(ItemBrowserIntent.ClearQuery) }
+        )
 
-            Spacer(Modifier.height(8.dp))
+        FiltersRow(
+            filter = filter,
+            onFilterChange = { onIntent(ItemBrowserIntent.FilterChange(it)) }
+        )
 
-            Text(
-                text = "Add an item to get started.",
-                style = MaterialTheme.typography.bodyMedium
-            )
+        SortAndLayoutRow(
+            sort = sort,
+            layout = layout,
+            onSortChange = { onIntent(ItemBrowserIntent.SortChange(it)) },
+            onLayoutChange = { onIntent(ItemBrowserIntent.LayoutChange(it)) },
+            onScan = onScan
+        )
+    }
+}
 
-            Spacer(Modifier.height(16.dp))
+/**
+ * Displays a set of available filters for the search results
+ *
+ * @param filter: The data class of current filter settings.
+ * @param onFilterChange: Invokes to intended user action callback for changing the filter settings.
+ */
+@Composable
+private fun FiltersRow(
+    filter: ItemBrowserFilter,
+    onFilterChange: (ItemBrowserFilter) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ItemStatusPickerChip(
+            status = filter.itemStatus,
+            onStatusChange = { onFilterChange(filter.copy(itemStatus = it)) }
+        )
+    }
+}
 
-            Button(onClick = onAddItem) { Text("Add item") }
+
+/**
+ * Renders visible items in the selected [BrowserLayout].
+ *
+ * @param layout Selected layout for displaying results.
+ * @param visibleItems Items to display (already derived by ViewModel/reducer).
+ * @param onOpenItem Invoked when an item is selected.
+ */
+@Composable
+private fun ItemResults(
+    layout: BrowserLayout,
+    visibleItems: List<Item>,
+    onOpenItem: (ItemId) -> Unit
+) {
+    when (layout) {
+        BrowserLayout.LIST ->
+            ListContents(visibleItems = visibleItems, onOpenItem = onOpenItem)
+
+        BrowserLayout.GRID ->
+            GridContents(visibleItems = visibleItems, onOpenItem = onOpenItem)
+
+        BrowserLayout.COMPACT ->
+            CompactContents(visibleItems = visibleItems, onOpenItem = onOpenItem)
+    }
+}
+
+
+/**
+ * List layout for Item Browser results.
+ *
+ * @param visibleItems Items to display.
+ * @param onOpenItem Invoked when an item row is selected.
+ */
+@Composable
+private fun ListContents(
+    visibleItems: List<Item>,
+    onOpenItem: (ItemId) -> Unit
+) {
+    // Populated state; scrolling list with individual sections for subcontainers/items
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            Text("Items", style = MaterialTheme.typography.titleMedium)
         }
+
+        items(visibleItems, key = { it.id.value }) { i ->
+            ItemSummaryRow(
+                modifier = Modifier,
+                item = i,
+                onClick = { onOpenItem(i.id) }
+            )
+        }
+
+        // breathing room above bottom bar
+        item { Spacer(Modifier.height(16.dp)) }
+    }
+}
+
+/**
+ * Grid layout for Item Browser results.
+ *
+ * @param visibleItems Items to display.
+ * @param onOpenItem Invoked when an item tile is selected.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun GridContents(
+    visibleItems: List<Item>,
+    onOpenItem: (ItemId) -> Unit
+) {
+    val gridState = rememberLazyGridState()
+
+    LazyVerticalGrid(
+        state = gridState,
+        columns = GridCells.Fixed(3),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = 12.dp,
+            end = 12.dp,
+            top = 8.dp,
+            bottom = 16.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(
+            items = visibleItems,
+            key = { it.id.value }
+        ) { item ->
+            ItemTile(
+                item = item,
+                onClick = { onOpenItem(item.id) }
+            )
+        }
+
+        // breathing room above bottom bar
+        item { Spacer(Modifier.height(16.dp)) }
+    }
+}
+
+/**
+ * Compact layout for Item Browser results.
+ *
+ * @param visibleItems Items to display.
+ * @param onOpenItem Invoked when an item row is selected.
+ */
+@Composable
+private fun CompactContents(
+    visibleItems: List<Item>,
+    onOpenItem: (ItemId) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        items(visibleItems, key = { it.id.value }) { i ->
+            ItemCompactRow(
+                item = i,
+                onClick = { onOpenItem(i.id) }
+            )
+        }
+
+        item { Spacer(Modifier.height(16.dp)) }
     }
 }
