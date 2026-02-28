@@ -9,6 +9,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -27,6 +31,8 @@ import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.itemIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.item.ItemDetailsScreen
+import com.keepingstock.ui.viewmodel.item.ItemDetailViewModel
+import kotlinx.coroutines.flow.collectLatest
 import java.util.Date
 
 internal fun NavGraphBuilder.addItemDetailsDestination(
@@ -44,51 +50,49 @@ internal fun NavGraphBuilder.addItemDetailsDestination(
             backStackEntry.arguments?.itemIdOrNull(Routes.Args.ITEM_ID)
             ?: error("Missing itemId")
 
-        // TODO(REMOVE): Demo-only mode selector
-        var demoMode by rememberSaveable(itemId.value) {
-            mutableStateOf(DemoMode.READY)
-        }
+        val vm: ItemDetailViewModel = viewModel(
+            viewModelStoreOwner = backStackEntry,
+            factory = viewModelFactory {
+                initializer {
+                    ItemDetailViewModel(
+                        itemId = itemId,
+                        itemRepository = deps.itemRepo,
+                        containerRepository = deps.containerRepo
+                    )
+                }
+            },
+        )
 
-        // TODO(REMOVE): Replace this with ViewModel uiState.
-        val uiState = remember(itemId, demoMode) {
-            when (demoMode) {
-                DemoMode.LOADING -> ItemDetailUiState.Loading
-                DemoMode.READY -> demoItemDetailReadyState(itemId, ItemStatus.STORED)
-                DemoMode.EMPTY -> demoItemDetailReadyState(itemId, ItemStatus.TAKEN_OUT)
-                DemoMode.ERROR, DemoMode.POPULATED ->
-                    ItemDetailUiState.Error("Demo error loading item details.")
+        val uiState by vm.uiState.collectAsStateWithLifecycle()
+
+        LaunchedEffect(vm) {
+            vm.effects.collectLatest { effect ->
+                when (effect) {
+                    is ItemDetailViewModel.UiEffect.ShowSnackbar ->
+                        deps.showSnackbar(effect.message)
+
+                    ItemDetailViewModel.UiEffect.NavigateBack ->
+                        deps.navController.popBackStack()
+                }
             }
         }
 
-        val topBarConfig = remember(uiState) { itemDetailTopBarConfig(uiState) }
+        val topBarConfig = itemDetailTopBarConfig(uiState)
 
-        LaunchedEffect(topBarConfig) {
+        LaunchedEffect(topBarConfig.title, topBarConfig.showBack) {
             deps.onTopBarChange(topBarConfig)
         }
 
-        Column(Modifier.fillMaxSize()) {
-            // TODO(REMOVE): demo-only UI controls.
-            DemoModeToggleRow(
-                title = "Select demo mode:",
-                selected = demoMode,
-                options = listOf(
-                    ChipOption(DemoMode.READY, "Stored"),
-                    ChipOption(DemoMode.EMPTY, "Taken"),
-                    ChipOption(DemoMode.LOADING, "Loading"),
-                    ChipOption(DemoMode.ERROR, "Error")
-                ),
-                onSelect = { demoMode = it }
-            )
-            ItemDetailsScreen(
-                uiState = uiState,
-                onBack = { deps.navController.popBackStack() },
-                onEdit = { id ->
-                    deps.navController.navigate(NavRoute.AddEditItem.createRoute(itemId = id))
-                },
-                onMove = {/* TODO: hook up when Move flow exists*/},
-                onDelete = {/* TODO: hook up when Delete flow exists */}
-            )
-        }
+        ItemDetailsScreen(
+            modifier = Modifier.fillMaxSize()
+            uiState = uiState,
+            onIntent = vm::onIntent,
+            onBack = { deps.navController.popBackStack() },
+            onEdit = { id ->
+                deps.navController.navigate(NavRoute.AddEditItem.createRoute(itemId = id))
+            },
+            onMove = {/* TODO: hook up when Move flow exists*/}
+        )
     }
 }
 
@@ -97,43 +101,9 @@ internal fun NavGraphBuilder.addItemDetailsDestination(
  */
 private fun itemDetailTopBarConfig(uiState: ItemDetailUiState): TopBarConfig {
     val title = when (uiState) {
-        is ItemDetailUiState.Ready ->  "Item Details" // TODO: uiState.parentContainerName + " Details"?
+        is ItemDetailUiState.Ready ->  "${uiState.item.name} Details"
         is ItemDetailUiState.Loading -> "Loading…"
         is ItemDetailUiState.Error -> "Item Details"
     }
     return TopBarConfig(title = title, showBack = true)
-}
-
-/**
- * TODO(REMOVE): Demo-only Ready state builder.
- * ---
- * GenAI usage citation:
- * Sample container detail data auto-generated with the help of ChatGPT.
- * Prompt: "Please generate data for a sample object with the following class signature:"
- */
-private fun demoItemDetailReadyState(itemId: ItemId, status: ItemStatus): ItemDetailUiState.Ready {
-    val item = when (status) {
-        ItemStatus.STORED -> Item(
-            id = itemId,
-            name = "Item ${itemId.value}",
-            description = "Example item detail description.",
-            imageUri = "demo2",
-            containerId = null,
-            status = ItemStatus.STORED
-        )
-        ItemStatus.TAKEN_OUT -> Item(
-            id = itemId,
-            name = "Item ${itemId.value}",
-            description = "Example item detail description.",
-            imageUri = "demo2",
-            containerId = ContainerId(1L),
-            status = ItemStatus.TAKEN_OUT,
-            checkoutDate = Date()
-        )
-    }
-
-    return ItemDetailUiState.Ready(
-        item = item,
-        parentContainerName = null
-    )
 }
