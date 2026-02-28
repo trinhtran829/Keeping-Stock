@@ -45,34 +45,3 @@ sealed interface ItemBrowserUiState {
         val cause: Throwable? = null
     ) : ItemBrowserUiState
 }
-
-/**
- * Simple enums for the available sorting, layout, and empty state options
- */
-enum class ItemBrowserSort {
-    NAME_ASC,
-    NAME_DESC,
-    CREATED_NEWEST,
-    CREATED_OLDEST
-}
-
-enum class ItemBrowserLayout {
-    LIST,
-    GRID,
-    COMPACT
-}
-
-enum class ItemBrowserEmptyState {
-    NONE,
-    EMPTY_LIST,   // truly no items for the selected scope
-    NO_RESULTS    // items exist but filtered out by query/filter
-}
-
-/**
- * Currently only two filters - show items that don't have a container (are in root) and item
- * status. You can add any others you think we'll need.
- */
-data class ItemBrowserFilter(
-    val storedInRootOnly: Boolean = false,
-    val itemStatus: ItemStatus? = null // null = any
-)

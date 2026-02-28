@@ -18,7 +18,8 @@ import com.keepingstock.viewmodel.item.ItemBrowserUiData
 @Composable
 private fun Preview_ItemBrowser_Loading() {
     ItemBrowserScreen(
-        uiState = UiState.Loading
+        uiState = UiState.Loading,
+        onIntent = { }
     )
 }
 
@@ -27,6 +28,7 @@ private fun Preview_ItemBrowser_Loading() {
 private fun Preview_ItemBrowser_Error() {
     ItemBrowserScreen(
         uiState = UiState.Error("Failed to load container."),
+        onIntent = { }
     )
 }
 
@@ -38,7 +40,8 @@ private fun Preview_ItemBrowser_EmptyReady() {
             data = ItemBrowserUiData (
                 items = emptyList()
             )
-        )
+        ),
+        onIntent = { }
     )
 }
 
@@ -74,6 +77,7 @@ private fun Preview_ItemBrowser_PopulatedReady() {
             data = ItemBrowserUiData(
                 items = items
             )
-        )
+        ),
+        onIntent = { }
     )
 }

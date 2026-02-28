@@ -28,15 +28,26 @@ import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.UiState
+import com.keepingstock.core.contracts.intents.item.ItemBrowserIntent
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.LoadingContent
 import com.keepingstock.viewmodel.item.ItemBrowserUiData
 
+/**
+ * Screen for browsing all items.
+ *
+ * @param modifier: Optional modifier applied to the top-level container.
+ * @param uiState: Current UI state for loading, error, or ready content.
+ * @param onIntent: Callback for user intents (query, filter, sort, layout).
+ * @param onOpenItem: Invoked when the user selects an item.
+ * @param onAddItem: Invoked when the user chooses to add a new item.
+ */
 @Composable
 fun ItemBrowserScreen(
     modifier: Modifier = Modifier,
     uiState: UiState<ItemBrowserUiData>,
+    onIntent: (ItemBrowserIntent) -> Unit,
     onOpenItem: (itemId: ItemId) -> Unit = {},
     onAddItem: () -> Unit = {}
 ) {

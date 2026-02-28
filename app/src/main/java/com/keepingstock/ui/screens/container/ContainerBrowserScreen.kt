@@ -2,7 +2,6 @@ package com.keepingstock.ui.screens.container
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,60 +19,49 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ViewModule
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.keepingstock.core.contracts.BrowserEmptyState
+import com.keepingstock.core.contracts.BrowserLayout
+import com.keepingstock.core.contracts.BrowserSort
 import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.ContainerBrowserFilter
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
-import com.keepingstock.core.contracts.intents.container.ContainerBrowserFilter
 import com.keepingstock.core.contracts.intents.container.ContainerBrowserIntent
-import com.keepingstock.core.contracts.intents.container.ContainerBrowserLayout
-import com.keepingstock.core.contracts.intents.container.ContainerBrowserSort
-import com.keepingstock.core.contracts.uistates.container.ContainerBrowserEmptyState
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.screen.ContainerCompactRow
 import com.keepingstock.ui.components.screen.ContainerSummaryRow
 import com.keepingstock.ui.components.screen.ContainerTile
+import com.keepingstock.ui.components.screen.EmptyState
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.ItemCompactRow
+import com.keepingstock.ui.components.screen.ItemStatusPickerChip
 import com.keepingstock.ui.components.screen.ItemSummaryRow
 import com.keepingstock.ui.components.screen.ItemTile
 import com.keepingstock.ui.components.screen.LoadingContent
+import com.keepingstock.ui.components.screen.NoResultsState
+import com.keepingstock.ui.components.screen.SearchField
+import com.keepingstock.ui.components.screen.SortAndLayoutRow
 
 /**
  * Screen for browsing container contents. Render based on ContainerBrowserUiState.
- *
- * TODO: Add addContainer and addItem buttons
- * TODO: Search/Filter/Sort feature
  *
  * @param modifier: Optional modifier for the top-level screen container.
  * @param uiState: Current state of loading, error, or container contents.
@@ -127,8 +115,6 @@ fun ContainerBrowserScreen(
  * - Otherwise, renders subcontainers and items in a single scrolling list.
  * - Container name shows in the global top bar right now, so owned by destination.
  *
- * TODO(FUTURE): Add a grid/tile layout option. Keep row composables reusable by both layouts.
- *
  * @param modifier: Optional modifier for the screen container.
  * @param uiState: Current state of loading, error, or container contents.
  * @param onIntent: Callbacks for user intent.
@@ -172,17 +158,18 @@ private fun ReadyContent(
 
         // Empty state; not it's own state variant
         when (uiState.emptyState) {
-            ContainerBrowserEmptyState.EMPTY_CONTAINER -> {
+            BrowserEmptyState.EMPTY -> {
                 EmptyState(
                     modifier = Modifier.fillMaxSize(),
                     onAddContainer = { onAddContainer(uiState.containerId) },
                     onAddItem = { onAddItem(uiState.containerId) },
-                    onScan = onScan
+                    onScan = onScan,
+                    isItemBrowser = false
                 )
                 return
             }
 
-            ContainerBrowserEmptyState.NO_RESULTS -> {
+            BrowserEmptyState.NO_RESULTS -> {
                 NoResultsState(
                     modifier = Modifier.fillMaxSize(),
                     onClearQuery = { onIntent(ContainerBrowserIntent.ClearQuery) },
@@ -193,7 +180,7 @@ private fun ReadyContent(
                 return
             }
 
-            ContainerBrowserEmptyState.NONE -> Unit
+            BrowserEmptyState.NONE -> Unit
         }
 
         PopulatedStateContents(
@@ -258,7 +245,7 @@ private fun ContentHeader(
 
 /**
  * The component between the header and the content, which allows the user to control the content
- * via searching, filtering, and display modes ([ContainerBrowserLayout])
+ * via searching, filtering, and display modes ([BrowserLayout])
  *
  * @param query: The string entered into the search bar
  * @param filter: The data class of filter settings currently in place to filter the results of
@@ -271,8 +258,8 @@ private fun ContentHeader(
 private fun ControlsBar(
     query: String,
     filter: ContainerBrowserFilter,
-    sort: ContainerBrowserSort,
-    layout: ContainerBrowserLayout,
+    sort: BrowserSort,
+    layout: BrowserLayout,
     onIntent: (ContainerBrowserIntent) -> Unit,
     onScan: () -> Unit
 ) {
@@ -302,48 +289,6 @@ private fun ControlsBar(
             onScan = onScan
         )
     }
-}
-
-/**
- * Displays a single-line search input field with built-in clear functionality.
- *
- * @param query Current search query displayed in the field.
- * @param onQueryChange Invoked whenever the user modifies the search text.
- * @param onClearQuery Invoked when the user taps the clear button.
- */
-@Composable
-private fun SearchField(
-    query: String,
-    label: String = "Search",
-    onQueryChange: (query: String) -> Unit,
-    onClearQuery: () -> Unit
-) {
-    // Search field
-    OutlinedTextField(
-        value = query,
-        onValueChange = { onQueryChange(it) },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-        label = { Text(label) },
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search"
-            )
-        },
-        trailingIcon = {
-            if (query.isNotBlank()) {
-                IconButton(
-                    onClick = { onClearQuery() }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = "Clear Search"
-                    )
-                }
-            }
-        }
-    )
 }
 
 /**
@@ -408,331 +353,7 @@ private fun FiltersRow(
     }
 }
 
-/**
- * Displays the Item Status Picker dropdown menu component, which allows the user to select
- * which item status items to show
- *
- * @param status: The item status to filter items with.
- * @param onStatusChange: Invoked when the user changes the desired status filter.
- */
-@Composable
-private fun ItemStatusPickerChip(
-    status: ItemStatus?,
-    onStatusChange: (ItemStatus?) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
 
-    val label = when (status) {
-        null -> "Any status"
-        ItemStatus.STORED -> "Stored"
-        ItemStatus.TAKEN_OUT -> "Checked out"
-    }
-
-    Box() {
-        AssistChip(
-            onClick = { expanded = true },
-            label = { Text(label) }
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("Any status") },
-                onClick = {
-                    expanded = false
-                    onStatusChange(null)
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Stored") },
-                onClick = {
-                    expanded = false
-                    onStatusChange(ItemStatus.STORED)
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Taken Out") },
-                onClick = {
-                    expanded = false
-                    onStatusChange(ItemStatus.TAKEN_OUT)
-                }
-            )
-        }
-    }
-}
-
-/**
- * Displays the sorting and layout options available to the user
- *
- * @param sort: The currently selected sort options for the results
- * @param layout: The currently selected display layout for the results.
- * @param onSortChange: Invoked when the user selects a new sorting option
- * @param onLayoutChange: Invoked when the user selects a new display layout.
- */
-@Composable
-private fun SortAndLayoutRow(
-    sort: ContainerBrowserSort,
-    layout: ContainerBrowserLayout,
-    onSortChange: (ContainerBrowserSort) -> Unit,
-    onLayoutChange: (ContainerBrowserLayout) -> Unit,
-    onScan: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        SortMenu(
-            sort = sort,
-            onSortChange = onSortChange
-        )
-
-        LayoutMenu(
-            layout = layout,
-            onLayoutChange = onLayoutChange
-        )
-
-        QrScanMenuOption(
-            onScan = onScan
-        )
-    }
-}
-
-/**
- * Displays the sorting menu.
- *
- * @param sort: The currently selected sort options for the results
- * @param onSortChange: Invoked when the user selects a new sorting option
- */
-@Composable
-private fun SortMenu(
-    sort: ContainerBrowserSort,
-    onSortChange: (ContainerBrowserSort) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    val label = when (sort) {
-        ContainerBrowserSort.NAME_ASC -> "Name A-Z"
-        ContainerBrowserSort.NAME_DESC -> "Name Z-A"
-        ContainerBrowserSort.CREATED_NEWEST -> "Created (newest)"
-        ContainerBrowserSort.CREATED_OLDEST -> "Created (oldest)"
-    }
-
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(
-            onClick = { expanded = true }
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Default.Sort,
-                contentDescription = "Sort"
-            )
-        }
-
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("Name (A–Z)") },
-                onClick = { expanded = false; onSortChange(ContainerBrowserSort.NAME_ASC) }
-            )
-            DropdownMenuItem(
-                text = { Text("Name (Z–A)") },
-                onClick = { expanded = false; onSortChange(ContainerBrowserSort.NAME_DESC) }
-            )
-            DropdownMenuItem(
-                text = { Text("Created (newest)") },
-                onClick = { expanded = false; onSortChange(ContainerBrowserSort.CREATED_NEWEST) }
-            )
-            DropdownMenuItem(
-                text = { Text("Created (oldest)") },
-                onClick = { expanded = false; onSortChange(ContainerBrowserSort.CREATED_OLDEST) }
-            )
-        }
-    }
-}
-
-/**
- * Displays the layout menu.
- *
- * @param layout: The currently selected display layout for the results.
- * @param onLayoutChange: Invoked when the user selects a new display layout.
- */
-@Composable
-private fun LayoutMenu(
-    layout: ContainerBrowserLayout,
-    onLayoutChange: (ContainerBrowserLayout) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    val label = when (layout) {
-        ContainerBrowserLayout.LIST -> "List"
-        ContainerBrowserLayout.GRID -> "Grid"
-        ContainerBrowserLayout.COMPACT -> "Compact"
-    }
-
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(
-            onClick = { expanded = true }
-        ) {
-            Icon(
-                imageVector = Icons.Default.ViewModule,
-                contentDescription = "Layout"
-            )
-        }
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("List") },
-                onClick = { expanded = false; onLayoutChange(ContainerBrowserLayout.LIST) }
-            )
-            DropdownMenuItem(
-                text = { Text("Grid") },
-                onClick = { expanded = false; onLayoutChange(ContainerBrowserLayout.GRID) }
-            )
-            DropdownMenuItem(
-                text = { Text("Compact") },
-                onClick = { expanded = false; onLayoutChange(ContainerBrowserLayout.COMPACT) }
-            )
-        }
-    }
-}
-
-@Composable
-private fun QrScanMenuOption(
-    onScan: () -> Unit
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(
-            onClick = onScan
-        ) {
-            Icon(
-                imageVector = Icons.Default.QrCodeScanner,
-                contentDescription = "Scan"
-            )
-        }
-
-        Text(
-            text = "Scan",
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-/**
- * Empty-state UI shown when a container has no subcontainers and no items.
- *
- * @param modifier Modifier applied to the full-size empty-state container.
- * @param onAddContainer Invoked when user chooses to add a container.
- * @param onAddItem Invoked when user chooses to add an item.
- */
-@Composable
-private fun EmptyState(
-    modifier: Modifier,
-    onAddContainer: () -> Unit,
-    onAddItem: () -> Unit,
-    onScan: () -> Unit
-) {
-    Box(
-        modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(24.dp)
-        ) {
-            Text(
-                text = "Nothing here yet",
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            Text(
-                text = "Add a container or item to get started.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(onClick = onAddContainer) { Text("Add container") }
-
-                OutlinedButton(onClick = onAddItem) { Text("Add item") }
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-            TextButton(onClick = onScan) {
-                Icon(Icons.Default.QrCodeScanner, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Scan to find")
-            }
-        }
-    }
-}
-
-/**
- * Empty state UI to show when the container has subcontainers and/or items, but none match the
- * provided filter / query settings.
- *
- * @param modifier: Optional modifier for the screen container.
- * @param onClearQuery Invoked when the user intends to clear the search field's query.
- * @param onResetFilters: Invoked when the user intends to clear the current filter settings
- */
-@Composable
-private fun NoResultsState(
-    modifier: Modifier,
-    onClearQuery: () -> Unit,
-    onResetFilters: () -> Unit
-) {
-    Box(
-        modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(24.dp)
-        ) {
-            Text(
-                text = "No results found",
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            Text(
-                text = "Try a different search or adjust your filters.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Button(onClick = onClearQuery) { Text("Clear search") }
-                OutlinedButton(onClick = onResetFilters) { Text("Reset filters") }
-            }
-        }
-    }
-}
 
 /**
  * Component for the main scrollable content area for the Container Browser when data is available.
@@ -750,7 +371,7 @@ private fun NoResultsState(
  */
 @Composable
 private fun PopulatedStateContents(
-    layout: ContainerBrowserLayout,
+    layout: BrowserLayout,
     visibleSubcontainers: List<Container>,
     visibleItems: List<Item>,
     containerId: ContainerId?,
@@ -761,7 +382,7 @@ private fun PopulatedStateContents(
     onScan: () -> Unit
 ) {
     when (layout) {
-        ContainerBrowserLayout.LIST ->
+        BrowserLayout.LIST ->
             ListContents(
                 visibleSubcontainers = visibleSubcontainers,
                 visibleItems = visibleItems,
@@ -773,7 +394,7 @@ private fun PopulatedStateContents(
                 onScan = onScan
             )
 
-        ContainerBrowserLayout.GRID -> {
+        BrowserLayout.GRID -> {
             GridContents(
                 visibleSubcontainers = visibleSubcontainers,
                 visibleItems = visibleItems,
@@ -786,7 +407,7 @@ private fun PopulatedStateContents(
             )
         }
 
-        ContainerBrowserLayout.COMPACT -> {
+        BrowserLayout.COMPACT -> {
             CompactContents(
                 visibleSubcontainers = visibleSubcontainers,
                 visibleItems = visibleItems,
@@ -1092,23 +713,10 @@ private fun Preview_ControlsBar() {
     ControlsBar(
         query = "DEMO SEARCH",
         filter = ContainerBrowserFilter(false),
-        sort = ContainerBrowserSort.NAME_ASC,
-        layout = ContainerBrowserLayout.LIST,
+        sort = BrowserSort.NAME_ASC,
+        layout = BrowserLayout.LIST,
         onIntent = { },
         onScan = { }
-    )
-}
-
-/**
- * Preview of the search field row
- */
-@Preview(showBackground = true)
-@Composable
-private fun Preview_SearchField() {
-    SearchField(
-        query = "",
-        onQueryChange = { },
-        onClearQuery = { }
     )
 }
 
@@ -1133,45 +741,6 @@ private fun Preview_FilterRowOptionSelected() {
     FiltersRow(
         filter = ContainerBrowserFilter(false, false),
         onFilterChange = { }
-    )
-}
-
-/**
- * Preview of the Sort and Layout Row
- */
-@Preview(showBackground = true)
-@Composable
-private fun Preview_SortAndLayoutRow() {
-    SortAndLayoutRow(
-        sort = ContainerBrowserSort.NAME_ASC,
-        layout = ContainerBrowserLayout.LIST,
-        onSortChange = { },
-        onLayoutChange = { },
-        onScan = { }
-    )
-}
-
-/**
- * Preview of the Sort Menu
- */
-@Preview(showBackground = true)
-@Composable
-private fun Preview_SortMenu() {
-    SortMenu(
-        sort = ContainerBrowserSort.NAME_ASC,
-        onSortChange = { }
-    )
-}
-
-/**
- * Preview of the Layout Menu
- */
-@Preview(showBackground = true)
-@Composable
-private fun Preview_LayoutMenu() {
-    LayoutMenu(
-        layout = ContainerBrowserLayout.LIST,
-        onLayoutChange = { }
     )
 }
 
