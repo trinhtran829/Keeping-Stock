@@ -3,7 +3,6 @@ package com.keepingstock.ui.navigation.destinations.container
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -21,7 +20,16 @@ import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.container.ContainerDetailScreen
 import com.keepingstock.ui.viewmodel.container.ContainerDetailViewModel
+import kotlinx.coroutines.flow.collectLatest
 
+/**
+ * Registers the Container Details Screen destination in the AppNavGraph.
+ *
+ * Displays the details of the Container indicated in the path param argument containerId
+ * in the route.
+ *
+ * @param deps: Shared navigation dependencies.
+ */
 internal fun NavGraphBuilder.addContainerDetailsDestination(
     deps: NavDeps
 ) {
@@ -51,9 +59,21 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
 
         val uiState by vm.uiState.collectAsStateWithLifecycle()
 
-        val topBarConfig = remember(uiState) { containerDetailTopBarConfig(uiState) }
+        LaunchedEffect(vm) {
+            vm.effects.collectLatest { effect ->
+                when (effect) {
+                    is ContainerDetailViewModel.UiEffect.ShowSnackbar ->
+                        deps.showSnackbar(effect.message)
 
-        LaunchedEffect(topBarConfig) {
+                    ContainerDetailViewModel.UiEffect.NavigateBack ->
+                        deps.navController.popBackStack()
+                }
+            }
+        }
+
+        val topBarConfig = containerDetailTopBarConfig(uiState)
+        
+        LaunchedEffect(topBarConfig.title, topBarConfig.showBack) {
             deps.onTopBarChange(topBarConfig)
         }
 
