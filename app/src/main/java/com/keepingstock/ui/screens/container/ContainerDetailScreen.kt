@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -26,7 +27,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +43,7 @@ import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.keepingstock.R
 import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.intents.container.ContainerDetailIntent
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
 import com.keepingstock.platform.services.MlKitQrService
 import com.keepingstock.ui.components.screen.DetailRow
@@ -51,21 +56,20 @@ import com.keepingstock.ui.components.screen.LoadingContent
  * The image render section supports demo drawable resources for previews/testing. Use "demo" as
  * the imageUri
  *
- * :param modifier: Modifier applied to the screen.
- * :param uiState: Current UI state for the container details.
- * :param onBack: User intent to navigate back.
- * :param onEdit: User intent to edit this container.
- * :param onMove: User intent to move/re-parent this container.
- * :param onDelete: User intent to delete this container (if allowed).
+ * @param modifier: Modifier applied to the screen.
+ * @param uiState: Current UI state for the container details.
+ * @param onBack: User intent to navigate back.
+ * @param onEdit: User intent to edit this container.
+ * @param onMove: User intent to move/re-parent this container.
  */
 @Composable
 fun ContainerDetailScreen(
     modifier: Modifier = Modifier,
     uiState: ContainerDetailUiState,
+    onIntent: (ContainerDetailIntent) -> Unit = {},
     onBack: () -> Unit = {},
     onEdit: (ContainerId) -> Unit = {},
-    onMove: (ContainerId) -> Unit = {},
-    onDelete: (ContainerId) -> Unit = {}
+    onMove: (ContainerId) -> Unit = {}
 ) {
     when (uiState) {
         ContainerDetailUiState.Loading -> LoadingContent(modifier)
@@ -79,10 +83,10 @@ fun ContainerDetailScreen(
         is ContainerDetailUiState.Ready -> ReadyContent(
             modifier = modifier,
             uiState = uiState,
+            onIntent = onIntent,
             onBack = onBack,
             onEdit = onEdit,
-            onMove = onMove,
-            onDelete = onDelete
+            onMove = onMove
         )
     }
 }
@@ -97,37 +101,43 @@ fun ContainerDetailScreen(
  * - metadata (details)
  * - actions (edit/move/delete/back)
  *
- * :param modifier: Modifier applied to the scroll container.
- * :param uiState: Ready state containing all container details required for display.
- * :param onBack: User intent to navigate back.
- * :param onEdit: User intent to edit this container.
- * :param onMove: User intent to move/re-parent this container.
- * :param onDelete: User intent to delete this container.
+ * @param modifier: Modifier applied to the scroll container.
+ * @param uiState: Ready state containing all container details required for display.
+ * @param onBack: User intent to navigate back.
+ * @param onEdit: User intent to edit this container.
+ * @param onMove: User intent to move/re-parent this container.
+ * @param onDelete: User intent to delete this container.
  */
 @Composable
 private fun ReadyContent(
     modifier: Modifier,
     uiState: ContainerDetailUiState.Ready,
+    onIntent: (ContainerDetailIntent) -> Unit,
     onBack: () -> Unit = {},
     onEdit: (ContainerId) -> Unit = {},
-    onMove: (ContainerId) -> Unit = {},
-    onDelete: (ContainerId) -> Unit = {}
+    onMove: (ContainerId) -> Unit = {}
 ) {
+    var showDeleteDialog by remember(uiState.container.id.value) { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        DeleteContainerConfirmDialog(
+            containerName = uiState.container.name,
+            canDelete = uiState.canDelete,
+            blockedReason = uiState.deleteBlockedReason,
+            onConfirmDelete = { onIntent(ContainerDetailIntent.DeleteConfirmed) },
+            onDismiss = { showDeleteDialog = false }
+        )
+    }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        item {
-            ContainerDetailHeaderCard(uiState)
-        }
+        item { ContainerDetailHeaderCard(uiState) }
 
-        item {
-            ContainerQrCard(uiState.container.id)
-        }
+        item { ContainerQrCard(uiState.container.id) }
 
-        item {
-            ContainerDetailMetadataCard(uiState)
-        }
+        item { ContainerDetailMetadataCard(uiState) }
 
         item {
             ContainerDetailActionsCard(
@@ -136,27 +146,26 @@ private fun ReadyContent(
                 onBack = onBack,
                 onEdit = onEdit,
                 onMove = onMove,
-                onDelete = onDelete
+                onDelete = { showDeleteDialog = true }
             )
         }
     }
 }
 
 /**
- * Header card for container details.
+ * Card to display the Container's QR code - this code should lead the user back to
+ * this container when the user scans it with the QRScan screen.
  *
- * Layout:
- * - Top row: container type icon + container name + small type label
- * - Image: shown only when imageUri is present
- * - Description
+ * Details:
+ * - Displays the title of the card (with an icon)
+ * - Displays the QR image
+ * - Displays instructions for the QR code
  *
- * Special-case imageUri values "demo"/"demo2/demox" to load demo images. This is used
- * for preview/demo builds where URIs or file paths may not resolve.
+ * TODO: Allow for user to be able to long-press -> Save image? Or add a "Save/Print Image" button
  *
- * TODO: Remove "demo"/"demo2" special-casing once a proper image pipeline exists
- *  (or add debug-only flag).
+ * TODO: Examine display formatting and adjust if necessary
  *
- * :param uiState: Ready state used as the source of truth for display.
+ * @param containerId:
  */
 @Composable
 private fun ContainerQrCard(containerId: ContainerId) {
@@ -200,6 +209,19 @@ private fun ContainerQrCard(containerId: ContainerId) {
     }
 }
 
+/**
+ * Header card for container details.
+ *
+ * Layout:
+ * - Top row: container type icon + container name + small type label
+ * - Image: shown only when imageUri is present
+ * - Description
+ *
+ * Special-case imageUri values "demo"/"demo2/demox" to load demo images. This is used
+ * for preview/demo builds where URIs or file paths may not resolve.
+ *
+ * @param uiState: Ready state used as the source of truth for display.
+ */
 @Composable
 private fun ContainerDetailHeaderCard(
     uiState: ContainerDetailUiState.Ready
@@ -288,7 +310,7 @@ private fun ContainerDetailHeaderCard(
  * - counts for subcontainers and items
  * - deletion restriction message when canDelete is false
  *
- * :param uiState: Ready state containing metadata required for display.
+ * @param uiState: Ready state containing metadata required for display.
  */
 @Composable
 private fun ContainerDetailMetadataCard(
@@ -349,12 +371,12 @@ private fun ContainerDetailMetadataCard(
  *
  * TODO: Consider moving some actions to top bar?
  *
- * :param containerId: Target container for all actions.
- * :param canDelete: Whether Delete should be enabled.
- * :param onBack: User intent to navigate back.
- * :param onEdit: User intent to edit this container.
- * :param onMove: User intent to move/re-parent this container.
- * :param onDelete: User intent to delete this container.
+ * @param containerId: Target container for all actions.
+ * @param canDelete: Whether Delete should be enabled.
+ * @param onBack: User intent to navigate back.
+ * @param onEdit: User intent to edit this container.
+ * @param onMove: User intent to move/re-parent this container.
+ * @param onDelete: User intent to delete this container.
  */
 @Composable
 private fun ContainerDetailActionsCard(
@@ -403,4 +425,55 @@ private fun ContainerDetailActionsCard(
             ) { Text("Back") }
         }
     }
+}
+
+/**
+ * Displays the alert dialog for confirming the user wishes to delete the container,
+ * or displays an error message indicating that the user is unable to delete the container for the
+ * indicated reason.
+ *
+ * @param containerName: The name of the current container
+ * @param canDelete: Flag to indicate whether the container is allowed to be deleted
+ * @param blockedReason: The message to display if the container is not allowed to be deleted
+ * @param onConfirmDelete: Intent to delete with confirmation
+ * @param onDismiss: Intent to dismiss the current delete confirmation dialog with no further
+ *                   action taken.
+ */
+@Composable
+private fun DeleteContainerConfirmDialog(
+    containerName: String,
+    canDelete: Boolean,
+    blockedReason: String?,
+    onConfirmDelete: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Delete container?") },
+        text = {
+            Text(
+                if (canDelete) {
+                    "This will permanently delete \"$containerName\"."
+                } else {
+                    blockedReason ?: "This container cannot be deleted."
+                }
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (canDelete) onConfirmDelete()
+                    onDismiss()
+                },
+                enabled = canDelete
+            ) {
+                Text("Delete")
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
