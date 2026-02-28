@@ -11,6 +11,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
+import com.keepingstock.data.repositories.ContainerRepositoryImpl
+import com.keepingstock.data.repositories.ItemRepositoryImpl
 import com.keepingstock.ui.navigation.destinations.container.addAddEditContainerDestination
 import com.keepingstock.ui.navigation.destinations.item.addAddEditItemDestination
 import com.keepingstock.ui.navigation.destinations.media.addCameraDestination
@@ -49,8 +51,10 @@ import com.keepingstock.ui.scaffold.TopBarConfig
  */
 @Composable
 fun AppNavGraph(
-    navController: NavHostController,
     modifier: Modifier = Modifier,
+    containerRepo: ContainerRepositoryImpl,
+    itemRepo: ItemRepositoryImpl,
+    navController: NavHostController,
     contentPadding: PaddingValues,
     onTopBarChange: (TopBarConfig) -> Unit,
     showSnackbar: (String) -> Unit = {}
@@ -62,7 +66,9 @@ fun AppNavGraph(
     val deps = NavDeps(
         navController = navController,
         onTopBarChange = onTopBarChange,
-        showSnackbar = showSnackbar
+        showSnackbar = showSnackbar,
+        containerRepo = containerRepo,
+        itemRepo = itemRepo
     )
 
     // The place in UI where the active destination composable is displayed
