@@ -28,6 +28,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.keepingstock.data.repositories.ContainerRepositoryImpl
 import com.keepingstock.data.repositories.ItemRepositoryImpl
+import com.keepingstock.data.repositories.TagRepositoryImpl
 import com.keepingstock.ui.navigation.AppNavGraph
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.scaffold.TopBarConfig
@@ -43,7 +44,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun KeepingStockApp(
     containerRepo: ContainerRepositoryImpl,
-    itemRepo: ItemRepositoryImpl
+    itemRepo: ItemRepositoryImpl,
+    tagRepo: TagRepositoryImpl
 ) {
     // Single NavController instance for the entire app. Owned here so global UI can trigger
     // navigation (i.e. top bar and bottom bar)
@@ -111,6 +113,7 @@ fun KeepingStockApp(
             modifier = Modifier,
             containerRepo = containerRepo,
             itemRepo = itemRepo,
+            tagRepo = tagRepo,
             navController = navController,
             contentPadding = innerPadding,
             onTopBarChange = { topBarConfig = it },
