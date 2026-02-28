@@ -28,6 +28,8 @@ import kotlinx.coroutines.flow.collectLatest
  * Displays the details of the Container indicated in the path param argument containerId
  * in the route.
  *
+ * TODO: Still need to implement MOVE flow in Intent file
+ *
  * @param deps: Shared navigation dependencies.
  */
 internal fun NavGraphBuilder.addContainerDetailsDestination(
