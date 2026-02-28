@@ -1,6 +1,5 @@
 package com.keepingstock.ui.screens.container
 
-import android.R.attr.onClick
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -95,7 +94,7 @@ fun ContainerBrowserScreen(
     onOpenContainerInfo: (containerId: ContainerId) -> Unit = {},
     onAddContainer: (parentContainerId: ContainerId?) -> Unit = {},
     onAddItem: (containerId: ContainerId?) -> Unit = {},
-    onScan: () -> Unit = {}
+    onScan: () -> Unit = { }
 ) {
     when (uiState) {
         ContainerBrowserUiState.Loading -> LoadingContent(modifier)
@@ -149,7 +148,7 @@ private fun ReadyContent(
     onOpenContainerInfo: (containerId: ContainerId) -> Unit = {},
     onAddContainer: (parentContainerId: ContainerId?) -> Unit = {},
     onAddItem: (containerId: ContainerId?) -> Unit = {},
-    onScan: () -> Unit = {}
+    onScan: () -> Unit
 ) {
     Column() {
         // Content header; mainly counts and info button
@@ -166,6 +165,7 @@ private fun ReadyContent(
             sort = uiState.sort,
             layout = uiState.layout,
             onIntent = onIntent,
+            onScan = onScan
         )
 
         HorizontalDivider()
@@ -204,7 +204,8 @@ private fun ReadyContent(
             onAddContainer = onAddContainer,
             onAddItem = onAddItem,
             onOpenSubcontainer = onOpenSubcontainer,
-            onOpenItem = onOpenItem
+            onOpenItem = onOpenItem,
+            onScan = onScan
         )
     }
 }
@@ -273,7 +274,7 @@ private fun ControlsBar(
     sort: ContainerBrowserSort,
     layout: ContainerBrowserLayout,
     onIntent: (ContainerBrowserIntent) -> Unit,
-    onScan: () -> Unit = {}
+    onScan: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -297,7 +298,8 @@ private fun ControlsBar(
             sort = sort,
             layout = layout,
             onSortChange = { onIntent(ContainerBrowserIntent.SortChange(it)) },
-            onLayoutChange = { onIntent(ContainerBrowserIntent.LayoutChange(it)) }
+            onLayoutChange = { onIntent(ContainerBrowserIntent.LayoutChange(it)) },
+            onScan = onScan
         )
     }
 }
@@ -475,7 +477,7 @@ private fun SortAndLayoutRow(
     layout: ContainerBrowserLayout,
     onSortChange: (ContainerBrowserSort) -> Unit,
     onLayoutChange: (ContainerBrowserLayout) -> Unit,
-    onScan: () -> Unit = {}
+    onScan: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -612,7 +614,7 @@ private fun LayoutMenu(
 
 @Composable
 private fun QrScanMenuOption(
-    onScan: () -> Unit = {}
+    onScan: () -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -755,7 +757,8 @@ private fun PopulatedStateContents(
     onAddContainer: (ContainerId?) -> Unit,
     onAddItem: (ContainerId?) -> Unit,
     onOpenSubcontainer: (ContainerId) -> Unit,
-    onOpenItem: (ItemId) -> Unit
+    onOpenItem: (ItemId) -> Unit,
+    onScan: () -> Unit
 ) {
     when (layout) {
         ContainerBrowserLayout.LIST ->
@@ -766,7 +769,8 @@ private fun PopulatedStateContents(
                 onAddContainer = onAddContainer,
                 onAddItem = onAddItem,
                 onOpenSubcontainer = onOpenSubcontainer,
-                onOpenItem = onOpenItem
+                onOpenItem = onOpenItem,
+                onScan = onScan
             )
 
         ContainerBrowserLayout.GRID -> {
@@ -777,7 +781,8 @@ private fun PopulatedStateContents(
                 onAddContainer = onAddContainer,
                 onAddItem = onAddItem,
                 onOpenSubcontainer = onOpenSubcontainer,
-                onOpenItem = onOpenItem
+                onOpenItem = onOpenItem,
+                onScan = onScan
             )
         }
 
@@ -789,7 +794,8 @@ private fun PopulatedStateContents(
                 onAddContainer = onAddContainer,
                 onAddItem = onAddItem,
                 onOpenSubcontainer = onOpenSubcontainer,
-                onOpenItem = onOpenItem
+                onOpenItem = onOpenItem,
+                onScan = onScan
             )
         }
     }
@@ -815,7 +821,8 @@ private fun ListContents(
     onAddContainer: (ContainerId?) -> Unit,
     onAddItem: (ContainerId?) -> Unit,
     onOpenSubcontainer: (ContainerId) -> Unit,
-    onOpenItem: (ItemId) -> Unit
+    onOpenItem: (ItemId) -> Unit,
+    onScan: () -> Unit
 ) {
     // Populated state; scrolling list with individual sections for subcontainers/items
     LazyColumn(
@@ -858,6 +865,10 @@ private fun ListContents(
                 )
             }
         }
+
+        item { ContentEndQrButton(onScan = onScan) }
+
+        item { Spacer(Modifier.height(16.dp)) }
     }
 }
 
@@ -882,7 +893,8 @@ private fun GridContents(
     onAddContainer: (ContainerId?) -> Unit,
     onAddItem: (ContainerId?) -> Unit,
     onOpenSubcontainer: (ContainerId) -> Unit,
-    onOpenItem: (ItemId) -> Unit
+    onOpenItem: (ItemId) -> Unit,
+    onScan: () -> Unit
 ) {
     val gridState = rememberLazyGridState()
 
@@ -944,6 +956,10 @@ private fun GridContents(
                 onClick = { onOpenItem(item.id) }
             )
         }
+
+        item { ContentEndQrButton(onScan = onScan) }
+
+        item { Spacer(Modifier.height(16.dp)) }
     }
 }
 
@@ -966,7 +982,8 @@ private fun CompactContents(
     onAddContainer: (ContainerId?) -> Unit,
     onAddItem: (ContainerId?) -> Unit,
     onOpenSubcontainer: (ContainerId) -> Unit,
-    onOpenItem: (ItemId) -> Unit
+    onOpenItem: (ItemId) -> Unit,
+    onScan: () -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -1002,6 +1019,8 @@ private fun CompactContents(
                 onClick = { onOpenItem(i.id) }
             )
         }
+
+        item { ContentEndQrButton(onScan = onScan) }
 
         item { Spacer(Modifier.height(16.dp)) }
     }
@@ -1045,6 +1064,26 @@ private fun SectionHeader(
 }
 
 /**
+ * Simple button component for QR Scanning navigation
+ *
+ * @param onScan: User intent to navigate to the QR Scan screen.
+ */
+@Composable
+private fun ContentEndQrButton(
+    onScan: () -> Unit
+) {
+    Spacer(Modifier.height(16.dp))
+    OutlinedButton(
+        onClick = onScan,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Icon(Icons.Default.QrCodeScanner, contentDescription = null)
+        Spacer(Modifier.width(8.dp))
+        Text("Scan QR Code")
+    }
+}
+
+/**
  * Preview of the search/controls bar
  */
 @Preview(showBackground = true)
@@ -1055,7 +1094,8 @@ private fun Preview_ControlsBar() {
         filter = ContainerBrowserFilter(false),
         sort = ContainerBrowserSort.NAME_ASC,
         layout = ContainerBrowserLayout.LIST,
-        onIntent = { }
+        onIntent = { },
+        onScan = { }
     )
 }
 
@@ -1106,7 +1146,8 @@ private fun Preview_SortAndLayoutRow() {
         sort = ContainerBrowserSort.NAME_ASC,
         layout = ContainerBrowserLayout.LIST,
         onSortChange = { },
-        onLayoutChange = { }
+        onLayoutChange = { },
+        onScan = { }
     )
 }
 
