@@ -150,4 +150,16 @@ sealed interface NavRoute {
     object DebugGallery : NavRoute {
         override val route: String = Routes.DEBUG_GALLERY
     }
+
+    object ContainerBrowserDebug : NavRoute {
+        // Use query param for route since containerId is optional
+        override val route: String =
+            "${Routes.DEBUG_CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}={${Routes.Args.CONTAINER_ID}}"
+
+        // Function to build the actual route string; uses query param
+        fun createRoute(containerId: ContainerId? = null): String =
+            containerId?.let {
+                "${Routes.DEBUG_CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}=${it.value}" }
+                ?: Routes.DEBUG_CONTAINER_BROWSER
+    }
 }

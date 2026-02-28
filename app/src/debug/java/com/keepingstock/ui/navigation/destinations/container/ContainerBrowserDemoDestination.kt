@@ -1,0 +1,312 @@
+package com.keepingstock.ui.navigation.destinations.container
+
+import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.navigation.*
+import androidx.navigation.compose.composable
+import com.keepingstock.core.contracts.BrowserEmptyState
+import com.keepingstock.core.contracts.BrowserLayout
+import com.keepingstock.core.contracts.BrowserSort
+import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.ContainerBrowserFilter
+import com.keepingstock.ui.navigation.NavDeps
+import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.Item
+import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.Routes
+import com.keepingstock.ui.navigation.NavRoute
+import com.keepingstock.ui.navigation.containerIdOrNull
+import com.keepingstock.ui.components.navigation.*
+import com.keepingstock.ui.screens.container.ContainerBrowserScreen
+import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
+import com.keepingstock.core.contracts.intents.container.ContainerBrowserIntent
+import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.ui.scaffold.TopBarConfig
+
+internal fun NavGraphBuilder.addContainerBrowserDemoDestination(
+    deps: NavDeps,
+    lastContainerIdState: MutableState<ContainerId?>
+) {
+    composable(
+        route = NavRoute.ContainerBrowserDebug.route,
+        arguments = listOf(
+            navArgument(Routes.Args.CONTAINER_ID) {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            }
+        )
+    ) { backStackEntry ->
+        // current container to display, where null = root container
+        val containerId =
+            backStackEntry.arguments?.containerIdOrNull(Routes.Args.CONTAINER_ID)
+
+        /*
+         * Stored with rememberSaveable so it survives recomposition and basic process recreation.
+         * Keyed by containerId so each container can have its own demo mode selection.
+         */
+        var demoMode by rememberSaveable(containerId?.value) { // key per container
+            mutableStateOf(DemoMode.READY)
+        }
+
+        /*
+         * Temporary UiState provider for demonstration purposes.
+         */
+        var uiState: ContainerBrowserUiState by remember(containerId?.value, demoMode) {
+            mutableStateOf(
+                when (demoMode) {
+                    DemoMode.LOADING -> ContainerBrowserUiState.Loading
+                    DemoMode.ERROR ->
+                        ContainerBrowserUiState.Error("Demo error loading container.")
+                    DemoMode.EMPTY ->
+                        demoContainerBrowserReadyState(containerId, empty = true, noResults = false)
+                    DemoMode.POPULATED ->
+                        demoContainerBrowserReadyState(containerId, empty = false, noResults = true)
+                    DemoMode.READY ->
+                        demoContainerBrowserReadyState(containerId, empty = false, noResults = false)
+                }
+            )
+        }
+
+        // Build TopBarConfig from current UiState
+        val topBarConfig = remember(uiState) { containerBrowserTopBarConfig(uiState) }
+
+        // Push top bar updates to scaffold
+        LaunchedEffect(topBarConfig) {
+            deps.onTopBarChange(topBarConfig)
+        }
+
+        // Track the last visited container for "Return to Containers" behavior.
+        lastContainerIdState.value = containerId
+
+        /*
+         * Kept in the destination (not the screen) so ContainerBrowserScreen stays production-like
+         * and purely state-driven.
+         */
+        Column (Modifier.fillMaxSize()) {
+            DemoModeToggleRow(
+                title = "Select demo mode:",
+                selected = demoMode,
+                options = listOf (
+                    ChipOption(DemoMode.READY, "Ready"),
+                    ChipOption(DemoMode.EMPTY, "Empty"),
+                    ChipOption(DemoMode.POPULATED, "No Results"),
+                    ChipOption(DemoMode.LOADING, "Loading"),
+                    ChipOption(DemoMode.ERROR, "Error")
+                ),
+                onSelect = { demoMode = it }
+            )
+
+            ContainerBrowserScreen(
+                modifier = Modifier.fillMaxSize(),
+                uiState = uiState,
+                onIntent = { intent ->
+                    uiState = reduceDemoContainerBrowserIntent(
+                        current = uiState,
+                        intent = intent
+                    )
+                },
+                onOpenSubcontainer = { subId ->
+                    deps.navController.navigate(NavRoute.ContainerBrowser.createRoute(subId))
+                },
+                onOpenItem = { itemId ->
+                    deps.navController.navigate(NavRoute.ItemDetails.createRoute(itemId))
+                },
+                onOpenContainerInfo = { id ->
+                    deps.navController.navigate(NavRoute.ContainerDetail.createRoute(id))
+                },
+                onAddContainer = { parentId ->
+                    deps.navController.navigate(
+                        NavRoute.AddEditContainer.createRoute(parentContainerId = parentId)
+                    )
+                },
+                onAddItem = { cid ->
+                    deps.navController.navigate(NavRoute.AddEditItem.createRoute(containerId = cid))
+                },
+                onScan = {
+                    deps.navController.navigate(NavRoute.QRScan.route)
+                }
+            )
+        }
+    }
+}
+
+/**
+ * Builds the TopBarConfig for the Container Browser destination from UiState.
+ *
+ * Titles:
+ * - Ready: uses the containerName from UiState
+ * - Loading: "Loading…"
+ * - Error: generic "Containers" // TODO: refine error title later
+ *
+ * Back button:
+ * - Shown only when browsing a non-root container (containerId != null) // TODO: correct behavior?
+ *
+ * :param uiState: The current UI state for the Container Browser screen.
+ * :return: TopBarConfig used by the app scaffold's top bar.
+ */
+private fun containerBrowserTopBarConfig(uiState: ContainerBrowserUiState): TopBarConfig {
+    val title = when (uiState) {
+        is ContainerBrowserUiState.Ready -> uiState.containerName
+        is ContainerBrowserUiState.Loading -> "Loading…"
+        is ContainerBrowserUiState.Error -> "Containers"
+    }
+
+    val showBack = (uiState is ContainerBrowserUiState.Ready && uiState.containerId != null)
+
+    return TopBarConfig(title = title, showBack = showBack)
+}
+
+/**
+ * Demo-only reducer for ContainerBrowserIntent.
+ *
+ * Applies user intents to the current ContainerBrowserUiState in-memory so layout,
+ * query, filter, and sort controls can be demonstrated without a ViewModel.
+ *
+ * @param current The current UI state.
+ * @param intent The user intent emitted from the UI.
+ * @return Updated UI state reflecting the applied intent.
+ */
+private fun reduceDemoContainerBrowserIntent(
+    current: ContainerBrowserUiState,
+    intent: ContainerBrowserIntent
+): ContainerBrowserUiState {
+    val ready = current as? ContainerBrowserUiState.Ready ?: return current
+
+    return when (intent) {
+        is ContainerBrowserIntent.QueryChange ->
+            ready.copy(query = intent.query)
+
+        is ContainerBrowserIntent.QuerySubmit ->
+            ready.copy(query = intent.query)
+
+        ContainerBrowserIntent.ClearQuery ->
+            ready.copy(query = "")
+
+        is ContainerBrowserIntent.FilterChange ->
+            ready.copy(filter = intent.filter)
+
+        is ContainerBrowserIntent.SortChange ->
+            ready.copy(sort = intent.sort)
+
+        is ContainerBrowserIntent.LayoutChange ->
+            ready.copy(layout = intent.layout)
+
+        ContainerBrowserIntent.Retry ->
+            // Demo-only: no loading transition; keep current state as-is.
+            current
+    }
+}
+
+/**
+ * Demo Ready-state builder for the Container Browser. Produces sample data so the UI can be
+ * tested/rendered without a ViewModel.
+ *
+ * :param containerId: Current container to simulate; null represents root.
+ * :param empty: When true, returns a Ready state with empty subcontainers/items.
+ * :return: A Ready UiState with predictable demo data.
+ *
+ * ---
+ * GenAI usage citation:
+ * This example UiState was generated with the assistance of ChatGPT.
+ */
+
+private fun demoContainerBrowserReadyState(
+    containerId: ContainerId?,
+    empty: Boolean,
+    noResults: Boolean
+): ContainerBrowserUiState.Ready {
+    val subcontainers = listOf(
+        Container(
+            id = ContainerId(1L),
+            name = "Garage",
+            imageUri = "demo",
+            description = "Tools and hardware. Tools and hardware. Tools and hardware. Tools and hardware. Tools and hardware.",
+            parentContainerId = null
+        ),
+        Container(
+            id = ContainerId(2L),
+            name = "Kitchen",
+            description = "Appliances and misc",
+            parentContainerId = null
+        ),
+    )
+
+    // Simple demo data based on whether we're at root or inside a container.
+    return if (containerId == null) {
+        ContainerBrowserUiState.Ready(
+            containerId = null,
+            containerName = "All Containers",
+            subcontainers = if (empty) emptyList() else subcontainers,
+            items = emptyList(),
+            visibleSubcontainers = subcontainers,
+            visibleItems = emptyList(),
+            query = if (noResults) "DEMO SEARCH TERM" else "",
+            filter = if (noResults) {
+                ContainerBrowserFilter(includeItems = false)
+            } else {
+                ContainerBrowserFilter()
+            },
+            sort = BrowserSort.NAME_ASC,
+            layout = BrowserLayout.COMPACT,
+            emptyState = if (empty) {
+                BrowserEmptyState.EMPTY
+            } else if (noResults) {
+                BrowserEmptyState.NO_RESULTS
+            } else {
+                BrowserEmptyState.NONE
+            }
+        )
+    } else {
+        val items = if (empty) emptyList() else listOf(
+            Item(
+                id = ItemId(containerId.value * 100 + 1),
+                name = "Impact Driver",
+                description = "18V brushless",
+                containerId = containerId,
+                status = ItemStatus.STORED
+            ),
+            Item(
+                id = ItemId(containerId.value * 100 + 2),
+                name = "Reciprocating Saw",
+                description = "Corded",
+                containerId = containerId,
+                status = ItemStatus.STORED
+            )
+        )
+
+        val subcontainers = if (empty) emptyList() else listOf(
+            Container(
+                id = ContainerId(containerId.value * 10 + 1),
+                name = "Subcontainer A",
+                description = "Example subcontainer",
+                parentContainerId = containerId
+            ),
+            Container(
+                id = ContainerId(containerId.value * 10 + 2),
+                name = "Subcontainer B",
+                imageUri = "demo2",
+                description = "Another subcontainer",
+                parentContainerId = containerId
+            )
+        )
+
+        ContainerBrowserUiState.Ready(
+            containerId = containerId,
+            containerName = "Container ${containerId.value}",
+            subcontainers = subcontainers,
+            items = items,
+            visibleItems = items,
+            visibleSubcontainers = subcontainers,
+            query = "",
+            filter = ContainerBrowserFilter(),
+            sort = BrowserSort.NAME_ASC,
+            layout = BrowserLayout.COMPACT,
+            emptyState = BrowserEmptyState.NONE
+        )
+    }
+}
