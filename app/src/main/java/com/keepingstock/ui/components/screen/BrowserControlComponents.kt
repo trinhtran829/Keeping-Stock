@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ViewModule
 import androidx.compose.material3.AssistChip
@@ -140,7 +141,8 @@ fun SortAndLayoutRow(
     sort: BrowserSort,
     layout: BrowserLayout,
     onSortChange: (BrowserSort) -> Unit,
-    onLayoutChange: (BrowserLayout) -> Unit
+    onLayoutChange: (BrowserLayout) -> Unit,
+    onScan: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -156,6 +158,8 @@ fun SortAndLayoutRow(
             layout = layout,
             onLayoutChange = onLayoutChange
         )
+
+
     }
 }
 
@@ -272,6 +276,34 @@ private fun LayoutMenu(
 }
 
 /**
+ * Component to allow users to navigate to the QR Scan screen
+ *
+ * @param onScan: User intent to navigate to the QR scan screen.
+ */
+@Composable
+private fun QrScanMenuOption(
+    onScan: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = onScan
+        ) {
+            Icon(
+                imageVector = Icons.Default.QrCodeScanner,
+                contentDescription = "Scan"
+            )
+        }
+
+        Text(
+            text = "Scan",
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+/**
  * Preview of the search field row
  */
 @Preview(showBackground = true)
@@ -294,7 +326,8 @@ private fun Preview_SortAndLayoutRow() {
         sort = BrowserSort.NAME_ASC,
         layout = BrowserLayout.LIST,
         onSortChange = { },
-        onLayoutChange = { }
+        onLayoutChange = { },
+        onScan = { }
     )
 }
 

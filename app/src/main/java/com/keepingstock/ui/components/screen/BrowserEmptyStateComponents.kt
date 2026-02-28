@@ -7,10 +7,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +33,8 @@ fun EmptyState(
     modifier: Modifier,
     onAddContainer: () -> Unit,
     onAddItem: () -> Unit,
-    isItemBrowser: Boolean
+    isItemBrowser: Boolean,
+    onScan: () -> Unit
 ) {
     Box(
         modifier,
@@ -59,6 +65,14 @@ fun EmptyState(
                 }
 
                 OutlinedButton(onClick = onAddItem) { Text("Add item") }
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            TextButton(onClick = onScan) {
+                Icon(Icons.Default.QrCodeScanner, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Scan to find")
             }
         }
     }
