@@ -46,6 +46,7 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
                 ?: error("Missing containerId")
 
         val vm: ContainerDetailViewModel = viewModel(
+            viewModelStoreOwner = backStackEntry,
             factory = viewModelFactory {
                 initializer {
                     ContainerDetailViewModel(
@@ -72,7 +73,7 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
         }
 
         val topBarConfig = containerDetailTopBarConfig(uiState)
-        
+
         LaunchedEffect(topBarConfig.title, topBarConfig.showBack) {
             deps.onTopBarChange(topBarConfig)
         }
