@@ -29,8 +29,6 @@ import com.keepingstock.ui.viewmodel.item.ItemBrowserViewModel
  *   This allows the screen to be demonstrated without a ViewModel.
  *
  * @param deps: Shared navigation dependencies
- * @param lastContainerIdState: Mutable state used by app shell to remember the last visited
- *                          container.
  */
 internal fun NavGraphBuilder.addItemBrowserDestination(
     deps: NavDeps
