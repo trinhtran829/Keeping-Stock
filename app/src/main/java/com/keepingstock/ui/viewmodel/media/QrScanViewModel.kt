@@ -24,11 +24,20 @@ private fun initialQrScanUiState(): UiState<QrScanUiData> {
     return UiState.Success(QrScanUiData())
 }
 
+/**
+ * ViewModel owns QR scan UI state and business flow (scan -> resolve container -> emit state).
+ *
+ * Android docs:
+ * - ViewModel overview: https://developer.android.com/topic/libraries/architecture/viewmodel
+ * - Coroutines with lifecycle-aware scope: https://developer.android.com/topic/libraries/architecture/coroutines
+ * - StateFlow usage on Android: https://developer.android.com/kotlin/flow/stateflow-and-sharedflow
+ */
 class QrScanViewModel(
     val qrService: QrService,
     private val containerRepository: ContainerRepository
 ) : ViewModel() {
 
+    // Expose immutable state to UI and keep mutation private in ViewModel.
     private val _uiState = MutableStateFlow<UiState<QrScanUiData>>(initialQrScanUiState())
     val uiState: StateFlow<UiState<QrScanUiData>> = _uiState.asStateFlow()
 

@@ -47,6 +47,16 @@ import com.keepingstock.ui.components.screen.LoadingContent
 
 /**
  * Details screen for a container. Render based on ContainerBrowserUiState.
+ *
+ * The image render section supports demo drawable resources for previews/testing. Use "demo" as
+ * the imageUri
+ *
+ * :param modifier: Modifier applied to the screen.
+ * :param uiState: Current UI state for the container details.
+ * :param onBack: User intent to navigate back.
+ * :param onEdit: User intent to edit this container.
+ * :param onMove: User intent to move/re-parent this container.
+ * :param onDelete: User intent to delete this container (if allowed).
  */
 @Composable
 fun ContainerDetailScreen(
@@ -64,6 +74,7 @@ fun ContainerDetailScreen(
             is ContainerDetailUiState.Error -> ErrorContent(
                 modifier = modifier,
                 message = uiState.message
+                // TODO: uiState.cause not displayed yet
             )
 
             is ContainerDetailUiState.Ready -> ReadyContent(
@@ -78,6 +89,23 @@ fun ContainerDetailScreen(
     }
 }
 
+/**
+ * Ready-state UI for container detail
+ *
+ * Uses a LazyColumn to ensure content is scrollable if needed.
+ *
+ * Layout (separate cards):
+ * - header (type + name + image + full description)
+ * - metadata (details)
+ * - actions (edit/move/delete/back)
+ *
+ * :param modifier: Modifier applied to the scroll container.
+ * :param uiState: Ready state containing all container details required for display.
+ * :param onBack: User intent to navigate back.
+ * :param onEdit: User intent to edit this container.
+ * :param onMove: User intent to move/re-parent this container.
+ * :param onDelete: User intent to delete this container.
+ */
 @Composable
 private fun ReadyContent(
     modifier: Modifier,
@@ -116,6 +144,22 @@ private fun ReadyContent(
     }
 }
 
+/**
+ * Header card for container details.
+ *
+ * Layout:
+ * - Top row: container type icon + container name + small type label
+ * - Image: shown only when imageUri is present
+ * - Description
+ *
+ * Special-case imageUri values "demo"/"demo2/demox" to load demo images. This is used
+ * for preview/demo builds where URIs or file paths may not resolve.
+ *
+ * TODO: Remove "demo"/"demo2" special-casing once a proper image pipeline exists
+ *  (or add debug-only flag).
+ *
+ * :param uiState: Ready state used as the source of truth for display.
+ */
 @Composable
 private fun ContainerQrCard(containerId: ContainerId) {
     val context = LocalContext.current
@@ -162,12 +206,14 @@ private fun ContainerQrCard(containerId: ContainerId) {
 private fun ContainerDetailHeaderCard(
     uiState: ContainerDetailUiState.Ready
 ) {
+    // Header card: thumbnail + name/description
     ElevatedCard(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
+            // Type icon + container name
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -196,6 +242,8 @@ private fun ContainerDetailHeaderCard(
                 }
             }
 
+            // Container Image (only when present)
+            // Hero Image
             val imageUri = uiState.container.imageUri
             if (!imageUri.isNullOrBlank()) {
                 val model: Any = when (imageUri) {
@@ -217,6 +265,7 @@ private fun ContainerDetailHeaderCard(
                 )
             }
 
+            // Full description
             val description = uiState.container.description?.trim().orEmpty()
             if (description.isNotBlank()) {
                 HorizontalDivider()
@@ -232,10 +281,22 @@ private fun ContainerDetailHeaderCard(
     }
 }
 
+/**
+ * Metadata card for container details.
+ *
+ * Displays:
+ * - container id
+ * - parent container name (or "Root")
+ * - counts for subcontainers and items
+ * - deletion restriction message when canDelete is false
+ *
+ * :param uiState: Ready state containing metadata required for display.
+ */
 @Composable
 private fun ContainerDetailMetadataCard(
     uiState: ContainerDetailUiState.Ready
 ) {
+    // Metadata card: parent + counts + delete rule
     ElevatedCard(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -279,6 +340,24 @@ private fun ContainerDetailMetadataCard(
     }
 }
 
+/**
+ * Actions card for container details.
+ *
+ * Provides the primary actions for the container:
+ * - Edit
+ * - Move
+ * - Delete (disabled when canDelete is false)
+ * - Back
+ *
+ * TODO: Consider moving some actions to top bar?
+ *
+ * :param containerId: Target container for all actions.
+ * :param canDelete: Whether Delete should be enabled.
+ * :param onBack: User intent to navigate back.
+ * :param onEdit: User intent to edit this container.
+ * :param onMove: User intent to move/re-parent this container.
+ * :param onDelete: User intent to delete this container.
+ */
 @Composable
 private fun ContainerDetailActionsCard(
     containerId: ContainerId,
@@ -288,6 +367,7 @@ private fun ContainerDetailActionsCard(
     onMove: (ContainerId) -> Unit = {},
     onDelete: (ContainerId) -> Unit = {}
 ) {
+    // Actions card
     ElevatedCard(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -318,6 +398,7 @@ private fun ContainerDetailActionsCard(
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Delete") }
 
+            // TODO: Use top-bar back navigation instead?
             OutlinedButton(
                 onClick = onBack,
                 modifier = Modifier.fillMaxWidth()

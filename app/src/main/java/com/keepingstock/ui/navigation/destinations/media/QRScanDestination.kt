@@ -24,6 +24,7 @@ internal fun NavGraphBuilder.addQRScanDestination(
         val context = LocalContext.current
 
         // Destination owns ViewModel creation so screen stays presentation-focused.
+        // Android docs: https://developer.android.com/topic/libraries/architecture/viewmodel/viewmodel-factories
         val viewModel: QrScanViewModel = viewModel(
             factory = viewModelFactory {
                 initializer {
@@ -36,9 +37,11 @@ internal fun NavGraphBuilder.addQRScanDestination(
         )
 
         // Collect state using lifecycle-aware API for Compose.
+        // Android docs: https://developer.android.com/develop/ui/compose/state#collectasstatewithlifecycle
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
         // Side-effect for top bar config when destination enters composition.
+        // Android docs: https://developer.android.com/develop/ui/compose/side-effects
         LaunchedEffect(Unit) {
             deps.onTopBarChange(
                 TopBarConfig(
