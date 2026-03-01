@@ -199,11 +199,14 @@ private fun addEditItemTopBarConfig(uiState: AddEditItemUiState): TopBarConfig {
  * - and side-effect emission (snackbar/navigation)
  * into the ViewModel layer.
  *
- * @param deps: Navigation and snackbar helpers.
- * @param parentOptions: Demo list of available parent containers for selection.
- * @param knownTags: Set of tags suitable for demo purposes
- * @param getUiState: Getter for the current [AddEditItemUiState.Ready] form state.
- * @param setUiState: Setter for the updated [AddEditItemUiState.Ready] form state.
+ * :param deps: Navigation and snackbar helpers.
+ * :param parentOptions: Demo list of available parent containers for selection.
+ * :param knownTags: Set of tags suitable for demo purposes
+ * :param getUiState: Getter for the current [AddEditItemUiState.Ready] form state.
+ * :param setUiState: Setter for the updated [AddEditItemUiState.Ready] form state.
+ *
+ * TODO: For demo purposes only; replace with ViewModel + effect channel. Can be potentially moved
+ *  in full to VM, so long as functions are updated
  */
 private class AddEditItemDemoController(
     private val deps: NavDeps,
@@ -221,7 +224,9 @@ private class AddEditItemDemoController(
      * - Image picker launch intent is ignored here (the screen launches the picker)
      * - All other intents are reduced into a new form state via [reduceIntent].
      *
-     * @param intent: The user intent to process.
+     * :param intent: The user intent to process.
+     *
+     * TODO: ViewModel should own this and expose state + effects.
      */
     fun onIntent(intent: AddEditItemIntent) {
         val currentState = getUiState()
@@ -258,7 +263,10 @@ private class AddEditItemDemoController(
      *
      * This demo implementation does not persist data.
      *
-     * @param currentState: The current [AddEditItemUiState] (only Ready is saveable).
+     * :param currentState: The current [AddEditItemUiState] (only Ready is saveable).
+     *
+     * TODO: onSave function for demo purposes - handled by ViewModel
+     *  currently doesn't actually save anything
      */
     fun onSave(currentState: AddEditItemUiState) {
         // Only Ready state can be saved.
@@ -275,6 +283,9 @@ private class AddEditItemDemoController(
         ) {
             /**
              * NOTE: This demo controller calls snackbar and navigation directly.
+             *
+             * TODO: When moving to ViewModel, emit one-off effects (e.g., ShowSnackbar,
+             *  NavigateBack) instead of passing NavController/snackbar callbacks into the VM.
              */
             deps.showSnackbar(
                 if (validated.mode == AddEditItemUiState.Ready.Mode.CREATE)
@@ -297,14 +308,18 @@ private class AddEditItemDemoController(
  * - If [AddEditItemUiState.Ready.containerId] is null (Root), the item must be
  *   [ItemStatus.TAKEN_OUT].
  *
- * @param currentState: The current form state.
- * @return: A copy of [currentState] with updated validation fields.
+ * :param currentState: The current form state.
+ * :return: A copy of [currentState] with updated validation fields.
+ *
+ * TODO: Move into ViewModel if validation rules expand or become repository-backed.
  */
 private fun validate(
     currentState: AddEditItemUiState.Ready
 ): AddEditItemUiState.Ready {
+    // // TODO: Expand validation (e.g., unique name within container) once repository is available.
     val nameError = if(currentState.name.trim().isBlank()) "Name is required" else null
 
+    // TODO: Revisit rule if we allow items in Root with status Stored in the future.
     val containerError =
         if ((currentState.containerId == null) && (currentState.status != ItemStatus.TAKEN_OUT))
             "Items outside a container must be marked Taken Out."
@@ -323,11 +338,13 @@ private fun validate(
  *
  * Side effects (navigation, snackbars, persistence) are intentionally not performed here.
  *
- * @param currentState: Current form state.
- * @param intent: User intent to apply.
- * @param parentOptions: Demo container options used to resolve container display name.
- * @param knownTags: Demo tag set used for suggestions and existing-tag resolution.
- * @return: The next form state after applying [intent] and running [validate].
+ * :param currentState: Current form state.
+ * :param intent: User intent to apply.
+ * :param parentOptions: Demo container options used to resolve container display name.
+ * :param knownTags: Demo tag set used for suggestions and existing-tag resolution.
+ * :return: The next form state after applying [intent] and running [validate].
+ *
+ * TODO: for demo purposes only; could be moved into ViewModel later if matches intended structure
  */
 private fun reduceIntent(
     currentState: AddEditItemUiState.Ready,
@@ -364,6 +381,7 @@ private fun reduceIntent(
                 )
             } else {
                 val parentName = parentOptions.firstOrNull { it.id == intent.containerId }?.name
+                // TODO: Decide whether selecting a container should force status to Stored.
                 currentState.copy(
                     containerId = intent.containerId,
                     containerName = parentName,
@@ -433,10 +451,12 @@ private fun reduceIntent(
  * This implementation uses [knownTags] as a demo data source. In the final implementation,
  * suggestions and existing tag resolution should come from the repository.
  *
- * @param currentState: Current form state.
- * @param intent: Tag-related user intent.
- * @param knownTags: Demo tag list.
- * @return: Updated form state (not validated here; caller runs [validate]).
+ * :param currentState: Current form state.
+ * :param intent: Tag-related user intent.
+ * :param knownTags: Demo tag list.
+ * :return: Updated form state (not validated here; caller runs [validate]).
+ *
+ * TODO(REMOVE): Replace knownTags usage with repo-backed tag search in VM.
  */
 private fun reduceTagIntent(
     currentState: AddEditItemUiState.Ready,
@@ -448,6 +468,8 @@ private fun reduceTagIntent(
      * Regex pattern for allowed tag characters.
      *
      * Allows letters, numbers, spaces, '&', and '-'.
+     *
+     * TODO: Expand allowed characters if product requirements change.
      */
     val allowedTagRegex = Regex("""^[A-Za-z0-9 &-]+$""")
 
@@ -480,7 +502,7 @@ private fun reduceTagIntent(
 
         val err =
             if (!allowedTagRegex.matches(query))
-                "Use only letters, numbers, spaces, '-', and '&'."
+                "Use only letters, numbers, spaces, '-', and '&'." // TODO: update err text if additional allowed chars added
             else null
 
         val queryKey = query.lowercase()
@@ -489,6 +511,7 @@ private fun reduceTagIntent(
         val selectedIds: Set<TagId> =
             currentState.selectedTags.map { it.id }.toSet()
 
+        // TODO(REMOVE): Replace with repo search (e.g., beginsWith/contains ranking).
         val newSuggestions =
             if (err == null) {
                 knownTags
@@ -511,13 +534,16 @@ private fun reduceTagIntent(
      * If the tag does not exist in [knownTags], a demo "new tag" is created using a negative ID.
      * In the real implementation, tag creation should be persisted during save.
      *
-     * @param state: Current form state.
-     * @param rawName: Raw tag text (from query or recommendation).
+     * :param state: Current form state.
+     * :param rawName: Raw tag text (from query or recommendation).
+     *
+     * TODO: Consider emitting a snackbar msg when max tags is reached or duplicates are attempted
      */
     fun addTagNameToSelected(
         currentState: AddEditItemUiState.Ready,
         rawName: String
     ): AddEditItemUiState.Ready {
+        // TODO: snackbar error message? "You have added the max number of tags to this item."
         if (!currentState.canAddMore) return currentState
 
         val tagName = normalizeForCommit(rawName)
@@ -530,6 +556,7 @@ private fun reduceTagIntent(
         val tagKey = tagName.lowercase()
 
         // Look through knownKeys list for existing keys - will be null if no match found
+        // TODO: If using in ViewModel, knownTags list = repo of all tags in DB.
         val existing = knownTags.firstOrNull {
             it.name.trim().replace(Regex("\\s+"), " ").lowercase() == tagKey
         }
@@ -539,10 +566,16 @@ private fun reduceTagIntent(
             currentState.selectedTags.map { normalizeForCommit(it.name).lowercase() }.toSet()
 
         // Check if the tag the user wants to add isn't already attached to this item.
+        // TODO: snackbar error message? "This item already has that tag."
         if (tagKey in currentSelectedKeys)
             return currentState.copy(tagQuery = "", tagSuggestions = emptyList(), inputError = null)
 
-        // Demo rule: negative IDs indicate "new tag to create on Save".
+        /**
+         * Demo rule: negative IDs indicate "new tag to create on Save".
+         *
+         * TODO(REMOVE): Once repo exists, create tags through the repo (or stage them in VM)
+         *  without relying on negative IDs.
+         */
         val tagToAdd = existing ?: Tag(
             id = TagId(-tagKey.hashCode().toLong()),
             name = tagName
@@ -550,6 +583,7 @@ private fun reduceTagIntent(
 
         // Create a new selected tag list for the UiState, which includes the query's resulting
         // tag being applied to the item.
+        // TODO: Decide whether selected tags should be sorted (alphabetical vs insertion order).
         val newSelectedTagsList =
             (currentState.selectedTags + tagToAdd).sortedBy { it.name.lowercase() }
 
@@ -580,6 +614,9 @@ private fun reduceTagIntent(
         is AddEditItemIntent.ExistingTagSelected -> {
             /**
              * Uses knownTags to resolve the selected tag.
+             *
+             * TODO(REMOVE): In ViewModel, resolve selected tag via repository
+             *  (or carry name in intent).
              */
             val userChosenTag =
                 knownTags.firstOrNull { it.id == intent.tagId } ?: return currentState
@@ -593,86 +630,19 @@ private fun reduceTagIntent(
         }
 
         // User wants to add one of the ML Kit recommended tags to the item's selected tag list.
+        // TODO: right now recommendations are returned as list of strings - check if confidence
+        //  score is possible?
         is AddEditItemIntent.RecommendedTagSelected ->
             addTagNameToSelected(currentState = currentState, rawName = intent.name)
 
         // User wants to refresh the recommendations provided
+        // TODO: Necessary or possible? Does it just give the same results every time?
+        //  if we provide recommendations based on item name or description, this may be useful,
+        //  otherwise not really?
         AddEditItemIntent.RefreshRecommendations ->
             currentState.copy(isRecommending = true)
 
         // Non-tag intents should be filtered before calling this reducer.
         else -> currentState
     }
-}
-
-/**
- * Builds a demo [AddEditItemUiState.Ready] for previews/manual testing.
- *
- * Behavior:
- * - If [itemId] is null, CREATE mode is used; otherwise EDIT mode.
- * - If [containerId] is null (Root), status is forced to [ItemStatus.TAKEN_OUT] with a checkout date.
- * - In EDIT mode, placeholder values are prefilled for name/description/tags.
- *
- * @param itemId: Item being edited (null for CREATE).
- * @param containerId: Optional initial container selection.
- * @param parentOptions: Demo container options used to resolve display name.
- * @param knownTags: Demo tags used to prefill selectedTags in EDIT mode.
- * @return: A validated [AddEditItemUiState.Ready] suitable for demo rendering.
- */
-private fun demoInitialUiState(
-    itemId: ItemId?,
-    containerId: ContainerId?,
-    parentOptions: List<AddEditItemUiState.Ready.ParentOption>,
-    knownTags: List<Tag>
-): AddEditItemUiState.Ready {
-    val parentName = parentOptions.firstOrNull { it.id == containerId }?.name
-    val now = Date()
-    val mode =
-        if (itemId == null) AddEditItemUiState.Ready.Mode.CREATE
-        else AddEditItemUiState.Ready.Mode.EDIT
-    val initialStatus =
-        if (containerId == null) ItemStatus.TAKEN_OUT
-        else ItemStatus.STORED
-    val initialCheckout = if (containerId == null) now else null
-
-    // Build and pre-validate the demo ready state
-    return validate(
-        AddEditItemUiState.Ready(
-            mode = mode,
-            itemId = itemId,
-            containerId = containerId,
-            containerName = parentName,
-            availableParents = parentOptions,
-
-            name =
-                if (mode == AddEditItemUiState.Ready.Mode.EDIT)
-                    "Impact Driver"
-                else "",
-            description =
-                if (mode == AddEditItemUiState.Ready.Mode.EDIT)
-                    "18V brushless"
-                else "",
-            imageUri = null,
-            status = initialStatus,
-            createdDate = now,
-            checkoutDate = initialCheckout,
-
-            selectedTags =
-                if (mode == AddEditItemUiState.Ready.Mode.EDIT)
-                    listOf(knownTags[0], knownTags[1])
-                else emptyList(),
-            tagQuery = "",
-            tagSuggestions = emptyList(),
-            tagRecommendations = emptyList(),
-            isRecommending = false,
-            inputError = null,
-            maxTags = 20,
-            suggestionsLimit = 8,
-
-            isSaving = false,
-            isDirty = false,
-            validation = AddEditItemUiState.Ready.Validation(),
-            canChangeParent = true
-        )
-    )
 }
