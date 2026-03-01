@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -23,6 +24,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.keepingstock.R
 import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.intents.item.ItemDetailIntent
 import com.keepingstock.core.contracts.uistates.item.ItemDetailUiState
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.components.screen.DetailRow
@@ -39,34 +45,42 @@ import com.keepingstock.ui.components.screen.LoadingContent
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+/**
+ * Details screen for an Item. Render based on ItemDetailUiState.
+ *
+ * @param modifier: Modifier applied to the screen.
+ * @param onIntent:
+ * @param uiState: Current UI state for the container details.
+ * @param onBack: User intent to navigate back.
+ * @param onEdit: User intent to edit this container.
+ * @param onMove: User intent to move/re-parent this container.
+ */
 @Composable
 fun ItemDetailsScreen(
     modifier: Modifier = Modifier,
     uiState: ItemDetailUiState,
+    onIntent: (ItemDetailIntent) -> Unit = {},
     onBack: () -> Unit,
     onEdit: (ItemId) -> Unit = {},
-    onMove: (ItemId) -> Unit = {},
-    onDelete: (ItemId) -> Unit = {}
+    onMove: (ItemId) -> Unit = {}
 ) {
-    Column(modifier = modifier.padding(16.dp)) {
-        when (uiState) {
-            ItemDetailUiState.Loading -> LoadingContent(modifier)
+    when (uiState) {
+        ItemDetailUiState.Loading -> LoadingContent(modifier)
 
-            is ItemDetailUiState.Error -> ErrorContent(
-                modifier = modifier,
-                message = uiState.message
-                // TODO: uiState.cause not displayed yet
-            )
+        is ItemDetailUiState.Error -> ErrorContent(
+            modifier = modifier,
+            message = uiState.message
+            // TODO: uiState.cause not displayed yet
+        )
 
-            is ItemDetailUiState.Ready -> ReadyContent(
-                modifier = modifier,
-                uiState = uiState,
-                onBack = onBack,
-                onEdit = onEdit,
-                onMove = onMove,
-                onDelete = onDelete
-            )
-        }
+        is ItemDetailUiState.Ready -> ReadyContent(
+            modifier = modifier,
+            uiState = uiState,
+            onIntent = onIntent,
+            onBack = onBack,
+            onEdit = onEdit,
+            onMove = onMove,
+        )
     }
 }
 
@@ -80,22 +94,32 @@ fun ItemDetailsScreen(
  * - metadata (details)
  * - actions (edit/move/delete/back)
  *
- * :param modifier: Modifier applied to the scroll container.
- * :param uiState: Ready state containing all container details required for display.
- * :param onBack: User intent to navigate back.
- * :param onEdit: User intent to edit this container.
- * :param onMove: User intent to move/re-parent this container.
- * :param onDelete: User intent to delete this container.
+ * @param modifier: Modifier applied to the scroll container.
+ * @param uiState: Ready state containing all container details required for display.
+ * @param onBack: User intent to navigate back.
+ * @param onEdit: User intent to edit this container.
+ * @param onMove: User intent to move/re-parent this container.
  */
 @Composable
 private fun ReadyContent(
     modifier: Modifier,
     uiState: ItemDetailUiState.Ready,
+    onIntent: (ItemDetailIntent) -> Unit,
     onBack: () -> Unit = {},
-    onEdit: (ItemId) -> Unit = {},
-    onMove: (ItemId) -> Unit = {},
-    onDelete: (ItemId) -> Unit = {}
+    onEdit: (ItemId) -> Unit,
+    onMove: (ItemId) -> Unit,
 ) {
+    // TODO: rememberSaveable instead?
+    var showDeleteDialog by remember(uiState.item.id.value) { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        DeleteItemConfirmDialog(
+            itemName = uiState.item.name,
+            onConfirmDelete = { onIntent(ItemDetailIntent.DeleteConfirmed) },
+            onDismiss = { showDeleteDialog = false }
+        )
+    }
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize(),
@@ -115,7 +139,7 @@ private fun ReadyContent(
                 onBack = onBack,
                 onEdit = onEdit,
                 onMove = onMove,
-                onDelete = onDelete
+                onDelete = { showDeleteDialog = true }
             )
         }
     }
@@ -135,7 +159,7 @@ private fun ReadyContent(
  * TODO: Remove "demo"/"demo2" special-casing once a proper image pipeline exists
  *  (or add debug-only flag).
  *
- * :param uiState: Ready state used as the source of truth for display.
+ * @param uiState: Ready state used as the source of truth for display.
  */
 @Composable
 private fun ItemDetailHeaderCard(
@@ -226,7 +250,7 @@ private fun ItemDetailHeaderCard(
  * - checkout status
  * - checkout date
  *
- * :param uiState: Ready state containing metadata required for display.
+ * @param uiState: Ready state containing metadata required for display.
  */
 @Composable
 private fun ItemDetailMetadataCard(
@@ -299,16 +323,18 @@ private fun ItemDetailMetadataCard(
  * Provides the primary actions for the item:
  * - Edit
  * - Move
- * - Delete (disabled when canDelete is false)
+ * - Delete
  * - Back
  *
  * TODO: Consider moving some actions to top bar?
  *
- * :param itemId: Target item for all actions.
- * :param onBack: User intent to navigate back.
- * :param onEdit: User intent to edit this item.
- * :param onMove: User intent to move/re-parent this item.
- * :param onDelete: User intent to delete this item.
+ * TODO: Guard against rapid multi-clicks
+ *
+ * @param itemId: Target item for all actions.
+ * @param onBack: User intent to navigate back.
+ * @param onEdit: User intent to edit this item.
+ * @param onMove: User intent to move/re-parent this item.
+ * @param onDelete: User intent to delete this item.
  */
 @Composable
 private fun ItemDetailActionsCard(
@@ -355,4 +381,48 @@ private fun ItemDetailActionsCard(
             ) { Text("Back") }
         }
     }
+}
+
+/**
+ * Displays the alert dialog for confirming the user wishes to delete the container,
+ * or displays an error message indicating that the user is unable to delete the container for the
+ * indicated reason.
+ *
+ * TODO: Extract into shared component file and share with ContainerDetailScreen
+ *
+ * @param itemName: The name of the current item
+ * @param onConfirmDelete: Intent to delete with confirmation
+ * @param onDismiss: Intent to dismiss the current delete confirmation dialog with no further
+ *                   action taken.
+ */
+@Composable
+private fun DeleteItemConfirmDialog(
+    itemName: String,
+    onConfirmDelete: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Delete item?") },
+        text = {
+            Text(
+                text = "This will permanently delete \"$itemName\"."
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onConfirmDelete()
+                    onDismiss()
+                }
+            ) {
+                Text("Delete")
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
