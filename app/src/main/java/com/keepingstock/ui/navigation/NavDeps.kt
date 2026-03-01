@@ -1,6 +1,9 @@
 package com.keepingstock.ui.navigation
 
 import androidx.navigation.NavHostController
+import com.keepingstock.data.repositories.ContainerRepositoryImpl
+import com.keepingstock.data.repositories.ItemRepositoryImpl
+import com.keepingstock.data.repositories.TagRepositoryImpl
 import com.keepingstock.ui.scaffold.TopBarConfig
 
 /**
@@ -9,5 +12,8 @@ import com.keepingstock.ui.scaffold.TopBarConfig
 internal data class NavDeps(
     val navController: NavHostController,
     val onTopBarChange: (TopBarConfig) -> Unit,
-    val showSnackbar: (String) -> Unit
+    val showSnackbar: (String) -> Unit,
+    val containerRepo: ContainerRepositoryImpl,
+    val itemRepo: ItemRepositoryImpl,
+    val tagRepo: TagRepositoryImpl
 )

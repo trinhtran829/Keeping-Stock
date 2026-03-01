@@ -150,4 +150,82 @@ sealed interface NavRoute {
     object DebugGallery : NavRoute {
         override val route: String = Routes.DEBUG_GALLERY
     }
+
+    object ContainerBrowserDebug : NavRoute {
+        // Use query param for route since containerId is optional
+        override val route: String =
+            "${Routes.DEBUG_CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}={${Routes.Args.CONTAINER_ID}}"
+
+        // Function to build the actual route string; uses query param
+        fun createRoute(containerId: ContainerId? = null): String =
+            containerId?.let {
+                "${Routes.DEBUG_CONTAINER_BROWSER}?${Routes.Args.CONTAINER_ID}=${it.value}" }
+                ?: Routes.DEBUG_CONTAINER_BROWSER
+    }
+
+    object ItemBrowserDebug : NavRoute {
+        override val route: String = Routes.DEBUG_ITEM_BROWSER
+    }
+
+    object ItemDetailsDebug : NavRoute {
+        override val route: String = "${Routes.DEBUG_ITEM_DETAIL}/{${Routes.Args.ITEM_ID}}"
+
+        // Function to build the actual route string; uses path param
+        fun createRoute(itemId: ItemId): String =
+            "${Routes.DEBUG_ITEM_DETAIL}/${itemId.value}"
+    }
+
+    object ContainerDetailDebug : NavRoute {
+        override val route: String =
+            "${Routes.DEBUG_CONTAINER_DETAIL}/{${Routes.Args.CONTAINER_ID}}"
+
+        // Function to build the actual route string; uses path param
+        fun createRoute(containerId: ContainerId): String =
+            "${Routes.DEBUG_CONTAINER_DETAIL}/${containerId.value}"
+    }
+
+    object AddEditContainerDebug : NavRoute {
+        // Use query param for route since containerId and parentContainerId are optional
+        override val route: String =
+            "${Routes.DEBUG_ADD_EDIT_CONTAINER}?" +
+                    "${Routes.Args.CONTAINER_ID}={${Routes.Args.CONTAINER_ID}}&" +
+                    "${Routes.Args.PARENT_CONTAINER_ID}={${Routes.Args.PARENT_CONTAINER_ID}}"
+
+        // Function to build the actual route string; uses query param, builds using params list
+        // based on whether containerId and parentContainerId values were provided.
+        fun createRoute(
+            containerId: ContainerId? = null,
+            parentContainerId: ContainerId? = null
+        ): String {
+            val base = Routes.DEBUG_ADD_EDIT_CONTAINER
+            val params = buildList {
+                if (containerId != null) add("${Routes.Args.CONTAINER_ID}=${containerId.value}")
+                if (parentContainerId != null)
+                    add("${Routes.Args.PARENT_CONTAINER_ID}=${parentContainerId.value}")
+            }
+            return if (params.isEmpty()) base else base + "?" + params.joinToString("&")
+        }
+    }
+
+    object AddEditItemDebug : NavRoute {
+        override val route: String =
+            "${Routes.DEBUG_ADD_EDIT_ITEM}?" +
+                    "${Routes.Args.ITEM_ID}={${Routes.Args.ITEM_ID}}&" +
+                    "${Routes.Args.CONTAINER_ID}={${Routes.Args.CONTAINER_ID}}"
+
+        // Function to build the actual route string; uses query param, builds using params list
+        // based on whether itemId and containerId values were provided.
+        fun createRoute(
+            itemId: ItemId? = null,
+            containerId: ContainerId? = null
+        ): String {
+            val base = Routes.DEBUG_ADD_EDIT_ITEM
+
+            val params = buildList {
+                if (itemId != null) add("${Routes.Args.ITEM_ID}=${itemId.value}")
+                if (containerId != null) add("${Routes.Args.CONTAINER_ID}=${containerId.value}")
+            }
+            return if (params.isEmpty()) base else base + "?" + params.joinToString("&")
+        }
+    }
 }

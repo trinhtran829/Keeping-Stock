@@ -35,4 +35,10 @@ object Routes {
 
     // Debug
     const val DEBUG_GALLERY = "debug_gallery"
+    const val DEBUG_CONTAINER_BROWSER = "debug/container_browser"
+    const val DEBUG_CONTAINER_DETAIL = "debug/container_detail"
+    const val DEBUG_ADD_EDIT_CONTAINER = "debug/add_edit_container"
+    const val DEBUG_ITEM_BROWSER = "debug/item_browser"
+    const val DEBUG_ITEM_DETAIL = "debug/item_detail"
+    const val DEBUG_ADD_EDIT_ITEM = "debug/add_edit_item"
 }

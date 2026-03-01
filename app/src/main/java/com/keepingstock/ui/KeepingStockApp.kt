@@ -2,13 +2,9 @@ package com.keepingstock.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Inventory
-import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,11 +22,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.keepingstock.data.repositories.ContainerRepositoryImpl
+import com.keepingstock.data.repositories.ItemRepositoryImpl
+import com.keepingstock.data.repositories.TagRepositoryImpl
 import com.keepingstock.ui.navigation.AppNavGraph
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.scaffold.TopBarConfig
@@ -43,9 +41,12 @@ import kotlinx.coroutines.launch
  * a global scaffold for the top bar, bottom bar, and snackbars.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showSystemUi = false, showBackground = true)
 @Composable
-fun KeepingStockApp() {
+fun KeepingStockApp(
+    containerRepo: ContainerRepositoryImpl,
+    itemRepo: ItemRepositoryImpl,
+    tagRepo: TagRepositoryImpl
+) {
     // Single NavController instance for the entire app. Owned here so global UI can trigger
     // navigation (i.e. top bar and bottom bar)
     val navController = rememberNavController()
@@ -109,8 +110,11 @@ fun KeepingStockApp() {
         snackbarHost = { SnackbarHost(hostState = snackbarHostState)}
     ) { innerPadding ->
         AppNavGraph(
-            navController = navController,
             modifier = Modifier,
+            containerRepo = containerRepo,
+            itemRepo = itemRepo,
+            tagRepo = tagRepo,
+            navController = navController,
             contentPadding = innerPadding,
             onTopBarChange = { topBarConfig = it },
             showSnackbar = showSnackbar
