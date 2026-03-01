@@ -84,7 +84,7 @@ internal fun NavGraphBuilder.addItemDetailsDestination(
         }
 
         ItemDetailsScreen(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
             uiState = uiState,
             onIntent = vm::onIntent,
             onBack = { deps.navController.popBackStack() },
