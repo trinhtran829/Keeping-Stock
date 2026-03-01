@@ -25,7 +25,10 @@ import kotlinx.coroutines.flow.collectLatest
  *
  * Navigation args:
  * - [Routes.Args.CONTAINER_ID]: when present, screen is in EDIT mode; otherwise CREATE mode.
- * - [Routes.Args.PARENT_CONTAINER_ID]: optional initial parent for CREATE mode (or preselect in EDIT).
+ * - [Routes.Args.PARENT_CONTAINER_ID]: optional initial parent for CREATE mode (or preselect
+ *                                      in EDIT).
+ *
+ * TODO: Design and implement ParentChanged (similar to onMove in details screens)
  *
  * @param deps: Navigation and UI dependencies (NavController, top bar updater, snackbar helper).
  */

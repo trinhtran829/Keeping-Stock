@@ -114,10 +114,8 @@ private fun AddEditContainerReadyContent(
     var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
 
     // What actions to emit if back is pressed (not system UI)
-    val requestNavigateBack = remember(uiState.isDirty) {
-        {
-            if (uiState.isDirty) showDiscardDialog = true else onNavigateBack()
-        }
+    val requestNavigateBack = {
+        if (uiState.isDirty) showDiscardDialog = true else onNavigateBack()
     }
 
     // Intercept system back when form is dirty (so we can prompt for discard confirmation)
