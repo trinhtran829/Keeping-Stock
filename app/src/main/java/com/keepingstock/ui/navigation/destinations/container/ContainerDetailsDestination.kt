@@ -1,20 +1,17 @@
 package com.keepingstock.ui.navigation.destinations.container
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.keepingstock.core.contracts.Container
-import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
 import com.keepingstock.ui.navigation.NavDeps
@@ -22,11 +19,19 @@ import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.container.ContainerDetailScreen
-import com.keepingstock.ui.components.navigation.ChipOption
-import com.keepingstock.ui.components.navigation.DemoMode
-import com.keepingstock.ui.components.navigation.DemoModeToggleRow
-import java.util.Date
+import com.keepingstock.ui.viewmodel.container.ContainerDetailViewModel
+import kotlinx.coroutines.flow.collectLatest
 
+/**
+ * Registers the Container Details Screen destination in the AppNavGraph.
+ *
+ * Displays the details of the Container indicated in the path param argument containerId
+ * in the route.
+ *
+ * TODO: Still need to implement MOVE flow in Intent file
+ *
+ * @param deps: Shared navigation dependencies.
+ */
 internal fun NavGraphBuilder.addContainerDetailsDestination(
     deps: NavDeps
 ) {
@@ -42,53 +47,51 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
             backStackEntry.arguments?.containerIdOrNull(Routes.Args.CONTAINER_ID)
                 ?: error("Missing containerId")
 
-        // TODO(REMOVE): Demo-only mode selector
-        var demoMode by rememberSaveable(containerId.value) {
-            mutableStateOf(DemoMode.READY)
-        }
+        val vm: ContainerDetailViewModel = viewModel(
+            viewModelStoreOwner = backStackEntry,
+            factory = viewModelFactory {
+                initializer {
+                    ContainerDetailViewModel(
+                        containerId = containerId,
+                        containerRepository = deps.containerRepo,
+                        itemRepository = deps.itemRepo
+                    )
+                }
+            }
+        )
 
-        // TODO(REMOVE): Replace this with ViewModel uiState.
-        val uiState = remember(containerId, demoMode) {
-            when (demoMode) {
-                DemoMode.LOADING -> ContainerDetailUiState.Loading
-                DemoMode.READY, DemoMode.POPULATED -> demoContainerDetailReadyState(containerId)
-                DemoMode.ERROR, DemoMode.EMPTY ->
-                    ContainerDetailUiState.Error("Demo error loading container details.")
+        val uiState by vm.uiState.collectAsStateWithLifecycle()
+
+        LaunchedEffect(vm) {
+            vm.effects.collectLatest { effect ->
+                when (effect) {
+                    is ContainerDetailViewModel.UiEffect.ShowSnackbar ->
+                        deps.showSnackbar(effect.message)
+
+                    ContainerDetailViewModel.UiEffect.NavigateBack ->
+                        deps.navController.popBackStack()
+                }
             }
         }
 
-        val topBarConfig = remember(uiState) { containerDetailTopBarConfig(uiState) }
+        val topBarConfig = containerDetailTopBarConfig(uiState)
 
-        LaunchedEffect(topBarConfig) {
+        LaunchedEffect(topBarConfig.title, topBarConfig.showBack) {
             deps.onTopBarChange(topBarConfig)
         }
 
-        Column(Modifier.fillMaxSize()) {
-            // TODO(REMOVE): demo-only UI controls.
-            DemoModeToggleRow(
-                title = "Select demo mode:",
-                selected = demoMode,
-                options = listOf (
-                    ChipOption(DemoMode.READY, "Ready"),
-                    ChipOption(DemoMode.LOADING, "Loading"),
-                    ChipOption(DemoMode.ERROR, "Error")
-                ),
-                onSelect = { demoMode = it }
-            )
-
-            ContainerDetailScreen(
-                modifier = Modifier.fillMaxSize(),
-                uiState = uiState,
-                onBack = { deps.navController.popBackStack() },
-                onEdit = { id ->
-                    deps.navController.navigate(
-                        NavRoute.AddEditContainer.createRoute(containerId = id)
-                    )
-                },
-                onMove = { /* TODO: hook up when Move flow exists */ },
-                onDelete = { /* TODO: hook up when Delete flow exists */ }
-            )
-        }
+        ContainerDetailScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = uiState,
+            onIntent = vm::onIntent,
+            onBack = { deps.navController.popBackStack() },
+            onEdit = { id ->
+                deps.navController.navigate(
+                    NavRoute.AddEditContainer.createRoute(containerId = id)
+                )
+            },
+            onMove = { /* TODO: hook up when Move flow exists */ }
+        )
     }
 }
 
@@ -102,28 +105,4 @@ private fun containerDetailTopBarConfig(uiState: ContainerDetailUiState): TopBar
         is ContainerDetailUiState.Error -> "Container details"
     }
     return TopBarConfig(title = title, showBack = true)
-}
-
-/**
- * TODO(REMOVE): Demo-only Ready state builder.
- * ---
- * GenAI usage citation:
- * Sample container detail data auto-generated with the help of ChatGPT.
- * Prompt: "Please generate data for a sample object with the following class signature:"
- */
-private fun demoContainerDetailReadyState(containerId: ContainerId): ContainerDetailUiState.Ready {
-    return ContainerDetailUiState.Ready(
-        container = Container(
-            id = containerId,
-            name = "Container ${containerId.value}",
-            description = "Example container detail description.",
-            imageUri = "demo",
-            parentContainerId = null,
-        ),
-        parentContainerName = null,
-        subcontainerCount = 2,
-        itemCount = 5,
-        canDelete = false,
-        deleteBlockedReason = "Container must be empty to delete."
-    )
 }

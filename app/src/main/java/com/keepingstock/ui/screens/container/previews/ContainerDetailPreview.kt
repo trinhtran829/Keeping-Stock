@@ -20,8 +20,7 @@ private fun Preview_ContainerDetail_Loading() {
         uiState = ContainerDetailUiState.Loading,
         onBack = {},
         onEdit = {},
-        onMove = {},
-        onDelete = {},
+        onMove = {}
     )
 }
 
@@ -32,8 +31,7 @@ private fun Preview_ContainerDetail_Error() {
         uiState = ContainerDetailUiState.Error("Failed to load container details."),
         onBack = {},
         onEdit = {},
-        onMove = {},
-        onDelete = {},
+        onMove = {}
     )
 }
 
@@ -64,8 +62,7 @@ private fun Preview_ContainerDetail_Ready_CanDelete() {
         ),
         onBack = {},
         onEdit = {},
-        onMove = {},
-        onDelete = {},
+        onMove = {}
     )
 }
 
@@ -96,7 +93,6 @@ private fun Preview_ContainerDetail_Ready_DeleteBlocked() {
         ),
         onBack = {},
         onEdit = {},
-        onMove = {},
-        onDelete = {},
+        onMove = {}
     )
 }

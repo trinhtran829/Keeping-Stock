@@ -3,7 +3,6 @@ package com.keepingstock.ui.navigation.destinations.item
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,10 +22,6 @@ import com.keepingstock.ui.viewmodel.item.ItemBrowserViewModel
  *
  * Acts as a global Item viewer.
  *
- * Current temporary behavior:
- * - Uses a demo UiState generator (demoContainerBrowserReadyState) and a DemoMode toggle row.
- *   This allows the screen to be demonstrated without a ViewModel.
- *
  * @param deps: Shared navigation dependencies
  */
 internal fun NavGraphBuilder.addItemBrowserDestination(
@@ -35,8 +30,9 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
     // Register the ItemBrowser destination: when route == "item_browser", show ItemBrowserScreen
     composable(
         route = NavRoute.ItemBrowser.route
-    ) {
+    ) { backStackEntry ->
         val vm: ItemBrowserViewModel = viewModel(
+            viewModelStoreOwner = backStackEntry,
             factory = viewModelFactory {
                 initializer {
                     ItemBrowserViewModel(
@@ -49,10 +45,12 @@ internal fun NavGraphBuilder.addItemBrowserDestination(
         val uiState by vm.uiState.collectAsStateWithLifecycle()
 
         // Build TopBarConfig from current UiState
-        val topBarConfig = remember(uiState) { itemBrowserTopBarConfig(uiState) }
+        val topBarConfig = itemBrowserTopBarConfig(uiState)
 
         // Push top bar updates to scaffold
-        LaunchedEffect(topBarConfig) { deps.onTopBarChange(topBarConfig) }
+        LaunchedEffect(topBarConfig.title, topBarConfig.showBack) {
+            deps.onTopBarChange(topBarConfig)
+        }
 
         /*
          * Kept in the destination (not the screen) so ContainerBrowserScreen stays production-like

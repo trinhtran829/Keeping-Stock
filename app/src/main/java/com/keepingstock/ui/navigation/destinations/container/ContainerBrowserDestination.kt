@@ -1,14 +1,9 @@
 package com.keepingstock.ui.navigation.destinations.container
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -18,27 +13,14 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.keepingstock.core.contracts.BrowserEmptyState
-import com.keepingstock.core.contracts.BrowserLayout
-import com.keepingstock.core.contracts.BrowserSort
-import com.keepingstock.core.contracts.Container
-import com.keepingstock.core.contracts.ContainerBrowserFilter
 import com.keepingstock.core.contracts.ContainerId
-import com.keepingstock.core.contracts.Item
-import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
-import com.keepingstock.core.contracts.intents.container.ContainerBrowserIntent
 import com.keepingstock.core.contracts.uistates.container.ContainerBrowserUiState
-import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.container.ContainerBrowserScreen
-import com.keepingstock.ui.components.navigation.ChipOption
-import com.keepingstock.ui.components.navigation.DemoMode
-import com.keepingstock.ui.components.navigation.DemoModeToggleRow
-import com.keepingstock.ui.navigation.destinations.container.containerBrowserTopBarConfig
 import com.keepingstock.ui.viewmodel.container.ContainerBrowserViewModel
 
 /**
@@ -47,12 +29,11 @@ import com.keepingstock.ui.viewmodel.container.ContainerBrowserViewModel
  * If no containerId arg is provided, root container is displayed, otherwise container's contents
  * are displayed
  *
- * Current temporary behavior:
- * - Uses a demo UiState generator (demoContainerBrowserReadyState) and a DemoMode toggle row.
- *   This allows the screen to be demonstrated without a ViewModel.
+ * TODO: UPDATE SO THAT NAVIGATION DOES NOT NAVIGATE TO NEW SCREEN INSTANCE EACH SUBCONTAINER
+ *  SELECTION - UPDATE UISTATE'S containerId AS THE USER NAVIGATES
  *
- * :param deps: Shared navigation dependencies
- * :param lastContainerIdState: Mutable state used by app shell to remember the last visited
+ * @param deps: Shared navigation dependencies
+ * @param lastContainerIdState: Mutable state used by app shell to remember the last visited
  *                          container.
  */
 internal fun NavGraphBuilder.addContainerBrowserDestination(
@@ -76,6 +57,8 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
             backStackEntry.arguments?.containerIdOrNull(Routes.Args.CONTAINER_ID)
 
         val vm: ContainerBrowserViewModel = viewModel(
+            viewModelStoreOwner = backStackEntry,
+            key = "ContainerBrowser:${containerId?.value ?: "root"}",
             factory = viewModelFactory {
                 initializer {
                     ContainerBrowserViewModel(
@@ -90,12 +73,16 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
         val uiState by vm.uiState.collectAsStateWithLifecycle()
 
         // Build TopBarConfig from current UiState
-        val topBarConfig = remember(uiState, containerId) {
-            containerBrowserTopBarConfig(uiState = uiState, containerId = containerId)
-        }
+
+        val topBarConfig = containerBrowserTopBarConfig(
+            uiState = uiState,
+            containerId = containerId
+        )
 
         // Push top bar updates to scaffold
-        LaunchedEffect(topBarConfig) { deps.onTopBarChange(topBarConfig) }
+        LaunchedEffect(topBarConfig.title, topBarConfig.showBack) {
+            deps.onTopBarChange(topBarConfig)
+        }
 
         // Track the last visited container for "Return to Containers" behavior.
         lastContainerIdState.value = containerId
@@ -143,8 +130,8 @@ internal fun NavGraphBuilder.addContainerBrowserDestination(
  * Back button:
  * - Shown only when browsing a non-root container (containerId != null) // TODO: correct behavior?
  *
- * :param uiState: The current UI state for the Container Browser screen.
- * :return: TopBarConfig used by the app scaffold's top bar.
+ * @param uiState: The current UI state for the Container Browser screen.
+ * @return: TopBarConfig used by the app scaffold's top bar.
  */
 private fun containerBrowserTopBarConfig(
     uiState: ContainerBrowserUiState,
