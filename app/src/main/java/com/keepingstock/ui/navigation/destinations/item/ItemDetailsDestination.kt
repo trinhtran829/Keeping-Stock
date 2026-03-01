@@ -1,13 +1,8 @@
 package com.keepingstock.ui.navigation.destinations.item
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -17,15 +12,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.keepingstock.core.contracts.ContainerId
-import com.keepingstock.core.contracts.Item
-import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.uistates.item.ItemDetailUiState
-import com.keepingstock.data.entities.ItemStatus
-import com.keepingstock.ui.components.navigation.ChipOption
-import com.keepingstock.ui.components.navigation.DemoMode
-import com.keepingstock.ui.components.navigation.DemoModeToggleRow
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.itemIdOrNull
@@ -33,8 +21,17 @@ import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.item.ItemDetailsScreen
 import com.keepingstock.ui.viewmodel.item.ItemDetailViewModel
 import kotlinx.coroutines.flow.collectLatest
-import java.util.Date
 
+/**
+ * Registers the Item Details Screen destination in the AppNavGraph.
+ *
+ * Displays the details of the Item indicated in the path param argument itemId
+ * in the route.
+ *
+ * TODO: Still need to implement MOVE flow in Intent file
+ *
+ * @param deps: Shared navigation dependencies.
+ */
 internal fun NavGraphBuilder.addItemDetailsDestination(
     deps: NavDeps
 ) {

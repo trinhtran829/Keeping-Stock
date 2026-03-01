@@ -109,6 +109,7 @@ private fun ReadyContent(
     onEdit: (ItemId) -> Unit,
     onMove: (ItemId) -> Unit,
 ) {
+    // TODO: rememberSaveable instead?
     var showDeleteDialog by remember(uiState.item.id.value) { mutableStateOf(false) }
 
     if (showDeleteDialog) {
@@ -322,10 +323,12 @@ private fun ItemDetailMetadataCard(
  * Provides the primary actions for the item:
  * - Edit
  * - Move
- * - Delete (disabled when canDelete is false)
+ * - Delete
  * - Back
  *
  * TODO: Consider moving some actions to top bar?
+ *
+ * TODO: Guard against rapid multi-clicks
  *
  * @param itemId: Target item for all actions.
  * @param onBack: User intent to navigate back.
