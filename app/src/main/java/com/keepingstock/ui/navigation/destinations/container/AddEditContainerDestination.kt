@@ -95,8 +95,8 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
 /**
  * Builds top bar title/back behavior from AddEditContainerUiState.
  *
- * :param uiState: The current UI state for the Add/Edit Container screen.
- * :return: A [TopBarConfig] describing the top app bar title and back button visibility.
+ * @param uiState: The current UI state for the Add/Edit Container screen.
+ * @return: A [TopBarConfig] describing the top app bar title and back button visibility.
  */
 private fun containerAddEditTopBarConfig(uiState: AddEditContainerUiState): TopBarConfig {
     val title = when (uiState) {
