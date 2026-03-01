@@ -20,8 +20,7 @@ private fun Preview_ItemDetail_Loading() {
         uiState = ItemDetailUiState.Loading,
         onBack = {},
         onEdit = {},
-        onMove = {},
-        onDelete = {},
+        onMove = {}
     )
 }
 
@@ -32,8 +31,7 @@ private fun Preview_ItemDetail_Error() {
         uiState = ItemDetailUiState.Error("Failed to load container details."),
         onBack = {},
         onEdit = {},
-        onMove = {},
-        onDelete = {},
+        onMove = {}
     )
 }
 
@@ -61,7 +59,6 @@ private fun Preview_ItemDetail_Ready() {
         ),
         onBack = {},
         onEdit = {},
-        onMove = {},
-        onDelete = {},
+        onMove = {}
     )
 }

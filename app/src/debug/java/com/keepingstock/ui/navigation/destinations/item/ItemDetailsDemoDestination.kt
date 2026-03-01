@@ -82,8 +82,7 @@ internal fun NavGraphBuilder.addItemDetailsDemoDestination(
                 onEdit = { id ->
                     deps.navController.navigate(NavRoute.AddEditItem.createRoute(itemId = id))
                 },
-                onMove = { },
-                onDelete = { }
+                onMove = { }
             )
         }
     }
