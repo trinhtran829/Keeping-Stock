@@ -215,7 +215,11 @@ fun ItemSummaryRow(
 
                 if (item.tags.isNotEmpty()) {
                     Text(
-                        text = item.tags.joinToString(prefix = "#", separator = " #"),
+                        text = item.tags.joinToString(
+                            prefix = "#",
+                            separator = " #",
+                            transform = { it.name }
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis

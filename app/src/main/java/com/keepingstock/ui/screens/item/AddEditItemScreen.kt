@@ -188,7 +188,7 @@ private fun AddEditItemReadyContent(
                 isSaving = uiState.isSaving,
                 onSave = { onIntent(AddEditItemIntent.SaveClicked) },
                 onCancel = {
-                    if (uiState.isDirty) showDiscardDialog = true else onNavigateBack
+                    if (uiState.isDirty) showDiscardDialog = true else onNavigateBack()
                 }
             )
         }
