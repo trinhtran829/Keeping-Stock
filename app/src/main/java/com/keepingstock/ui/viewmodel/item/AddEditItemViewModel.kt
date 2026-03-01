@@ -382,7 +382,7 @@ private fun reduceTagIntent(
 
         // Reject duplicates already in selectedTags (case-insensitive).
         val currentSelectedKeys: Set<String> =
-            currentState.selectedTags.map { normalizeForCommit(it.name).lowercase() }.toSet()
+            state.selectedTags.map { normalizeForCommit(it.name).lowercase() }.toSet()
         if (tagKey in currentSelectedKeys) {
             return state.copy(tagQuery = "", tagSuggestions = emptyList(), inputError = null)
         }
