@@ -81,8 +81,7 @@ internal fun NavGraphBuilder.addContainerDetailsDemoDestination(
                         NavRoute.AddEditContainer.createRoute(containerId = id)
                     )
                 },
-                onMove = { },
-                onDelete = { }
+                onMove = { }
             )
         }
     }
