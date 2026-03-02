@@ -459,7 +459,7 @@ private fun ListContents(
         }
 
         if (visibleSubcontainers.isNotEmpty()) {
-            items(visibleSubcontainers, key = { it.id.value }) { container ->
+            items(visibleSubcontainers, key = { "c-${it.id.value}" }) { container ->
                 ContainerSummaryRow(
                     modifier = Modifier,
                     container = container,
@@ -478,7 +478,7 @@ private fun ListContents(
         }
 
         if (visibleItems.isNotEmpty()) {
-            items(visibleItems, key = { it.id.value }) { item ->
+            items(visibleItems, key = { "i-${it.id.value}" }) { item ->
                 ItemSummaryRow(
                     modifier = Modifier,
                     item = item,
@@ -544,7 +544,7 @@ private fun GridContents(
 
         items(
             items = visibleSubcontainers,
-            key = { it.id.value }
+            key = { "c-${it.id.value}" }
         ) { container ->
             ContainerTile (
                 container = container,
@@ -570,7 +570,7 @@ private fun GridContents(
 
         items(
             items = visibleItems,
-            key = { it.id.value }
+            key = { "i-${it.id.value}" }
         ) { item ->
             ItemTile(
                 item = item,
@@ -618,7 +618,7 @@ private fun CompactContents(
             )
         }
 
-        items(visibleSubcontainers, key = { it.id.value }) { c ->
+        items(visibleSubcontainers, key = { "c-${it.id.value}" }) { c ->
             ContainerCompactRow (
                 container = c,
                 onClick = { onOpenSubcontainer(c.id) }
@@ -634,7 +634,7 @@ private fun CompactContents(
             )
         }
 
-        items(visibleItems, key = { it.id.value }) { i ->
+        items(visibleItems, key = { "i-${it.id.value}" }) { i ->
             ItemCompactRow(
                 item = i,
                 onClick = { onOpenItem(i.id) }
