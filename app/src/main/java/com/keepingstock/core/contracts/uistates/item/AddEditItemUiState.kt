@@ -106,7 +106,6 @@ sealed interface AddEditItemUiState {
             val name: String
         )
 
-        // TODO: Anything else need to be validated? Tags?
         data class Validation(
             val nameError: String? = null,
             val containerError: String? = null
