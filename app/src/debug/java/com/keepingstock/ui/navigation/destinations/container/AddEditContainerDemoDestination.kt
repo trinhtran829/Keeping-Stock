@@ -192,8 +192,6 @@ private class AddEditContainerDemoController(
      * Demo save handler:
      * - Validates the current form state via [validate].
      * - If valid, shows a success snackbar and pops the back stack.
-     *
-     * TODO: onSave function for demo purposes - handled by ViewModel
      */
     fun onSave() {
         val current = getUiState()
@@ -254,8 +252,6 @@ private class AddEditContainerDemoController(
  *
  * @param currentState The current form state.
  * @return A copy of [currentState] with updated validation fields.
- *
- * TODO: This might be able to be moved directly into the ViewModel later.
  */
 private fun validate(
     currentState: AddEditContainerUiState.Ready

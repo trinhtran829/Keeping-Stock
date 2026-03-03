@@ -141,10 +141,10 @@ internal fun NavGraphBuilder.addContainerBrowserDemoDestination(
  * Titles:
  * - Ready: uses the containerName from UiState
  * - Loading: "Loading…"
- * - Error: generic "Containers" // TODO: refine error title later
+ * - Error: generic "Containers"
  *
  * Back button:
- * - Shown only when browsing a non-root container (containerId != null) // TODO: correct behavior?
+ * - Shown only when browsing a non-root container (containerId != null)
  *
  * :param uiState: The current UI state for the Container Browser screen.
  * :return: TopBarConfig used by the app scaffold's top bar.
