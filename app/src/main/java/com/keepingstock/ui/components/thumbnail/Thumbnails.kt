@@ -83,8 +83,6 @@ fun ItemThumbnail(
  * Renders a fixed-size rounded rectangle surface (40dp) that either shows a centered fallback
  * icon, or displays a loaded image.
  *
- * TODO: If we decide to store raw file paths instead of Uri strings, we'll need to update
- *
  * :param modifier: Optional modifier applied before internal sizing/shape.
  * :param imagePath: Optional image reference string; expected to parse as a Uri.
  * :param fallbackIcon: Composable shown when imagePath is null/blank.
