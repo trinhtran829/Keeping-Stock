@@ -1,6 +1,7 @@
 package com.keepingstock.ui.navigation
 
 import androidx.navigation.NavHostController
+import com.keepingstock.data.integration.DemoDataManager
 import com.keepingstock.data.repositories.ContainerRepositoryImpl
 import com.keepingstock.data.repositories.ItemRepositoryImpl
 import com.keepingstock.data.repositories.TagRepositoryImpl
@@ -15,5 +16,6 @@ internal data class NavDeps(
     val showSnackbar: (String) -> Unit,
     val containerRepo: ContainerRepositoryImpl,
     val itemRepo: ItemRepositoryImpl,
-    val tagRepo: TagRepositoryImpl
+    val tagRepo: TagRepositoryImpl,
+    val demoDataManager: DemoDataManager
 )

@@ -2,17 +2,21 @@ package com.keepingstock.ui.navigation.destinations.debug
 
 import android.net.Uri
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.scaffold.TopBarConfig
 import com.keepingstock.ui.screens.debug.DebugGalleryScreen
+import kotlinx.coroutines.launch
 
 internal fun NavGraphBuilder.addDebugGalleryDestination(
     deps: NavDeps
 ) {
     composable(route = NavRoute.DebugGallery.route) {
+        val scope = rememberCoroutineScope()
+
         LaunchedEffect(Unit) {
             deps.onTopBarChange(
                 TopBarConfig(
@@ -23,6 +27,27 @@ internal fun NavGraphBuilder.addDebugGalleryDestination(
         }
 
         DebugGalleryScreen(
+            onLoadDemoData = {
+                scope.launch {
+                    runCatching { deps.demoDataManager.loadDemoData() }
+                        .onSuccess { deps.showSnackbar("Demo data added.") }
+                        .onFailure { deps.showSnackbar("Load failed: ${it.message}") }
+                }
+            },
+            onResetToDemoData = {
+                scope.launch {
+                    runCatching { deps.demoDataManager.resetToDemoData() }
+                        .onSuccess { deps.showSnackbar("Demo data reset.") }
+                        .onFailure { deps.showSnackbar("Reset failed: ${it.message}") }
+                }
+            },
+            onClearAllData = {
+                scope.launch {
+                    runCatching { deps.demoDataManager.clearAllData() }
+                        .onSuccess { deps.showSnackbar("All data cleared.") }
+                        .onFailure { deps.showSnackbar("Clear failed: ${it.message}") }
+                }
+            },
             onOpenContainerBrowser = {
                 deps.navController.navigate(NavRoute.ContainerBrowser.createRoute(null))
             },

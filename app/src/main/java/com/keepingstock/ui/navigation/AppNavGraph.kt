@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
+import com.keepingstock.data.integration.DemoDataManager
 import com.keepingstock.data.repositories.ContainerRepositoryImpl
 import com.keepingstock.data.repositories.ItemRepositoryImpl
 import com.keepingstock.data.repositories.TagRepositoryImpl
@@ -57,6 +58,7 @@ fun AppNavGraph(
     containerRepo: ContainerRepositoryImpl,
     itemRepo: ItemRepositoryImpl,
     tagRepo: TagRepositoryImpl,
+    demoDataManager: DemoDataManager,
     navController: NavHostController,
     contentPadding: PaddingValues,
     onTopBarChange: (TopBarConfig) -> Unit,
@@ -72,7 +74,8 @@ fun AppNavGraph(
         showSnackbar = showSnackbar,
         containerRepo = containerRepo,
         itemRepo = itemRepo,
-        tagRepo = tagRepo
+        tagRepo = tagRepo,
+        demoDataManager = demoDataManager
     )
 
     // The place in UI where the active destination composable is displayed
