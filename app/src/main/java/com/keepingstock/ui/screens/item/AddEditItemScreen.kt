@@ -669,8 +669,6 @@ private fun ActionsCard(
  *
  * :param uiState: Ready state containing tag-related fields.
  * :param onIntent: Callback for emitting tag-related intents.
- *
- * TODO: Consider passing only tag-related fields rather than the entire uiState if this grows.
  */
 @Composable
 fun TagEditorCard(
