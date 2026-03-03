@@ -10,14 +10,6 @@ import com.keepingstock.core.contracts.ContainerBrowserFilter
  * All user-driven events that can affect the Container Browser screen's state.
  */
 sealed interface ContainerBrowserIntent {
-
-    /**
-     * TODO: We probably only need either QueryChange or QuerySubmit Depends on the
-     *  behavior we want:
-     *  - QueryChange for "Search as you type"
-     *  - QuerySubmit for "Search on enter"
-     */
-
     /**
      * Indicates that the user has modified the search query. This intent is typically emitted on
      * each change to the search input field for "search as you type" behavior.
