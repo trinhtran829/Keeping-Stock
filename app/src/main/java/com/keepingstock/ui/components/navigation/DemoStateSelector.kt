@@ -87,8 +87,6 @@ data class ChipOption<T>(
  * :param label: Visible label for the chip.
  * :param selected: Whether this chip is currently selected.
  * :param onClick: Click handler that selects this mode.
- *
- * TODO: Might be useful for selected tag filters?
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
