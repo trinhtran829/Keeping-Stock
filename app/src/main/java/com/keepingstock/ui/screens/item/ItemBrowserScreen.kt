@@ -93,8 +93,6 @@ fun ItemBrowserScreen(
  * - Shows empty states based on [BrowserEmptyState].
  * - Renders results using the selected [BrowserLayout].
  *
- * TODO(FUTURE): Add a grid/tile layout option. Keep row composables reusable by both layouts.
- *
  * @param modifier: Optional modifier for the screen container.
  * @param items: List of items in this container.
  * @param onOpenItem: User intent to open an item detail view.

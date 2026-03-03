@@ -796,7 +796,8 @@ private fun SelectedTagChip(
     InputChip(
         modifier = modifier.height(chipHeight),
         selected = true,
-        onClick = { /* TODO: Consult group on behavior, if any */ },
+        onClick = { /* TODO: Consult group on behavior, if any (conceptual idea: open item browser
+                         with search set to that tag?)*/ },
         label = {
             Text(
                 text = name,
