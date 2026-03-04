@@ -487,7 +487,7 @@ private fun ListContents(
             }
         }
 
-        item { ContentEndQrButton(onScan = onScan) }
+        //item { ContentEndQrButton(onScan = onScan) }
 
         item { Spacer(Modifier.height(16.dp)) }
     }
@@ -578,7 +578,7 @@ private fun GridContents(
             )
         }
 
-        item { ContentEndQrButton(onScan = onScan) }
+        //item { ContentEndQrButton(onScan = onScan) }
 
         item { Spacer(Modifier.height(16.dp)) }
     }
@@ -641,7 +641,7 @@ private fun CompactContents(
             )
         }
 
-        item { ContentEndQrButton(onScan = onScan) }
+        //item { ContentEndQrButton(onScan = onScan) }
 
         item { Spacer(Modifier.height(16.dp)) }
     }
