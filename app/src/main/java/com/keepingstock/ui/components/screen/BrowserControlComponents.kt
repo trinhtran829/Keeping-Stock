@@ -159,7 +159,9 @@ fun SortAndLayoutRow(
             onLayoutChange = onLayoutChange
         )
 
-
+        QrScanMenuOption(
+            onScan = onScan
+        )
     }
 }
 
