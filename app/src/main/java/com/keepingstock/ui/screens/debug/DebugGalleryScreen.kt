@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,6 +20,9 @@ import com.keepingstock.ui.theme.KeepingStockTheme
 // Add callback functions for custom screens here
 @Composable
 fun DebugGalleryScreen(
+    onLoadDemoData: () -> Unit,
+    onResetToDemoData: () -> Unit,
+    onClearAllData: () -> Unit,
     onOpenContainerBrowser: () -> Unit,
     onOpenItemBrowser: () -> Unit,
     onOpenQrScan: () -> Unit,
@@ -29,6 +34,7 @@ fun DebugGalleryScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -47,9 +53,13 @@ fun DebugGalleryScreen(
         )
         Text(
             text = "Use these shortcuts to test screens in the emulator. " +
-                    "Do not add navigation graphs or change MainActivity.",
+                    "You can also add, reset, or clear demo data here.",
             style = MaterialTheme.typography.bodyMedium
         )
+
+        DebugButton("Load Demo Data", onLoadDemoData)
+        DebugButton("Reset To Demo Data", onResetToDemoData)
+        DebugButton("Clear All Data", onClearAllData)
 
         DebugButton("Container Browser", onOpenContainerBrowser)
         DebugButton("Item Browser", onOpenItemBrowser)
@@ -83,6 +93,9 @@ private fun DebugButton(
 private fun DebugGalleryScreenPreview() {
     KeepingStockTheme {
         DebugGalleryScreen(
+            onLoadDemoData = {},
+            onResetToDemoData = {},
+            onClearAllData = {},
             onOpenContainerBrowser = {},
             onOpenItemBrowser = {},
             onOpenQrScan = {},

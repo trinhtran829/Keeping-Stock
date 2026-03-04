@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.keepingstock.data.database.KeepingStockDatabase
+import com.keepingstock.data.integration.DemoDataManager
 import com.keepingstock.data.repositories.ContainerRepositoryImpl
 import com.keepingstock.data.repositories.ItemRepositoryImpl
 import com.keepingstock.data.repositories.TagRepositoryImpl
@@ -31,13 +32,20 @@ class MainActivity : ComponentActivity() {
             itemTagDao = db.itemTagDao(),
             itemWithTagsDao = db.itemWithTagsDao()
         )
+        val demoDataManager = DemoDataManager(
+            db = db,
+            containerRepo = containerRepo,
+            itemRepo = itemRepo,
+            tagRepo = tagRepo
+        )
 
         setContent {
             KeepingStockTheme {
                 KeepingStockApp(
                     containerRepo = containerRepo,
                     itemRepo = itemRepo,
-                    tagRepo = tagRepo
+                    tagRepo = tagRepo,
+                    demoDataManager = demoDataManager
                 )
             }
         }
