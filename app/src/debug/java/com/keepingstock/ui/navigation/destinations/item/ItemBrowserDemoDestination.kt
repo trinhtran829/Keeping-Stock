@@ -41,9 +41,6 @@ import com.keepingstock.ui.screens.item.ItemBrowserScreen
  * @param deps: Shared navigation dependencies
  * @param lastContainerIdState: Mutable state used by app shell to remember the last visited
  *                          container.
- *
- * TODO: Replace demoMode + demo UiState with a real
- *  ViewModel: val uiState by viewModel.uiState.collectAsStateWithLifecycle()
  */
 internal fun NavGraphBuilder.addItemBrowserDemoDestination(
     deps: NavDeps,

@@ -153,8 +153,6 @@ private fun KeepingStockTopBar(
 /**
  * Persistent bottom navigation bar for all screens
  *
- * TODO: Must decide what to do if navigating away from unfinished forms!
- *
  * Provides direct navigation to:
  * - Container Browser
  * - Item Browser

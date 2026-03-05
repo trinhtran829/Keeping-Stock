@@ -669,8 +669,6 @@ private fun ActionsCard(
  *
  * :param uiState: Ready state containing tag-related fields.
  * :param onIntent: Callback for emitting tag-related intents.
- *
- * TODO: Consider passing only tag-related fields rather than the entire uiState if this grows.
  */
 @Composable
 fun TagEditorCard(
@@ -798,7 +796,8 @@ private fun SelectedTagChip(
     InputChip(
         modifier = modifier.height(chipHeight),
         selected = true,
-        onClick = { /* TODO: Consult group on behavior, if any */ },
+        onClick = { /* TODO: Consult group on behavior, if any (conceptual idea: open item browser
+                         with search set to that tag?)*/ },
         label = {
             Text(
                 text = name,

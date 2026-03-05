@@ -2,9 +2,9 @@ package com.keepingstock.core.contracts
 
 import com.keepingstock.data.entities.ItemStatus
 
-// TODO: Do we need other filters? I thought being able to filter by if it's taken out
-//  or not would be a nice touch. Aside from that, I just put two boolean flags for
-//  if visible results should include only containers/items
+/**
+ * Container can filter out containers, filter out items, or filter based on item status.
+ */
 data class ContainerBrowserFilter(
     val includeContainers: Boolean = true,
     val includeItems: Boolean = true,

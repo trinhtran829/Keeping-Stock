@@ -17,8 +17,6 @@ import com.keepingstock.data.entities.ItemStatus
  * Notes:
  * - Include the current query so the screen can render a search field reliably.
  * - "Empty" is represented as Ready(items = emptyList())
- *
- * TODO: Add filters (tags, status, container) to ready?
  */
 sealed interface ItemBrowserUiState {
 

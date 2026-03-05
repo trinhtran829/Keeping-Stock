@@ -203,9 +203,6 @@ private fun addEditItemTopBarConfig(uiState: AddEditItemUiState): TopBarConfig {
  * :param knownTags: Set of tags suitable for demo purposes
  * :param getUiState: Getter for the current [AddEditItemUiState.Ready] form state.
  * :param setUiState: Setter for the updated [AddEditItemUiState.Ready] form state.
- *
- * TODO: For demo purposes only; replace with ViewModel + effect channel. Can be potentially moved
- *  in full to VM, so long as functions are updated
  */
 private class AddEditItemDemoController(
     private val deps: NavDeps,
@@ -224,8 +221,6 @@ private class AddEditItemDemoController(
      * - All other intents are reduced into a new form state via [reduceIntent].
      *
      * :param intent: The user intent to process.
-     *
-     * TODO: ViewModel should own this and expose state + effects.
      */
     fun onIntent(intent: AddEditItemIntent) {
         val currentState = getUiState()
@@ -263,9 +258,6 @@ private class AddEditItemDemoController(
      * This demo implementation does not persist data.
      *
      * :param currentState: The current [AddEditItemUiState] (only Ready is saveable).
-     *
-     * TODO: onSave function for demo purposes - handled by ViewModel
-     *  currently doesn't actually save anything
      */
     fun onSave(currentState: AddEditItemUiState) {
         // Only Ready state can be saved.
@@ -309,8 +301,6 @@ private class AddEditItemDemoController(
  *
  * :param currentState: The current form state.
  * :return: A copy of [currentState] with updated validation fields.
- *
- * TODO: Move into ViewModel if validation rules expand or become repository-backed.
  */
 private fun validate(
     currentState: AddEditItemUiState.Ready
@@ -342,8 +332,6 @@ private fun validate(
  * :param parentOptions: Demo container options used to resolve container display name.
  * :param knownTags: Demo tag set used for suggestions and existing-tag resolution.
  * :return: The next form state after applying [intent] and running [validate].
- *
- * TODO: for demo purposes only; could be moved into ViewModel later if matches intended structure
  */
 private fun reduceIntent(
     currentState: AddEditItemUiState.Ready,
@@ -454,8 +442,6 @@ private fun reduceIntent(
  * :param intent: Tag-related user intent.
  * :param knownTags: Demo tag list.
  * :return: Updated form state (not validated here; caller runs [validate]).
- *
- * TODO(REMOVE): Replace knownTags usage with repo-backed tag search in VM.
  */
 private fun reduceTagIntent(
     currentState: AddEditItemUiState.Ready,
@@ -467,8 +453,6 @@ private fun reduceTagIntent(
      * Regex pattern for allowed tag characters.
      *
      * Allows letters, numbers, spaces, '&', and '-'.
-     *
-     * TODO: Expand allowed characters if product requirements change.
      */
     val allowedTagRegex = Regex("""^[A-Za-z0-9 &-]+$""")
 
@@ -501,7 +485,7 @@ private fun reduceTagIntent(
 
         val err =
             if (!allowedTagRegex.matches(query))
-                "Use only letters, numbers, spaces, '-', and '&'." // TODO: update err text if additional allowed chars added
+                "Use only letters, numbers, spaces, '-', and '&'."
             else null
 
         val queryKey = query.lowercase()
@@ -535,8 +519,6 @@ private fun reduceTagIntent(
      *
      * :param state: Current form state.
      * :param rawName: Raw tag text (from query or recommendation).
-     *
-     * TODO: Consider emitting a snackbar msg when max tags is reached or duplicates are attempted
      */
     fun addTagNameToSelected(
         currentState: AddEditItemUiState.Ready,
@@ -659,8 +641,6 @@ private fun reduceTagIntent(
  * :param parentOptions: Demo container options used to resolve display name.
  * :param knownTags: Demo tags used to prefill selectedTags in EDIT mode.
  * :return: A validated [AddEditItemUiState.Ready] suitable for demo rendering.
- *
- * TODO(REMOVE): Replace with repository-backed load in ViewModel.
  */
 private fun demoInitialUiState(
     itemId: ItemId?,
