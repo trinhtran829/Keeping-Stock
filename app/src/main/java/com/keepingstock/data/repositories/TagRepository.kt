@@ -92,4 +92,14 @@ interface TagRepository {
         tagId: TagId,
         containerId: ContainerId
     ): Flow<List<Item>>
+
+    /**
+     * Validate tag name
+     */
+    fun validateTagName(name: String): Boolean
+
+    /**
+     * Normalize tag name
+     */
+    fun normalizeTagName(name: String): String
 }

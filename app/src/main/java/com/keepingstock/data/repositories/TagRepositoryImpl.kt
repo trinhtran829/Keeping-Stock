@@ -31,7 +31,7 @@ class TagRepositoryImpl(
      * Validate tag name
      * Rule: only contains A - Z, a - z, 0 - 9, -, &, and space
      */
-    private fun validateTagName(name: String): Boolean {
+    override fun validateTagName(name: String): Boolean {
         for (char in name) {
             val isLetter = char in 'A'..'Z' || char in 'a'..'z'
             val isDigit = char in '0'..'9'
@@ -56,7 +56,7 @@ class TagRepositoryImpl(
      *Convert to lower case
      *case insensitive is handled by Room unique index
      */
-    private fun normalizeTagName(name: String): String {
+    override fun normalizeTagName(name: String): String {
         val trimmed = name.trim().lowercase()
         val result = StringBuilder()
         var lastCharWasSpace = false
