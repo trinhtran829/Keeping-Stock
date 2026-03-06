@@ -1,10 +1,5 @@
 package com.keepingstock.ui.screens.utility
 
-import android.R.attr.end
-import android.R.attr.label
-import android.R.attr.name
-import android.R.attr.onClick
-import android.text.SpannableString
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,20 +14,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Inventory2
-import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -121,31 +109,14 @@ fun ReadyContents(
         // TODO: Add Header? Is Title Bar sufficient?
 
         // Context Card
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                DetailRow(
-                    label = "Moving Container:",
-                    value = uiState.currentContainer?.name ?: "Root"
-                )
-
-                DetailRow(
-                    label = "Selected Container to Move to:",
-                    value = uiState.selectedContainer?.name ?: "Root"
-                )
-            }
-        }
+        ContextCard(uiState, onIntent)
 
         // Controls Card
         // TODO: Add search feature?
 
         // Breadcrumb
         BreadcrumbRow(uiState, onIntent)
-        
+
         // Current subcontainers
         CurrentSubcontainers(
             modifier = Modifier.weight(1f),
@@ -155,6 +126,37 @@ fun ReadyContents(
 
         // Action Buttons
         ActionSection(uiState, onIntent)
+    }
+}
+
+/**
+ * Renders the current meta information/context of the current move.
+ *
+ * @param uiState: Ready state containing current field values, validation, and flags.
+ * @param onIntent: Callback for emitting user intents to the state owner
+ */
+@Composable
+fun ContextCard(
+    uiState: SelectContainerUiState.Ready,
+    onIntent: (SelectContainerIntent) -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            DetailRow(
+                label = "Moving Container:",
+                value = uiState.currentContainer?.name ?: "Root"
+            )
+
+            DetailRow(
+                label = "Selected Container to Move to:",
+                value = uiState.selectedContainer?.name ?: "Root"
+            )
+        }
     }
 }
 
