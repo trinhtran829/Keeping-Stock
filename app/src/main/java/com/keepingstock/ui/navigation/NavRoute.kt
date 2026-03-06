@@ -115,6 +115,11 @@ sealed interface NavRoute {
         override val route: String = Routes.QR_SCAN
     }
 
+    object SelectContainer : NavRoute {
+        override val route: String =
+            "${Routes.SELECT_CONTAINER}/"
+    }
+
     // -------------
     // Media Screens
     // -------------
