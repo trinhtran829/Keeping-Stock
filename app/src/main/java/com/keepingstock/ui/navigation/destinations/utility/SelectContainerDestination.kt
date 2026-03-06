@@ -1,6 +1,5 @@
 package com.keepingstock.ui.navigation.destinations.utility
 
-import android.R.attr.type
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -10,7 +9,6 @@ import com.keepingstock.core.contracts.Routes.SubjectType
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.containerIdOrNull
-import okhttp3.Route
 
 internal fun NavGraphBuilder.addSelectContainerDestination(
     deps: NavDeps
