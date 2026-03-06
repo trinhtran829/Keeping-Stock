@@ -1,5 +1,7 @@
 package com.keepingstock.ui.screens.utility
 
+import android.text.SpannableString
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -104,7 +106,7 @@ fun ReadyContents(
 /**
  * Renders the breadcrumb path row(s)
  *
- * TODO: vertical spacing of breadcrumb is excessive - use different component?
+ * TODO: AssistChip vs Text component?
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -113,24 +115,31 @@ fun BreadcrumbRow(
     onIntent: (SelectContainerIntent) -> Unit
 ) {
     FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         uiState.breadcrumbs.forEachIndexed { index, crumb ->
             /*
-            TextButton(
-                onClick = { onIntent(SelectContainerIntent.ClickBreadcrumb(crumb.id)) },
-            ) {
-                Text(crumb.label)
-            }
-             */
-
             AssistChip(
                 onClick = { onIntent(SelectContainerIntent.ClickBreadcrumb(crumb.id)) },
                 label = { Text(crumb.label) }
             )
 
+
             if (index != uiState.breadcrumbs.lastIndex) {
                 Text(">", modifier = Modifier.padding(top = 16.dp))
+            }
+            */
+
+            Text(
+                text = crumb.label,
+                modifier = Modifier.clickable(
+                    onClick = { onIntent(SelectContainerIntent.ClickBreadcrumb(crumb.id)) }
+                )
+            )
+
+            if (index != uiState.breadcrumbs.lastIndex) {
+                Text(">")
             }
         }
     }
