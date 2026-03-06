@@ -1,9 +1,13 @@
 package com.keepingstock.ui.components.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Clear
@@ -159,7 +163,9 @@ fun SortAndLayoutRow(
             onLayoutChange = onLayoutChange
         )
 
-
+        QrScanMenuOption(
+            onScan = onScan
+        )
     }
 }
 
@@ -183,15 +189,18 @@ private fun SortMenu(
         BrowserSort.CREATED_OLDEST -> "Created (oldest)"
     }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(
-            onClick = { expanded = true }
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Default.Sort,
-                contentDescription = "Sort"
-            )
-        }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clickable { expanded = true }
+            .padding(horizontal = 8.dp, vertical = 6.dp)
+    ) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Default.Sort,
+            contentDescription = "Sort"
+        )
+
+        Spacer(Modifier.width(4.dp))
 
         Text(
             text = label,
@@ -241,15 +250,19 @@ private fun LayoutMenu(
         BrowserLayout.COMPACT -> "Compact"
     }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(
-            onClick = { expanded = true }
-        ) {
-            Icon(
-                imageVector = Icons.Default.ViewModule,
-                contentDescription = "Layout"
-            )
-        }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clickable { expanded = true }
+            .padding(horizontal = 8.dp, vertical = 6.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.ViewModule,
+            contentDescription = "Layout"
+        )
+
+        Spacer(Modifier.width(4.dp))
+
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium
@@ -285,16 +298,17 @@ private fun QrScanMenuOption(
     onScan: () -> Unit
 ) {
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clickable { onScan() }
+            .padding(horizontal = 8.dp, vertical = 6.dp)
     ) {
-        IconButton(
-            onClick = onScan
-        ) {
-            Icon(
-                imageVector = Icons.Default.QrCodeScanner,
-                contentDescription = "Scan"
-            )
-        }
+        Icon(
+            imageVector = Icons.Default.QrCodeScanner,
+            contentDescription = "Scan"
+        )
+
+        Spacer(Modifier.width(4.dp))
 
         Text(
             text = "Scan",

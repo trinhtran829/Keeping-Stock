@@ -1,6 +1,7 @@
 package com.keepingstock.ui.screens.container
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -225,9 +226,7 @@ private fun ContentHeader(
         )
 
         if (containerId != null) {
-            TextButton(
-                onClick = { onOpenContainerInfo(containerId) },
-            ) {
+            Row(modifier = Modifier.clickable {onOpenContainerInfo(containerId)}){
                 Icon(
                     Icons.Default.Info,
                     contentDescription = "Info",
@@ -487,7 +486,7 @@ private fun ListContents(
             }
         }
 
-        item { ContentEndQrButton(onScan = onScan) }
+        //item { ContentEndQrButton(onScan = onScan) }
 
         item { Spacer(Modifier.height(16.dp)) }
     }
@@ -578,7 +577,7 @@ private fun GridContents(
             )
         }
 
-        item { ContentEndQrButton(onScan = onScan) }
+        //item { ContentEndQrButton(onScan = onScan) }
 
         item { Spacer(Modifier.height(16.dp)) }
     }
@@ -641,7 +640,7 @@ private fun CompactContents(
             )
         }
 
-        item { ContentEndQrButton(onScan = onScan) }
+        //item { ContentEndQrButton(onScan = onScan) }
 
         item { Spacer(Modifier.height(16.dp)) }
     }
