@@ -117,7 +117,24 @@ sealed interface NavRoute {
 
     object SelectContainer : NavRoute {
         override val route: String =
-            "${Routes.SELECT_CONTAINER}/"
+            "${Routes.SELECT_CONTAINER}/" +
+                    "{${Routes.Args.SUBJECT_TYPE}}/" +
+                    "{${Routes.Args.SUBJECT_ID}}" +
+                    "?${Routes.Args.CONTAINER_ID}={${Routes.Args.CONTAINER_ID}}"
+
+        fun createRoute(
+            subjectType: Routes.SubjectType,
+            subjectId: Long,
+            currentContainerId: ContainerId? = null
+        ): String {
+            val base = "${Routes.SELECT_CONTAINER}/${subjectType.value}/$subjectId"
+            val params = buildList {
+                if (currentContainerId != null)
+                    add("${Routes.Args.CONTAINER_ID}=${currentContainerId.value}")
+            }
+
+            return if (params.isEmpty()) base else base + "?" + params.joinToString("&")
+        }
     }
 
     // -------------

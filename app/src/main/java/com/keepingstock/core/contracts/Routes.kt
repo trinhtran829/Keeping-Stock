@@ -11,6 +11,18 @@ object Routes {
         const val ITEM_ID = "itemId"
         const val PARENT_CONTAINER_ID = "parentContainerId"
         const val PHOTO_URI = "photoUri"
+        const val SUBJECT_TYPE = "subjectType"                  // "container" | "item"
+        const val SUBJECT_ID = "subjectId"                      // Long
+    }
+
+    enum class SubjectType(val value: String) {
+        Container("container"),
+        Item("item");
+
+        companion object {
+            fun from(value: String): SubjectType =
+                entries.firstOrNull { it.value == value } ?: error("Unknown SubjectType: $value")
+        }
     }
 
     // Core Browsers
