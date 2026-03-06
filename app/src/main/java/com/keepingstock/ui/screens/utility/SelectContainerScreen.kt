@@ -1,9 +1,13 @@
 package com.keepingstock.ui.screens.utility
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.intents.utility.SelectContainerIntent
@@ -68,11 +72,22 @@ fun ReadyContents(
     onIntent: (SelectContainerIntent) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding((12.dp)),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Header Card
+        // Context Card
+        // Controls Card
+        // Breadcrumb
+        // Current tree/results
+    }
 }
 
 /**
- * Previews the current overall select screen format
+ * Previews the current overall select container screen format
  */
 @Preview(showBackground = true)
 @Composable
