@@ -144,6 +144,14 @@ class TagDaoTest {
      * ----------------------------------------------------------------------------------
      * */
 
+    /** ---------- Test observeTagById with non existent ID ---------- */
+    @Test
+    fun observeTagById_nonExistentId() = runTest {
+        val result = tagDao.observeTagById(1L).first()
+
+        Assert.assertNull(result)
+    }
+
     /** ---------- Test getTags returns an empty list when there is no tag ---------- */
     @Test
     fun getTags_noTag() = runTest {

@@ -178,6 +178,14 @@ class ContainerDaoTest {
      * ----------------------------------------------------------------------------------
      * */
 
+    /** ---------- Test observeContainerById with non existent ID ---------- */
+    @Test
+    fun observeContainerById_nonExistentId() = runTest {
+        val result = containerDao.observeContainerById(1L).first()
+
+        Assert.assertNull(result)
+    }
+
     /** ---------- Test getRootContainers returns
      * an empty list when there is no containers---------- */
     @Test

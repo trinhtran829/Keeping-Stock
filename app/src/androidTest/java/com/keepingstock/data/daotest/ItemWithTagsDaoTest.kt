@@ -219,6 +219,14 @@ class ItemWithTagsDaoTest {
      * ----------------------------------------------------------------------------------
      * */
 
+    /** ---------- Test observeItemWithTagsById with non existent ID ---------- */
+    @Test
+    fun observeItemWithTagsById_nonExistentId() = runTest {
+        val result = itemWithTagsDao.observeItemWithTagsById(1L).first()
+
+        Assert.assertNull(result)
+    }
+
     /** ---------- Test getAllItemsWithTags returns
      * an empty list when there is no items nor tags ---------- */
     @Test
