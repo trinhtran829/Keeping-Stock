@@ -2,6 +2,7 @@ package com.keepingstock.ui.screens.utility
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -53,7 +54,13 @@ fun SelectContainerScreen(
                 message = "Unable to load select new container screen."
             )
 
-        is SelectContainerUiState.Ready -> TODO()
+        is SelectContainerUiState.Ready ->
+            ReadyContents(
+                modifier = modifier.fillMaxSize(),
+                uiState = uiState,
+                onIntent = onIntent,
+                onNavigateBack = onNavigateBack
+            )
     }
 }
 
@@ -83,6 +90,21 @@ fun ReadyContents(
         // Controls Card
         // Breadcrumb
         // Current tree/results
+    }
+}
+
+/**
+ * Renders the breadcrumb path row(s)
+ */
+@Composable
+fun BreadcrumbRow(
+    uiState: SelectContainerUiState.Ready,
+    onIntent: SelectContainerIntent
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        
     }
 }
 
