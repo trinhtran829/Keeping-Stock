@@ -11,12 +11,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -97,15 +106,29 @@ fun ReadyContents(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Header Card
+
         // Context Card
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                }
+            }
+        }
+
         // Controls Card
 
-        // Breadcrumb
-        BreadcrumbRow(uiState, onIntent)
-
-        // Current tree/results
-
         // Select Root
+        /*
         ElevatedCard(modifier = Modifier.fillMaxWidth()) {
             ListItem(
                 headlineContent = { Text("Root") },
@@ -118,6 +141,46 @@ fun ReadyContents(
                     onIntent(SelectContainerIntent.ChangeSelection(null))
                 }
             )
+        }
+         */
+
+        // Breadcrumb
+        BreadcrumbRow(uiState, onIntent)
+
+        // Current subcontainers
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(uiState.rows) { row ->
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.elevatedCardColors()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Inventory2,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(28.dp)
+                        )
+
+                        ListItem(
+                            headlineContent = { Text(row.container.name) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable() {
+                                    onIntent(SelectContainerIntent.EnterContainer(row.container))
+                                }
+                        )
+                    }
+                }
+            }
         }
     }
 }
