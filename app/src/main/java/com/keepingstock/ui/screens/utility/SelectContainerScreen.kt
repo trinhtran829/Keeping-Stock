@@ -1,7 +1,9 @@
 package com.keepingstock.ui.screens.utility
 
+import android.R.attr.end
 import android.R.attr.label
 import android.R.attr.name
+import android.R.attr.onClick
 import android.text.SpannableString
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +36,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.Container
@@ -43,6 +46,7 @@ import com.keepingstock.core.contracts.uistates.utility.SelectContainerUiState
 import com.keepingstock.ui.components.screen.DetailRow
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
+import com.keepingstock.ui.components.thumbnail.ContainerThumbnail
 import java.util.Date
 
 /**
@@ -110,10 +114,11 @@ fun ReadyContents(
     Column(
         Modifier
             .fillMaxSize()
-            .padding((12.dp)),
+            .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Header Card
+        // TODO: Add Header? Is Title Bar sufficient?
 
         // Context Card
         ElevatedCard(
@@ -136,70 +141,19 @@ fun ReadyContents(
         }
 
         // Controls Card
-
-        // Select Root
-        /*
-        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-            ListItem(
-                headlineContent = { Text("Root") },
-                supportingContent = { Text("No parent container") },
-                trailingContent = {
-                    if (uiState.selectedContainer == null) Text("Selected")
-                    else if (uiState.currentContainer == null) Text("Current")
-                },
-                modifier = Modifier.clickable {
-                    onIntent(SelectContainerIntent.ChangeSelection(null))
-                }
-            )
-        }
-         */
+        // TODO: Add search feature?
 
         // Breadcrumb
         BreadcrumbRow(uiState, onIntent)
-
-        Text(
-            style = MaterialTheme.typography.bodyLarge,
-            text = "Current Container Contents:"
+        
+        // Current subcontainers
+        CurrentSubcontainers(
+            modifier = Modifier.weight(1f),
+            uiState = uiState,
+            onIntent = onIntent
         )
 
-        HorizontalDivider()
-
-        // Current subcontainers
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(uiState.rows) { row ->
-                ElevatedCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.elevatedCardColors()
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Inventory2,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(28.dp)
-                        )
-
-                        ListItem(
-                            headlineContent = { Text(row.container.name) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable() {
-                                    onIntent(SelectContainerIntent.EnterContainer(row.container))
-                                }
-                        )
-                    }
-                }
-            }
-        }
-
+        // Action Buttons
         ActionSection(uiState, onIntent)
     }
 }
@@ -236,16 +190,16 @@ fun BreadcrumbRow(
             ) {
                 uiState.breadcrumbs.forEachIndexed { index, crumb ->
                     /*
-            AssistChip(
-                onClick = { onIntent(SelectContainerIntent.ClickBreadcrumb(crumb.id)) },
-                label = { Text(crumb.label) }
-            )
+                    AssistChip(
+                        onClick = { onIntent(SelectContainerIntent.ClickBreadcrumb(crumb.id)) },
+                        label = { Text(crumb.label) }
+                    )
 
 
-            if (index != uiState.breadcrumbs.lastIndex) {
-                Text(">", modifier = Modifier.padding(top = 16.dp))
-            }
-            */
+                    if (index != uiState.breadcrumbs.lastIndex) {
+                        Text(">", modifier = Modifier.padding(top = 16.dp))
+                    }
+                    */
 
                     Text(
                         text = crumb.label,
@@ -264,6 +218,66 @@ fun BreadcrumbRow(
 }
 
 /**
+ * Renders the current containers list of subcontainers
+ *
+ * @param uiState: Ready state containing current field values, validation, and flags.
+ * @param onIntent: Callback for emitting user intents to the state owner (demo controller / ViewModel).
+ */
+@Composable
+fun CurrentSubcontainers(
+    modifier: Modifier,
+    uiState: SelectContainerUiState.Ready,
+    onIntent: (SelectContainerIntent) -> Unit
+) {
+    Text(
+        style = MaterialTheme.typography.bodyLarge,
+        text = "Current Container Contents:"
+    )
+
+    HorizontalDivider()
+
+    LazyColumn(
+        modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(uiState.rows) { row ->
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.elevatedCardColors()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ContainerThumbnail(
+                        imagePath = row.container.imageUri,
+                        modifier = Modifier.size(24.dp)
+                    )
+
+                    Spacer(Modifier.width(10.dp))
+
+                    Text(
+                        text = row.container.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = ">",
+                        Modifier.padding(end = 16.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The collection of buttons for the user to signal intent.
  *
  * @param uiState: Ready state containing current field values, validation, and flags.
  * @param onIntent: Callback for emitting user intents to the state owner (demo controller / ViewModel).
