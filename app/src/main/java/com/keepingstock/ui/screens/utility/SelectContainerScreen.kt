@@ -97,7 +97,7 @@ fun SelectContainerScreen(
  *
  * @param modifier: Modifier applied to the scrolling content container.
  * @param uiState: Ready state containing current field values, validation, and flags.
- * @param onIntent: Callback for emitting user intents to the state owner (demo controller / ViewModel).
+ * @param onIntent: Callback for emitting user intents to the state owner
  * @param onNavigateBack: Callback invoked when navigation away from the screen is confirmed.
  */
 @Composable
@@ -200,32 +200,7 @@ fun ReadyContents(
             }
         }
 
-        Button(
-            onClick = {
-                onIntent(SelectContainerIntent.ChangeSelection(uiState.currentContainer?.id))
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Select Current Container")
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            OutlinedButton(
-                onClick = {},
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Cancel")
-            }
-            Button(
-                onClick = {},
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Confirm")
-            }
-        }
+        ActionSection(uiState, onIntent)
     }
 }
 
@@ -233,6 +208,9 @@ fun ReadyContents(
  * Renders the breadcrumb path row(s)
  *
  * TODO: AssistChip vs Text component?
+ *
+ * @param uiState: Ready state containing current field values, validation, and flags.
+ * @param onIntent: Callback for emitting user intents to the state owner
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -281,6 +259,44 @@ fun BreadcrumbRow(
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ *
+ * @param uiState: Ready state containing current field values, validation, and flags.
+ * @param onIntent: Callback for emitting user intents to the state owner (demo controller / ViewModel).
+ */
+@Composable
+fun ActionSection(
+    uiState: SelectContainerUiState.Ready,
+    onIntent: (SelectContainerIntent) -> Unit
+) {
+    Button(
+        onClick = {
+            onIntent(SelectContainerIntent.ChangeSelection(uiState.currentContainer?.id))
+        },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("Select Current Container")
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        OutlinedButton(
+            onClick = {},
+            modifier = Modifier.weight(1f)
+        ) {
+            Text("Cancel")
+        }
+        Button(
+            onClick = {},
+            modifier = Modifier.weight(1f)
+        ) {
+            Text("Confirm")
         }
     }
 }
