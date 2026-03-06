@@ -179,6 +179,92 @@ fun Preview_SelectContainerScreen_Ready() {
 
     val nullContainer = null
 
+    val rows = listOf(
+        SelectContainerUiState.Ready.ContainerSelectRow(
+            currentContainer,
+            isSelected = false,
+            isCurrent = false
+        ),
+        SelectContainerUiState.Ready.ContainerSelectRow(
+            Container(
+                id = ContainerId(2L),
+                name = "Example",
+                parentContainerId = ContainerId(1L),
+                createdDate = Date()
+            ),
+            isSelected = false,
+            isCurrent = false
+        ),
+        SelectContainerUiState.Ready.ContainerSelectRow(
+            Container(
+                id = ContainerId(3L),
+                name = "Example2",
+                parentContainerId = ContainerId(2L),
+                createdDate = Date()
+            ),
+            isSelected = false,
+            isCurrent = false
+        ),
+        SelectContainerUiState.Ready.ContainerSelectRow(
+            Container(
+                id = ContainerId(4L),
+                name = "Example3",
+                parentContainerId = ContainerId(3L),
+                createdDate = Date()
+            ),
+            isSelected = false,
+            isCurrent = false
+        ),
+        SelectContainerUiState.Ready.ContainerSelectRow(
+            Container(
+                id = ContainerId(5L),
+                name = "Example4",
+                parentContainerId = ContainerId(4L),
+                createdDate = Date()
+            ),
+        isSelected = false,
+        isCurrent = false
+        ),
+        SelectContainerUiState.Ready.ContainerSelectRow(Container(
+                id = ContainerId(6L),
+                name = "Example5",
+                parentContainerId = ContainerId(5L),
+                createdDate = Date()
+            ),
+        isSelected = false,
+        isCurrent = false
+        ),
+        SelectContainerUiState.Ready.ContainerSelectRow(
+            Container(
+                id = ContainerId(7L),
+                name = "Example6",
+                parentContainerId = ContainerId(6L),
+                createdDate = Date()
+            ),
+        isSelected = false,
+        isCurrent = false
+        ),
+        SelectContainerUiState.Ready.ContainerSelectRow(
+            Container(
+                id = ContainerId(8L),
+                name = "Example7",
+                parentContainerId = ContainerId(7L),
+                createdDate = Date()
+            ),
+        isSelected = false,
+        isCurrent = false
+        ),
+        SelectContainerUiState.Ready.ContainerSelectRow(Container(
+                id = ContainerId(9L),
+                name = "Example8",
+                parentContainerId = ContainerId(8L),
+                createdDate = Date()
+            ),
+        isSelected = false,
+        isCurrent = false
+        ),
+    )
+
     SelectContainerScreen(
         uiState = SelectContainerUiState.Ready(
             currentContainer = null,
@@ -188,12 +274,13 @@ fun Preview_SelectContainerScreen_Ready() {
                 SelectContainerUiState.Ready.Breadcrumb(ContainerId(2L), "Example"),
                 SelectContainerUiState.Ready.Breadcrumb(ContainerId(3L), "Example2"),
                 SelectContainerUiState.Ready.Breadcrumb(ContainerId(4L), "Example3"),
-                SelectContainerUiState.Ready.Breadcrumb(ContainerId(3L), "Example4"),
-                SelectContainerUiState.Ready.Breadcrumb(ContainerId(3L), "Example5"),
-                SelectContainerUiState.Ready.Breadcrumb(ContainerId(3L), "Example6"),
-                SelectContainerUiState.Ready.Breadcrumb(ContainerId(3L), "Example7"),
-                SelectContainerUiState.Ready.Breadcrumb(ContainerId(3L), "Example8"),
-            )
+                SelectContainerUiState.Ready.Breadcrumb(ContainerId(5L), "Example4"),
+                SelectContainerUiState.Ready.Breadcrumb(ContainerId(6L), "Example5"),
+                SelectContainerUiState.Ready.Breadcrumb(ContainerId(7L), "Example6"),
+                SelectContainerUiState.Ready.Breadcrumb(ContainerId(8L), "Example7"),
+                SelectContainerUiState.Ready.Breadcrumb(ContainerId(9L), "Example8"),
+            ),
+            rows = rows
         )
     )
 }

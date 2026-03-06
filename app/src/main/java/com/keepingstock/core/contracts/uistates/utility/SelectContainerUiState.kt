@@ -18,6 +18,7 @@ sealed interface SelectContainerUiState {
         val selectedContainer: Container?,
 
         val breadcrumbs: List<Breadcrumb>,
+        val rows: List<ContainerSelectRow>,
     ) : SelectContainerUiState {
 
         /**
@@ -28,6 +29,15 @@ sealed interface SelectContainerUiState {
         data class Breadcrumb(
             val id: ContainerId?,
             val label: String
+        )
+
+        /**
+         * Simple, lightweight data class for showing container information and selection status
+         */
+        data class ContainerSelectRow(
+            val container: Container,
+            val isSelected: Boolean,
+            val isCurrent: Boolean
         )
     }
 }
