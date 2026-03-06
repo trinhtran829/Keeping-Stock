@@ -1,5 +1,6 @@
 package com.keepingstock.ui.screens.utility
 
+import android.R.attr.name
 import android.text.SpannableString
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,8 +9,11 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -100,6 +104,21 @@ fun ReadyContents(
         BreadcrumbRow(uiState, onIntent)
 
         // Current tree/results
+
+        // Select Root
+        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            ListItem(
+                headlineContent = { Text("Root") },
+                supportingContent = { Text("No parent container") },
+                trailingContent = {
+                    if (uiState.selectedContainer == null) Text("Selected")
+                    else if (uiState.currentContainer == null) Text("Current")
+                },
+                modifier = Modifier.clickable {
+                    onIntent(SelectContainerIntent.ChangeSelection(null))
+                }
+            )
+        }
     }
 }
 
@@ -158,9 +177,11 @@ fun Preview_SelectContainerScreen_Ready() {
         createdDate = Date()
     )
 
+    val nullContainer = null
+
     SelectContainerScreen(
         uiState = SelectContainerUiState.Ready(
-            currentContainer = currentContainer,
+            currentContainer = null,
             selectedContainer = currentContainer,
             breadcrumbs = listOf(
                 SelectContainerUiState.Ready.Breadcrumb(null, "Root"),
