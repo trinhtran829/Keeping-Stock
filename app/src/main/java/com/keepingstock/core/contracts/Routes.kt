@@ -27,6 +27,7 @@ object Routes {
 
     // Utility
     const val QR_SCAN = "qr_scan"
+    const val SELECT_CONTAINER = "select_container"
 
     // Media
     const val CAMERA = "camera"
