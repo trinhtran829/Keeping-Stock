@@ -2,9 +2,14 @@ package com.keepingstock.ui.screens.utility
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -83,28 +88,51 @@ fun ReadyContents(
         Modifier
             .fillMaxSize()
             .padding((12.dp)),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Header Card
         // Context Card
         // Controls Card
+
         // Breadcrumb
+        BreadcrumbRow(uiState, onIntent)
+
         // Current tree/results
     }
 }
 
 /**
  * Renders the breadcrumb path row(s)
+ *
+ * TODO: vertical spacing of breadcrumb is excessive - use different component?
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun BreadcrumbRow(
     uiState: SelectContainerUiState.Ready,
-    onIntent: SelectContainerIntent
+    onIntent: (SelectContainerIntent) -> Unit
 ) {
-    Row(
+    FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        
+        uiState.breadcrumbs.forEachIndexed { index, crumb ->
+            /*
+            TextButton(
+                onClick = { onIntent(SelectContainerIntent.ClickBreadcrumb(crumb.id)) },
+            ) {
+                Text(crumb.label)
+            }
+             */
+
+            AssistChip(
+                onClick = { onIntent(SelectContainerIntent.ClickBreadcrumb(crumb.id)) },
+                label = { Text(crumb.label) }
+            )
+
+            if (index != uiState.breadcrumbs.lastIndex) {
+                Text(">", modifier = Modifier.padding(top = 16.dp))
+            }
+        }
     }
 }
 
@@ -124,7 +152,18 @@ fun Preview_SelectContainerScreen_Ready() {
     SelectContainerScreen(
         uiState = SelectContainerUiState.Ready(
             currentContainer = currentContainer,
-            selectedContainer = currentContainer
+            selectedContainer = currentContainer,
+            breadcrumbs = listOf(
+                SelectContainerUiState.Ready.Breadcrumb(null, "Root"),
+                SelectContainerUiState.Ready.Breadcrumb(ContainerId(2L), "Example"),
+                SelectContainerUiState.Ready.Breadcrumb(ContainerId(3L), "Example2"),
+                SelectContainerUiState.Ready.Breadcrumb(ContainerId(4L), "Example3"),
+                SelectContainerUiState.Ready.Breadcrumb(ContainerId(3L), "Example4"),
+                SelectContainerUiState.Ready.Breadcrumb(ContainerId(3L), "Example5"),
+                SelectContainerUiState.Ready.Breadcrumb(ContainerId(3L), "Example6"),
+                SelectContainerUiState.Ready.Breadcrumb(ContainerId(3L), "Example7"),
+                SelectContainerUiState.Ready.Breadcrumb(ContainerId(3L), "Example8"),
+            )
         )
     )
 }
