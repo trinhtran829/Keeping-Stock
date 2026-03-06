@@ -9,7 +9,6 @@ import com.keepingstock.data.daos.ItemDao
 import com.keepingstock.data.database.KeepingStockDatabase
 import com.keepingstock.data.entities.ItemEntity
 import com.keepingstock.data.entities.ItemStatus
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -101,18 +100,6 @@ class ItemDaoTest {
         Assert.assertNull(result)
     }
 
-    /** ---------- Test deleteById ---------- */
-    @Test
-    fun deleteById() = runTest {
-        val generatedId = itemDao.insert(createItem())
-
-        itemDao.deleteById(generatedId)
-
-        val result = itemDao.getItemById(generatedId)
-
-        Assert.assertNull(result)
-    }
-
     /** ---------- Test updateItemStatus ---------- */
     @Test
     fun updateItemStatus() = runTest {
@@ -131,51 +118,51 @@ class ItemDaoTest {
         Assert.assertEquals(checkoutDate, result?.checkoutDate)
     }
 
-    /** ---------- Test getItems ---------- */
+    /** ---------------------------------------------------------------------------------
+     * Edge Cases Tests
+     * ----------------------------------------------------------------------------------
+     * */
+
+    /** ---------- Test insert item with nullable attributes ---------- */
     @Test
-    fun getItems() = runTest {
-        itemDao.insert(createItem("item 1"))
-        itemDao.insert(createItem("item 2"))
+    fun insert_nullAttributes() = runTest {
+        val generatedId = itemDao.insert(createItem())
 
-        val items = itemDao.getItems().first()
+        val result = itemDao.getItemById(generatedId)
 
-        Assert.assertEquals(2, items.size)
+        Assert.assertNotNull(result)
+        Assert.assertNull(result?.containerId)
+        Assert.assertNull(result?.imageUri)
+        Assert.assertNull(result?.checkoutDate)
     }
 
-    /** ---------- Test getItemsInContainer ---------- */
+    /** ---------- Test getItemById returns null for non existent ID ---------- */
     @Test
-    fun getItemsInContainer() = runTest {
-        itemDao.insert(createItem("item 1", 1))
-        itemDao.insert(createItem("item 2", null))
+    fun getItemById_nonExistentId() = runTest {
+        val result = itemDao.getItemById(1L)
 
-        val items = itemDao.getItemsInContainer(1).first()
-
-        Assert.assertEquals(1, items.size)
-        Assert.assertEquals("item 1", items[0].name)
+        Assert.assertNull(result)
     }
 
-    /** ---------- Test getItemsUnsorted ---------- */
+    /** ---------- Test update non existent item does nothing ---------- */
     @Test
-    fun getItemsUnsorted() = runTest {
-        itemDao.insert(createItem("item 1", 1))
-        itemDao.insert(createItem("item 2", null))
+    fun update_nonExistentItem() = runTest {
+        val item = createItem("nonExistent").copy(itemId = 1L)
 
-        val items = itemDao.getItemsUnsorted().first()
+        itemDao.update(item)
+        val result = itemDao.getItemById(1L)
 
-        Assert.assertEquals(1, items.size)
-        Assert.assertEquals("item 2", items[0].name)
-        Assert.assertNull(items[0].containerId)
+        Assert.assertNull(result)
     }
 
-    /** ---------- Test countItemsInContainer ---------- */
+    /** ---------- Test delete non existent item does nothing ---------- */
     @Test
-    fun countItemsInContainer() = runTest {
-        itemDao.insert(createItem("item 1", 1))
-        itemDao.insert(createItem("item 2", 1))
-        itemDao.insert(createItem("item 3", 2))
+    fun delete_nonExistentItem() = runTest {
+        val item = createItem("nonExistent").copy(itemId = 1L)
 
-        val count = itemDao.countItemsInContainer(1)
+        itemDao.delete(item)
+        val result = itemDao.getItemById(1L)
 
-        Assert.assertEquals(2, count)
+        Assert.assertNull(result)
     }
 }

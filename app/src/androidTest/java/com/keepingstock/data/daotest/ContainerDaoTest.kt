@@ -97,18 +97,6 @@ class ContainerDaoTest {
         Assert.assertNull(result)
     }
 
-    /** ---------- Test deleteById ---------- */
-    @Test
-    fun deleteById() = runTest {
-        val generatedId = containerDao.insert(createContainer())
-
-        containerDao.deleteById(generatedId)
-
-        val result = containerDao.getContainerById(generatedId)
-
-        Assert.assertNull(result)
-    }
-
     /** ---------- Test getRootContainers ---------- */
     @Test
     fun getRootContainers() = runTest {
@@ -172,5 +160,117 @@ class ContainerDaoTest {
 
         Assert.assertEquals("test 2", container?.name)
         Assert.assertEquals(con2, container?.containerId)
+    }
+
+    /** ---------- Test observeContainerById ---------- */
+    @Test
+    fun observeContainerById() = runTest {
+        val generatedId = containerDao.insert(createContainer("test"))
+
+        val result = containerDao.observeContainerById(generatedId).first()
+
+        Assert.assertNotNull(result)
+        Assert.assertEquals("test", result?.name)
+    }
+
+    /** ---------------------------------------------------------------------------------
+     * Edge Cases Tests
+     * ----------------------------------------------------------------------------------
+     * */
+
+    /** ---------- Test getRootContainers returns
+     * an empty list when there is no containers---------- */
+    @Test
+    fun getRootContainer_empty() = runTest {
+        val containers = containerDao.getRootContainers().first()
+
+        Assert.assertTrue(containers.isEmpty())
+    }
+
+    /** ---------- Test getRootContainers returns an empty list when
+     * there is no containers without parent---------- */
+    @Test
+    fun getRootContainer_noContainerWithoutParent() = runTest {
+        containerDao.insert(createContainer("test 1", 1L))
+        containerDao.insert(createContainer("test 2", 1L))
+
+        val containers = containerDao.getRootContainers().first()
+
+        Assert.assertTrue(containers.isEmpty())
+    }
+
+    /** ---------- Test getChildContainers returns
+     * an empty list when container has no children ---------- */
+    @Test
+    fun getChildContainers_noChildren() = runTest {
+        val generatedId = containerDao.insert(createContainer("test 1", null))
+
+        val containers = containerDao.getChildContainers(generatedId).first()
+
+        Assert.assertTrue(containers.isEmpty())
+    }
+
+    /** ---------- Test countChildContainers returns
+     * 0 when container has no children ---------- */
+    @Test
+    fun countChildContainers_noChildren() = runTest {
+        val generatedId = containerDao.insert(createContainer("test 1", null))
+
+        val count = containerDao.countChildContainers(generatedId)
+
+        Assert.assertEquals(0L, count)
+    }
+
+    /** ---------- Test countItemsInContainer returns
+     * 0 when container has no items ---------- */
+    @Test
+    fun countItemsInContainer_noItems() = runTest {
+        val generatedId = containerDao.insert(createContainer("test 1", null))
+
+        val count = containerDao.countItemsInContainer(generatedId)
+
+        Assert.assertEquals(0L, count)
+    }
+
+    /** ---------- Test getContainerById returns null for non existent ID ---------- */
+    @Test
+    fun getContainerById_nonExistentId() = runTest {
+        val result = containerDao.getContainerById(1L)
+
+        Assert.assertNull(result)
+    }
+
+    /** ---------- Test searchChildContainers returns
+     * an empty list when there is no match ---------- */
+    @Test
+    fun searchChildContainers_noMatch() = runTest {
+        val generatedId = containerDao.insert(createContainer("test 1", null))
+        containerDao.insert(createContainer("test 2", generatedId))
+
+        val containers = containerDao.searchChildContainers(generatedId, "wrong name").first()
+
+        Assert.assertTrue(containers.isEmpty())
+    }
+
+    /** ---------- Test update on non existent container does nothing ---------- */
+    @Test
+    fun update_nonExistentContainer() = runTest {
+        val container = createContainer("nonExistent").copy(containerId = 1L)
+
+        containerDao.update(container)
+
+        val result = containerDao.getContainerById(1L)
+        Assert.assertNull(result)
+    }
+
+    /** ---------- Test delete on non existent container does nothing ---------- */
+    @Test
+    fun delete_nonExistentContainer() = runTest {
+        val container = createContainer("nonExistent").copy(containerId = 1L)
+
+        containerDao.delete(container)
+
+        val result = containerDao.getContainerById(1L)
+        Assert.assertNull(result)
     }
 }

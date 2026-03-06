@@ -15,7 +15,6 @@ import androidx.room.Query
 import androidx.room.Update
 import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.data.entities.ItemEntity
-import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 @Dao
@@ -43,41 +42,7 @@ interface ItemDao {
         checkoutDate: Date?
     )
 
-    /* ---------- delete item by ID ---------- */
-    @Query("DELETE FROM items WHERE itemId = :itemId")
-    suspend fun deleteById(itemId: Long)
-
     /* ---------- get item by ID ---------- */
     @Query("SELECT * FROM items WHERE itemId = :itemId")
     suspend fun getItemById(itemId: Long): ItemEntity?
-
-    /* ---------- observe all items ---------- */
-    @Query("""
-        SELECT * FROM items
-        ORDER BY createdDate DESC
-    """ )
-    fun getItems(): Flow<List<ItemEntity>>
-
-    /* ---------- observe items inside a specific container ---------- */
-    @Query("""
-        SELECT * FROM items
-        WHERE containerId = :containerId
-        ORDER BY createdDate DESC
-    """ )
-    fun getItemsInContainer(containerId: Long): Flow<List<ItemEntity>>
-
-    /* ---------- observe items where containers are null ---------- */
-    @Query("""
-        SELECT * FROM items
-        WHERE containerId IS NULL
-        ORDER BY createdDate DESC
-    """ )
-    fun getItemsUnsorted(): Flow<List<ItemEntity>>
-
-    /* ---------- count items inside a container ---------- */
-    @Query("""
-        SELECT COUNT(*) FROM items
-        WHERE containerId = :containerId
-    """ )
-    suspend fun countItemsInContainer(containerId: Long): Long
 }

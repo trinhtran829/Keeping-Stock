@@ -72,6 +72,14 @@ class ContainerRepositoryImpl(private val containerDao: ContainerDao) : Containe
     }
 
     /**
+     * Observe container by Id
+     */
+    override fun observeContainerById(containerId: ContainerId): Flow<Container?> {
+        return containerDao.observeContainerById(containerId.value)
+            .map { it?.toDomain() }
+    }
+
+    /**
      * Observe containers with no parents
      */
     override fun observeRootContainers(): Flow<List<Container>> {

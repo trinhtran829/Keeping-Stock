@@ -149,4 +149,98 @@ class ItemTagDaoTest {
         Assert.assertTrue(tags.contains(tagId1))
         Assert.assertTrue(tags.contains(tagId2))
     }
+
+    /** ---------------------------------------------------------------------------------
+     * Edge Cases Tests
+     * ----------------------------------------------------------------------------------
+     * */
+
+    /** ---------- Test insert with duplicate link throw exception---------- */
+    @Test(expected = Exception::class)
+    fun insert_duplicateLink() = runTest {
+        val itemId = itemDao.insert(createItem())
+        val tagId = tagDao.insert(createTag())
+
+        itemTagDao.insert(ItemTagEntity(itemId, tagId))
+        itemTagDao.insert(ItemTagEntity(itemId, tagId))
+    }
+
+    /** ---------- Test delete non existent link does nothing---------- */
+    @Test
+    fun delete_nonExistentLink() = runTest {
+        val itemId = itemDao.insert(createItem())
+        val tagId = tagDao.insert(createTag())
+
+        itemTagDao.delete(itemId, tagId)
+
+        val tags = itemTagDao.getTagIdsFromItem(itemId).first()
+        Assert.assertTrue(tags.isEmpty())
+    }
+
+    /** ---------- Test deleteAllTagsForItem on item with no tag does nothing---------- */
+    @Test
+    fun deleteAllTagsForItem_ItemWithNoTag() = runTest {
+        val itemId = itemDao.insert(createItem())
+
+        itemTagDao.deleteAllTagsForItem(itemId)
+
+        val tags = itemTagDao.getTagIdsFromItem(itemId).first()
+        Assert.assertTrue(tags.isEmpty())
+    }
+
+    /** ---------- Test deleteAllTagsForItem on an item does not affect another item---------- */
+    @Test
+    fun deleteAllTagsForItem_onlyOnTargetItem() = runTest {
+        val itemId1 = itemDao.insert(createItem("test1"))
+        val itemId2 = itemDao.insert(createItem("test2"))
+        val tagId = tagDao.insert(createTag())
+
+        itemTagDao.insert(ItemTagEntity(itemId1, tagId))
+        itemTagDao.insert(ItemTagEntity(itemId2, tagId))
+
+        itemTagDao.deleteAllTagsForItem(itemId1)
+
+        val tagsItem1 = itemTagDao.getTagIdsFromItem(itemId1).first()
+        val tagsItem2 = itemTagDao.getTagIdsFromItem(itemId2).first()
+
+        Assert.assertTrue(tagsItem1.isEmpty())
+        Assert.assertEquals(1, tagsItem2.size)
+    }
+
+    /** ---------- Test countItemsWithTag returns 0 when no item have the tag ---------- */
+    @Test
+    fun countItemsWithTag_noTags() = runTest {
+        val tagId = tagDao.insert(createTag())
+
+        val count = itemTagDao.countItemsWithTag(tagId)
+
+        Assert.assertEquals(0L, count)
+    }
+
+    /** ---------- Test getTagIdsFromItem returns an empty list when item has no tag ---------- */
+    @Test
+    fun getTagIdsFromItem_ItemWithNoTag() = runTest {
+        val itemId = itemDao.insert(createItem())
+
+        val tags = itemTagDao.getTagIdsFromItem(itemId).first()
+        Assert.assertTrue(tags.isEmpty())
+    }
+
+    /** ---------- Test getTagIdsFromItem does not return tags from other items ---------- */
+    @Test
+    fun getTagIdsFromItem_onlyTargetItem() = runTest {
+        val itemId1 = itemDao.insert(createItem("item1"))
+        val itemId2 = itemDao.insert(createItem("item2"))
+        val tagId1 = tagDao.insert(createTag("tag1"))
+        val tagId2 = tagDao.insert(createTag("tag2"))
+
+        itemTagDao.insert(ItemTagEntity(itemId1, tagId1))
+        itemTagDao.insert(ItemTagEntity(itemId2, tagId2))
+
+        val tags = itemTagDao.getTagIdsFromItem(itemId1).first()
+
+        Assert.assertEquals(1, tags.size)
+        Assert.assertEquals(tagId1, tags[0])
+        Assert.assertFalse(tags.contains(tagId2))
+    }
 }

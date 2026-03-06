@@ -57,6 +57,11 @@ interface ItemRepository {
     suspend fun getItemById(itemId: ItemId): Item?
 
     /**
+     * Observe a single item by Id, update reactively
+     */
+    fun observeItemById(itemId: ItemId): Flow<Item?>
+
+    /**
      * Observe all items
      */
     fun observeItem(): Flow<List<Item>>

@@ -56,4 +56,11 @@ interface TagDao {
         ORDER BY name ASC
     """ )
     fun searchTags(query: String): Flow<List<TagEntity>>
+
+    /* ---------- observe tags by Id ---------- */
+    @Query("""
+        SELECT * FROM tags
+        WHERE tagId = :tagId
+    """ )
+    fun observeTagById(tagId: Long): Flow<TagEntity?>
 }
