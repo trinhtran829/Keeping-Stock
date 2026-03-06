@@ -7,8 +7,10 @@ import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.intents.ViewModelContract
 import com.keepingstock.core.contracts.intents.item.ItemDetailIntent
 import com.keepingstock.core.contracts.uistates.item.ItemDetailUiState
+import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.data.repositories.ContainerRepository
 import com.keepingstock.data.repositories.ItemRepository
+import java.util.Date
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -83,6 +85,9 @@ class ItemDetailViewModel(
 
             ItemDetailIntent.DeleteConfirmed ->
                 viewModelScope.launch { deleteItem() }
+
+            is ItemDetailIntent.ToggleCheckout ->
+                viewModelScope.launch { toggleCheckout(intent.newStatus) }
         }
     }
 
@@ -94,6 +99,29 @@ class ItemDetailViewModel(
             _effects.send(UiEffect.NavigateBack)
         } catch (e: Exception) {
             _effects.send(UiEffect.ShowSnackbar("Failed to delete item"))
+        }
+    }
+
+    private suspend fun toggleCheckout(newStatus: ItemStatus) {
+        val currentState = (_uiState.value as? ItemDetailUiState.Ready) ?: return
+        try {
+            itemRepository.updateItemStatus(itemId, newStatus)
+            // Optimistic update — rules per ItemRepository docs:
+            // STORED → TAKEN_OUT: checkoutDate = now
+            // TAKEN_OUT → STORED: checkoutDate = null
+            val updatedItem = currentState.item.copy(
+                status = newStatus,
+                checkoutDate = when (newStatus) {
+                    ItemStatus.STORED -> null
+                    ItemStatus.TAKEN_OUT -> Date()
+                }
+            )
+            _loadedItem = updatedItem
+            _uiState.value = currentState.copy(item = updatedItem)
+            val label = if (newStatus == ItemStatus.TAKEN_OUT) "checked out" else "stored"
+            _effects.send(UiEffect.ShowSnackbar("Item $label"))
+        } catch (e: Exception) {
+            _effects.send(UiEffect.ShowSnackbar("Failed to update status"))
         }
     }
 }

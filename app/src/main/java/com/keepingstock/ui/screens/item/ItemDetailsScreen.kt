@@ -22,6 +22,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,6 +45,7 @@ import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Date
 
 /**
  * Details screen for an Item. Render based on ItemDetailUiState.
@@ -130,7 +132,7 @@ private fun ReadyContent(
         }
 
         item {
-            ItemDetailMetadataCard(uiState)
+            ItemDetailMetadataCard(uiState, onIntent)
         }
 
         item {
@@ -254,7 +256,8 @@ private fun ItemDetailHeaderCard(
  */
 @Composable
 private fun ItemDetailMetadataCard(
-    uiState: ItemDetailUiState.Ready
+    uiState: ItemDetailUiState.Ready,
+    onIntent: (ItemDetailIntent) -> Unit
 ) {
     // Metadata card: parent + counts + delete rule
     ElevatedCard(
@@ -291,28 +294,62 @@ private fun ItemDetailMetadataCard(
                 value = formattedCreatedDate
             )
 
-            DetailRow(
-                label = "Checked Out Status",
-                value = when (uiState.item.status) {
-                    ItemStatus.STORED -> "Stored"
-                    ItemStatus.TAKEN_OUT -> "Checked Out"
-                }
+            CheckoutToggleRow(
+                status = uiState.item.status,
+                checkoutDate = uiState.item.checkoutDate,
+                onToggle = { newStatus -> onIntent(ItemDetailIntent.ToggleCheckout(newStatus)) }
             )
+        }
+    }
+}
 
-            if (uiState.item.status == ItemStatus.TAKEN_OUT) {
-                uiState.item.checkoutDate?.let { checkedOutDate ->
-                    val formattedCheckedOutDate =
-                        checkedOutDate.toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDateTime()
-                            .format(dateFormatter)
-
-                    DetailRow(
-                        label = "Checked Out On",
-                        value = formattedCheckedOutDate
-                    )
-                }
+/**
+ * Interactive row for toggling the checkout status directly on the detail screen.
+ *
+ * @param status: Current item status.
+ * @param checkoutDate: Date the item was checked out (nullable).
+ * @param onToggle: Callback invoked with the newly selected status.
+ */
+@Composable
+private fun CheckoutToggleRow(
+    status: ItemStatus,
+    checkoutDate: Date?,
+    onToggle: (ItemStatus) -> Unit
+) {
+    val dateFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy • HH:mm")
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("Checked Out", style = MaterialTheme.typography.bodyMedium)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = if (status == ItemStatus.TAKEN_OUT) "Taken Out" else "Stored",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Switch(
+                    checked = status == ItemStatus.TAKEN_OUT,
+                    onCheckedChange = { checked ->
+                        onToggle(if (checked) ItemStatus.TAKEN_OUT else ItemStatus.STORED)
+                    }
+                )
             }
+        }
+        if (status == ItemStatus.TAKEN_OUT && checkoutDate != null) {
+            Text(
+                text = "Since: " + checkoutDate.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime()
+                    .format(dateFormatter),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

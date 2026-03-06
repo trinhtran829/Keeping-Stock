@@ -1,5 +1,7 @@
 package com.keepingstock.core.contracts.intents.item
 
+import com.keepingstock.data.entities.ItemStatus
+
 /**
  * Intents emitted by the Item Detail UI and handled by the corresponding ViewModel.
  *
@@ -28,4 +30,14 @@ sealed interface ItemDetailIntent {
      * - If deletion fails, remain on screen and surface an error message
      */
     data object DeleteConfirmed : ItemDetailIntent
+
+    /**
+     * User toggled the checkout status switch on the detail screen.
+     *
+     * Expected behavior:
+     * - Call itemRepository.updateItemStatus() with the new status
+     * - Optimistically update UI state (STORED→TAKEN_OUT sets checkoutDate=now, TAKEN_OUT→STORED clears it)
+     * - Emit ShowSnackbar confirmation on success, or error message on failure
+     */
+    data class ToggleCheckout(val newStatus: ItemStatus) : ItemDetailIntent
 }
