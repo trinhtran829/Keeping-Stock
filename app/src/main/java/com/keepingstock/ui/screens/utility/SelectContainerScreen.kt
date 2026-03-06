@@ -3,15 +3,14 @@ package com.keepingstock.ui.screens.utility
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.keepingstock.core.contracts.intents.container.AddEditContainerIntent
+import androidx.compose.ui.tooling.preview.Preview
+import com.keepingstock.core.contracts.Container
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.intents.utility.SelectContainerIntent
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState.Error
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState.Loading
-import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState.Ready
 import com.keepingstock.core.contracts.uistates.utility.SelectContainerUiState
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
+import java.util.Date
 
 /**
  * Add/Edit Container screen that renders based on uiState.
@@ -54,7 +53,41 @@ fun SelectContainerScreen(
     }
 }
 
+/**
+ * Renders the editable Add/Edit Container form for the [SelectContainerUiState.Ready] state.
+ *
+ * @param modifier: Modifier applied to the scrolling content container.
+ * @param uiState: Ready state containing current field values, validation, and flags.
+ * @param onIntent: Callback for emitting user intents to the state owner (demo controller / ViewModel).
+ * @param onNavigateBack: Callback invoked when navigation away from the screen is confirmed.
+ */
 @Composable
-fun ReadyContents() {
+fun ReadyContents(
+    modifier: Modifier,
+    uiState: SelectContainerUiState.Ready,
+    onIntent: (SelectContainerIntent) -> Unit,
+    onNavigateBack: () -> Unit
+) {
 
+}
+
+/**
+ * Previews the current overall select screen format
+ */
+@Preview(showBackground = true)
+@Composable
+fun Preview_SelectContainerScreen_Ready() {
+    val currentContainer = Container(
+        id = ContainerId(1L),
+        name = "Garage",
+        imageUri = "demo",
+        createdDate = Date()
+    )
+
+    SelectContainerScreen(
+        uiState = SelectContainerUiState.Ready(
+            currentContainer = currentContainer,
+            selectedContainer = currentContainer
+        )
+    )
 }
