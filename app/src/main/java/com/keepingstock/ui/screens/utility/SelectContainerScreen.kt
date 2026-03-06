@@ -1,5 +1,6 @@
 package com.keepingstock.ui.screens.utility
 
+import android.R.attr.label
 import android.R.attr.name
 import android.text.SpannableString
 import androidx.compose.foundation.clickable
@@ -8,20 +9,26 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,6 +40,7 @@ import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.intents.utility.SelectContainerIntent
 import com.keepingstock.core.contracts.uistates.utility.SelectContainerUiState
+import com.keepingstock.ui.components.screen.DetailRow
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
 import java.util.Date
@@ -103,25 +111,27 @@ fun ReadyContents(
         Modifier
             .fillMaxSize()
             .padding((12.dp)),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Header Card
 
         // Context Card
         ElevatedCard(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                DetailRow(
+                    label = "Moving Container:",
+                    value = uiState.currentContainer?.name ?: "Root"
+                )
 
-                }
+                DetailRow(
+                    label = "Selected Container to Move to:",
+                    value = uiState.selectedContainer?.name ?: "Root"
+                )
             }
         }
 
@@ -146,6 +156,13 @@ fun ReadyContents(
 
         // Breadcrumb
         BreadcrumbRow(uiState, onIntent)
+
+        Text(
+            style = MaterialTheme.typography.bodyLarge,
+            text = "Current Container Contents:"
+        )
+
+        HorizontalDivider()
 
         // Current subcontainers
         LazyColumn(
@@ -182,6 +199,33 @@ fun ReadyContents(
                 }
             }
         }
+
+        Button(
+            onClick = {
+                onIntent(SelectContainerIntent.ChangeSelection(uiState.currentContainer?.id))
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Select Current Container")
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedButton(
+                onClick = {},
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Cancel")
+            }
+            Button(
+                onClick = {},
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Confirm")
+            }
+        }
     }
 }
 
@@ -196,12 +240,24 @@ fun BreadcrumbRow(
     uiState: SelectContainerUiState.Ready,
     onIntent: (SelectContainerIntent) -> Unit
 ) {
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.elevatedCardColors()
     ) {
-        uiState.breadcrumbs.forEachIndexed { index, crumb ->
-            /*
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text("Browsing current container:")
+
+            HorizontalDivider()
+
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                uiState.breadcrumbs.forEachIndexed { index, crumb ->
+                    /*
             AssistChip(
                 onClick = { onIntent(SelectContainerIntent.ClickBreadcrumb(crumb.id)) },
                 label = { Text(crumb.label) }
@@ -213,15 +269,17 @@ fun BreadcrumbRow(
             }
             */
 
-            Text(
-                text = crumb.label,
-                modifier = Modifier.clickable(
-                    onClick = { onIntent(SelectContainerIntent.ClickBreadcrumb(crumb.id)) }
-                )
-            )
+                    Text(
+                        text = crumb.label,
+                        modifier = Modifier.clickable(
+                            onClick = { onIntent(SelectContainerIntent.ClickBreadcrumb(crumb.id)) }
+                        )
+                    )
 
-            if (index != uiState.breadcrumbs.lastIndex) {
-                Text(">")
+                    if (index != uiState.breadcrumbs.lastIndex) {
+                        Text(">")
+                    }
+                }
             }
         }
     }
