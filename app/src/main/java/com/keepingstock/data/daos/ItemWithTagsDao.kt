@@ -126,4 +126,14 @@ interface ItemWithTagsDao {
         containerId: Long,
         tagId: Long
     ): Flow<List<ItemWithTags>>
+
+    /* ---------- observe a single item by ID with associated tags ---------- */
+    @Transaction
+    @Query("""
+        SELECT * FROM items
+        WHERE itemId = :itemId
+    """)
+    fun observeItemWithTagsById(
+        itemId: Long
+    ): Flow<ItemWithTags?>
 }
