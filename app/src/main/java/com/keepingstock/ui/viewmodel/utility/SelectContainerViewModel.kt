@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.ContainerRepository
+import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.intents.ViewModelContract
 import com.keepingstock.core.contracts.intents.utility.SelectContainerIntent
 import com.keepingstock.core.contracts.uistates.utility.SelectContainerUiState
 import com.keepingstock.data.repositories.ContainerRepositoryImpl
+import com.keepingstock.data.repositories.ItemRepositoryImpl
 import com.keepingstock.ui.navigation.NavResultKeys
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +26,8 @@ class SelectContainerViewModel(
     private val subjectType: Routes.SubjectType,
     private val subjectId: Long,
     private val currentContainerId: ContainerId?,
-    private val containerRepository: ContainerRepositoryImpl
+    private val containerRepository: ContainerRepositoryImpl,
+    private val itemRepository: ItemRepositoryImpl
 ) : ViewModel(), ViewModelContract<SelectContainerUiState, SelectContainerIntent> {
 
     sealed interface UiEffect {
@@ -44,6 +47,8 @@ class SelectContainerViewModel(
 
     private var browsingParentId: ContainerId? = null
     private var selectedContainerId: ContainerId? = currentContainerId
+
+    private val containerCache = mutableMapOf<Long, Container?>()
 
     init {
         viewModelScope.launch { initialize() }
@@ -111,15 +116,13 @@ class SelectContainerViewModel(
                 )
             }
 
-        val subjectName = {
-
-        }
+        val subjectName = loadSubjectName()
         
         // Build ready state
         _uiState.value = SelectContainerUiState.Ready(
             subjectType = subjectType,
             subjectId = subjectId,
-            subjectName = "", //TODO
+            subjectName = subjectName,
             currentAssignedContainer = currentContainerId?.let {
                 containerRepository.getContainerById(it)
             },
@@ -132,6 +135,19 @@ class SelectContainerViewModel(
             breadcrumbs = breadcrumbs,
             rows = rows,
         )
+    }
+
+    private suspend fun loadSubjectName(): String {
+        return when (subjectType) {
+            Routes.SubjectType.Container -> {
+                containerRepository.getContainerById(ContainerId(subjectId))?.name
+                    ?: "Unknown Container"
+            }
+            Routes.SubjectType.Item -> {
+                itemRepository.getItemById(ItemId(subjectId))?.name
+                    ?: "Unknown Item"
+            }
+        }
     }
 
     private suspend fun confirm() {
