@@ -114,6 +114,14 @@ class ItemRepositoryImpl(
     }
 
     /**
+     * Observe a single item by Id, update reactively
+     */
+    override fun observeItemById(itemId: ItemId): Flow<Item?> {
+        return itemWithTagsDao.observeItemWithTagsById(itemId.value)
+            .map { it?.toDomain() }
+    }
+
+    /**
      * Observe all items
      */
     override fun observeItem(): Flow<List<Item>> {

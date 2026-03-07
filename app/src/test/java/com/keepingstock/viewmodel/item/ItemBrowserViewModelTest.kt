@@ -173,6 +173,8 @@ private class FakeItemRepository : ItemRepository {
     override suspend fun deleteItem(item: Item) = error("unused in tests")
 
     override suspend fun getItemById(itemId: ItemId): Item? = null
+
+    override fun observeItemById(itemId: ItemId): Flow<Item?> = flowOf(null)
 }
 
 // ---------------------------------------------------------------------------
