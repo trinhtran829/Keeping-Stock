@@ -12,9 +12,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
 import com.keepingstock.ui.navigation.NavDeps
+import com.keepingstock.ui.navigation.NavResultKeys
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
@@ -61,6 +63,27 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
         )
 
         val uiState by vm.uiState.collectAsStateWithLifecycle()
+
+        val selectedContainerIdFlow =
+            backStackEntry.savedStateHandle.getStateFlow<Long?>(
+                NavResultKeys.SELECTED_CONTAINER_ID,
+                null
+            )
+
+        LaunchedEffect(backStackEntry) {
+            selectedContainerIdFlow.collectLatest { selectedContainerIdValue ->
+                val hasResult =
+                    backStackEntry.savedStateHandle.contains(NavResultKeys.SELECTED_CONTAINER_ID)
+
+                if (!hasResult) return@collectLatest
+
+                val newParentId = selectedContainerIdValue?.let { ContainerId(it) }
+
+                vm.onMoveParentSelected(newParentId)
+
+                backStackEntry.savedStateHandle.remove<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
+            }
+        }
 
         LaunchedEffect(vm) {
             vm.effects.collectLatest { effect ->

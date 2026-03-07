@@ -118,6 +118,11 @@ class ContainerDetailViewModel(
     fun onMoveParentSelected(newParentId: ContainerId?) {
         viewModelScope.launch {
             val container = _loadedContainer ?: return@launch
+
+            if (container.parentContainerId == newParentId) {
+                return@launch
+            }
+
             try {
                 containerRepository.updateContainer(container.copy(parentContainerId = newParentId))
                 _effects.send(UiEffect.ShowSnackbar("Moved container"))
