@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.ContainerRepository
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.intents.ViewModelContract
 import com.keepingstock.core.contracts.intents.utility.SelectContainerIntent
 import com.keepingstock.core.contracts.uistates.utility.SelectContainerUiState
-import com.keepingstock.data.repositories.ContainerRepositoryImpl
 import com.keepingstock.ui.navigation.NavResultKeys
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +23,7 @@ class SelectContainerViewModel(
     private val subjectType: Routes.SubjectType,
     private val subjectId: Long,
     private val currentContainerId: ContainerId?,
-    private val containerRepository: ContainerRepositoryImpl
+    private val containerRepository: ContainerRepository
 ) : ViewModel(), ViewModelContract<SelectContainerUiState, SelectContainerIntent> {
 
     sealed interface UiEffect {

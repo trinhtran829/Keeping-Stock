@@ -158,7 +158,7 @@ fun ContextCard(
             )
 
             DetailRow(
-                label = "Selected Container to Move to:",
+                label = "Selected Destination:",
                 value = uiState.selectedDestinationContainer?.name ?: "Root"
             )
         }
@@ -241,7 +241,7 @@ fun CurrentSubcontainers(
     ) {
         Text(
             style = MaterialTheme.typography.bodyLarge,
-            text = "Current Container Contents:"
+            text = "Containers in this lcoation:"
         )
 
         HorizontalDivider()
@@ -258,7 +258,15 @@ fun CurrentSubcontainers(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp),
+                            .padding(8.dp)
+                            .clickable(
+                                enabled = !row.isDisabled,
+                                onClick = {
+                                    onIntent(SelectContainerIntent.ChangeSelection(
+                                        row.container.id)
+                                    )
+                                }
+                            ),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         ContainerThumbnail(
@@ -278,7 +286,13 @@ fun CurrentSubcontainers(
 
                         Text(
                             text = ">",
-                            Modifier.padding(end = 16.dp)
+                            Modifier
+                                .clickable {
+                                    onIntent(
+                                        SelectContainerIntent.EnterContainer(row.container.id)
+                                    )
+                                }
+                                .padding(end = 16.dp)
                         )
                     }
                 }
@@ -312,13 +326,13 @@ fun ActionSection(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         OutlinedButton(
-            onClick = {},
+            onClick = { onIntent(SelectContainerIntent.Cancel) },
             modifier = Modifier.weight(1f)
         ) {
             Text("Cancel")
         }
         Button(
-            onClick = {},
+            onClick = { onIntent(SelectContainerIntent.Confirm) },
             modifier = Modifier.weight(1f)
         ) {
             Text("Confirm")
