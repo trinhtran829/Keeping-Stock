@@ -102,7 +102,7 @@ fun ReadyContents(
     onNavigateBack: () -> Unit
 ) {
     Column(
-        Modifier
+        modifier
             .fillMaxSize()
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -188,7 +188,7 @@ fun BreadcrumbRow(
             modifier = Modifier.fillMaxWidth().padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Browsing container: ${uiState.currentContainer?.name ?: "Root"}")
+            Text("Browsing container: ${uiState.browsingParentContainer?.name ?: "Root"}")
 
             HorizontalDivider()
 
@@ -237,47 +237,51 @@ fun CurrentSubcontainers(
     uiState: SelectContainerUiState.Ready,
     onIntent: (SelectContainerIntent) -> Unit
 ) {
-    Text(
-        style = MaterialTheme.typography.bodyLarge,
-        text = "Current Container Contents:"
-    )
-
-    HorizontalDivider()
-
-    LazyColumn(
-        modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+    Column(
+        modifier = modifier
     ) {
-        items(uiState.rows) { row ->
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.elevatedCardColors()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+        Text(
+            style = MaterialTheme.typography.bodyLarge,
+            text = "Current Container Contents:"
+        )
+
+        HorizontalDivider()
+
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(uiState.rows) { row ->
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.elevatedCardColors()
                 ) {
-                    ContainerThumbnail(
-                        imagePath = row.container.imageUri,
-                        modifier = Modifier.size(24.dp)
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ContainerThumbnail(
+                            imagePath = row.container.imageUri,
+                            modifier = Modifier.size(24.dp)
+                        )
 
-                    Spacer(Modifier.width(10.dp))
+                        Spacer(Modifier.width(10.dp))
 
-                    Text(
-                        text = row.container.name,
-                        style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                    )
+                        Text(
+                            text = row.container.name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
 
-                    Text(
-                        text = ">",
-                        Modifier.padding(end = 16.dp)
-                    )
+                        Text(
+                            text = ">",
+                            Modifier.padding(end = 16.dp)
+                        )
+                    }
                 }
             }
         }
