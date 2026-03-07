@@ -2,6 +2,7 @@ package com.keepingstock.ui.viewmodel.utility
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.intents.ViewModelContract
@@ -72,14 +73,50 @@ class SelectContainerViewModel(
     }
 
     private suspend fun initialize() {
-
+        _uiState.value = SelectContainerUiState.Loading
+        try {
+            render()
+        } catch (e: Exception) {
+            _uiState.value = SelectContainerUiState.Error("Failed to load destinations", e)
+        }
     }
 
     private suspend fun render() {
-
+        // Build breadcrumb for browsingParentId
+        val breadcrumb = buildBreadcrumb(browsingParentId)
     }
 
     private suspend fun validate() {
 
+    }
+
+    private suspend fun buildBreadcrumb(
+        parentId: ContainerId?
+    ): List<SelectContainerUiState.Ready.Breadcrumb> {
+        // Root
+        if (parentId == null) {
+            return listOf(SelectContainerUiState.Ready.Breadcrumb(id = null, label = "Root"))
+        }
+
+        // Walk up parents to root
+        val chain = mutableListOf<Container>()
+        var current: Container? = containerRepository.getContainerById(parentId)
+        while (current != null) {
+            chain.add(current)
+            current = current.parentContainerId?.let { containerRepository.getContainerById(it) }
+        }
+        chain.reverse()
+
+        // fencepost
+        val crumbs = mutableListOf(
+            SelectContainerUiState.Ready.Breadcrumb(id = null, label = "Root")
+        )
+
+        // Build crumb objects from path walk
+        crumbs += chain.map {
+            SelectContainerUiState.Ready.Breadcrumb(id = it.id, label = it.name)
+        }
+        
+        return crumbs
     }
 }
