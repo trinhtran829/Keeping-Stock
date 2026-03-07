@@ -55,6 +55,11 @@ interface ContainerRepository {
     suspend fun getContainerById(containerId: ContainerId): Container?
 
     /**
+     * Observe container by Id
+     */
+    fun observeContainerById(containerId: ContainerId): Flow<Container?>
+
+    /**
      * Observe containers with no parents
      */
     fun observeRootContainers(): Flow<List<Container>>

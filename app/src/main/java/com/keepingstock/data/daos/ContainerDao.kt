@@ -27,10 +27,6 @@ interface ContainerDao {
     @Delete
     suspend fun delete(container: ContainerEntity)
 
-    /* ---------- delete a container by its ID ---------- */
-    @Query("DELETE FROM containers WHERE containerId = :containerId")
-    suspend fun deleteById(containerId: Long)
-
     /* ---------- observe containers with no parent ---------- */
     @Query("""
         SELECT * FROM containers
@@ -91,4 +87,11 @@ interface ContainerDao {
     suspend fun getContainerById(
         containerId: Long,
     ): ContainerEntity?
+
+    /* ---------- observe a container entity by container Id ---------- */
+    @Query("""
+        SELECT * FROM containers
+        WHERE containerId = :containerId
+    """ )
+    fun observeContainerById(containerId: Long): Flow<ContainerEntity?>
 }

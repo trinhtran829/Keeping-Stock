@@ -63,6 +63,11 @@ interface TagRepository {
      */
     suspend fun getTagById(tagId: TagId): Tag?
 
+    /**
+     * Observe tag by Id
+     */
+    fun observeTagById(tagId: TagId): Flow<Tag?>
+
     //------------ Item-Tag Association ------------
 
     /**

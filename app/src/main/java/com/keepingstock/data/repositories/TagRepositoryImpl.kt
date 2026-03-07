@@ -169,6 +169,14 @@ class TagRepositoryImpl(
         return tagDao.getTagById(tagId.value)?.toDomain()
     }
 
+    /**
+     * Observe tag by Id
+     */
+    override fun observeTagById(tagId: TagId): Flow<Tag?> {
+        return tagDao.observeTagById(tagId.value)
+            .map { it?.toDomain() }
+    }
+
     //------------ Item-Tag Association ------------
 
     /**
