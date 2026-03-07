@@ -28,7 +28,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -62,13 +61,15 @@ import com.keepingstock.ui.components.screen.LoadingContent
  * @param uiState: Current UI state for the Add/Edit Container flow.
  * @param onIntent: Callback for user intents (field edits, save, image changes, etc.).
  * @param onNavigateBack: Callback to navigate up/back out of this screen.
+ * @param onMove: Navigate to Select Container Screen
  */
 @Composable
 fun AddEditContainerScreen(
     modifier: Modifier = Modifier,
     uiState: AddEditContainerUiState,
     onIntent: (AddEditContainerIntent) -> Unit = {},
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    onMove: () -> Unit = {}
 ) {
     Column(modifier = modifier.padding(16.dp)) {
         when (uiState) {
@@ -79,11 +80,12 @@ fun AddEditContainerScreen(
                 ErrorContent(modifier = modifier.fillMaxSize(), message = uiState.message)
 
             is AddEditContainerUiState.Ready -> {
-                AddEditContainerReadyContent(
+                ReadyContent(
                     modifier = modifier.fillMaxSize(),
                     uiState = uiState,
                     onIntent = onIntent,
-                    onNavigateBack = onNavigateBack
+                    onNavigateBack = onNavigateBack,
+                    onMove = onMove
                 )
             }
         }
@@ -102,13 +104,15 @@ fun AddEditContainerScreen(
  * @param uiState: Ready state containing current field values, validation, and flags.
  * @param onIntent: Callback for emitting user intents to the state owner (demo controller / ViewModel).
  * @param onNavigateBack: Callback invoked when navigation away from the screen is confirmed.
+ * @param onMove: Navigate to Select Container Screen
  */
 @Composable
-private fun AddEditContainerReadyContent(
+private fun ReadyContent(
     modifier: Modifier,
     uiState: AddEditContainerUiState.Ready,
     onIntent: (AddEditContainerIntent) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onMove: () -> Unit
 ) {
     // TODO: Local UI-only dialog state (kept out of UiState to keep demo simple).
     var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
@@ -119,7 +123,7 @@ private fun AddEditContainerReadyContent(
     }
 
     // Intercept system back when form is dirty (so we can prompt for discard confirmation)
-    AddEditContainerBackHandling(
+    BackHandling(
         isDirty = uiState.isDirty,
         showDiscardDialog = showDiscardDialog,
         onShowDiscardDialog = { showDiscardDialog = it },
@@ -136,12 +140,16 @@ private fun AddEditContainerReadyContent(
     ) {
         // Display container details
         item {
-            AddEditContainerFormCard(uiState = uiState, onIntent = onIntent)
+            FormCard(
+                uiState = uiState,
+                onIntent = onIntent,
+                onMove = onMove
+            )
         }
 
         // Display container image
         item {
-            AddEditContainerImageCard(
+            ImageCard(
                 imageUri = uiState.imageUri,
                 onPickImage = {
                     pickImageLauncher.launch(
@@ -154,7 +162,7 @@ private fun AddEditContainerReadyContent(
 
         // Display user actions
         item {
-            AddEditContainerActionsCard(
+            ActionsCard(
                 isSaving = uiState.isSaving,
                 onSave = { onIntent(AddEditContainerIntent.SaveClicked) },
                 onCancel = requestNavigateBack
@@ -177,7 +185,7 @@ private fun AddEditContainerReadyContent(
  * @param onDiscardConfirmed: Callback invoked when the user confirms discarding changes.
  */
 @Composable
-private fun AddEditContainerBackHandling(
+private fun BackHandling(
     isDirty: Boolean,
     showDiscardDialog: Boolean,
     onShowDiscardDialog: (Boolean) -> Unit,
@@ -249,11 +257,13 @@ private fun rememberPickImageLauncher(
  *
  * @param uiState: Current form values and validation state.
  * @param onIntent: Callback for emitting user intents (e.g., [AddEditContainerIntent.NameChanged]).
+ * @param onMove: Navigate to Select Container Screen
  */
 @Composable
-private fun AddEditContainerFormCard(
+private fun FormCard(
     uiState: AddEditContainerUiState.Ready,
-    onIntent: (AddEditContainerIntent) -> Unit
+    onIntent: (AddEditContainerIntent) -> Unit,
+    onMove: () -> Unit
 ) {
     ElevatedCard(Modifier.fillMaxWidth()) {
         Column(
@@ -271,12 +281,11 @@ private fun AddEditContainerFormCard(
             )
 
             // Parent data
-            AddEditContainerParentSection(
+            ParentSection(
                 canChangeParent = uiState.canChangeParent,
                 parentContainerId = uiState.parentContainerId,
                 parentContainerName = uiState.parentContainerName,
-                availableParents = uiState.availableParents,
-                onParentChanged = { onIntent(AddEditContainerIntent.ParentChanged(it)) }
+                onMove = onMove
             )
 
             HorizontalDivider()
@@ -312,85 +321,45 @@ private fun AddEditContainerFormCard(
  * @param canChangeParent: Whether the parent container can be changed in the current mode.
  * @param parentContainerId: Currently selected parent container id (null represents Root).
  * @param parentContainerName: Display name for the currently selected parent (nullable).
- * @param availableParents: Available parent options to choose from.
- * @param onParentChanged: Callback for the newly selected parent id (null = Root).
+ * @param onMove: Navigate to Select Container Screen
  */
 @Composable
-private fun AddEditContainerParentSection(
+private fun ParentSection(
     canChangeParent: Boolean,
     parentContainerId: ContainerId?,
     parentContainerName: String?,
-    availableParents: List<AddEditContainerUiState.Ready.ParentOption>,
-    onParentChanged: (ContainerId?) -> Unit
+    onMove: () -> Unit
 ) {
     if (canChangeParent) {
-        ParentPicker(
-            selectedId = parentContainerId,
-            options = availableParents,
-            onSelected = onParentChanged
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text("Parent", style = MaterialTheme.typography.labelLarge)
+
+            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Text(
+                    text = parentContainerName ?: "Root",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(Modifier.width(12.dp))
+
+                OutlinedButton(
+                    onClick = onMove
+                ) {
+                    Text("Change")
+                }
+            }
+
+            Text(
+                text = "Open container picker to choose a parent.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     } else {
         Text(
             text = "Parent: ${parentContainerName ?: "Root"}",
             style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-/**
- * Demo parent selection UI.
- *
- * Current implementation:
- * - Displays the current parent name.
- * - Provides a "Change" button that cycles through [options] (no dropdown dependency).
- *
- * Future implementation:
- * - Replace cycling behavior with a dropdown or hierarchical picker when the repository-backed
- *   container tree is available.
- *
- * Assumption:
- * - [options] is non-empty.
- *
- * @param selectedId: Currently selected parent container id (null = Root).
- * @param options: List of selectable parent options.
- * @param onSelected: Callback invoked when the selection changes.
- */
-@Composable
-private fun ParentPicker(
-    selectedId: ContainerId?,
-    options: List<AddEditContainerUiState.Ready.ParentOption>,
-    onSelected: (ContainerId?) -> Unit
-) {
-    // TODO: Minimal picker: cycle via buttons (no ExposedDropdownMenu dependency).
-    val current = options.firstOrNull { it.id == selectedId } ?: options.first()
-
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text("Parent", style = MaterialTheme.typography.labelLarge)
-
-        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Text(
-                text = current.name,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
-            )
-
-            Spacer(Modifier.width(12.dp))
-
-            OutlinedButton(
-                onClick = {
-                    val idx = options.indexOfFirst { it.id == selectedId }.coerceAtLeast(0)
-                    val next = options[(idx + 1) % options.size]
-                    onSelected(next.id)
-                }
-            ) {
-                Text("Change")
-            }
-        }
-
-        Text(
-            text = "Tap Change to cycle parent (demo). Replace with dropdown later.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -406,7 +375,7 @@ private fun ParentPicker(
  * @param onRemoveImage Invoked to remove the current image from the form state.
  */
 @Composable
-private fun AddEditContainerImageCard(
+private fun ImageCard(
     imageUri: String?,
     onPickImage: () -> Unit,
     onRemoveImage: () -> Unit
@@ -422,7 +391,7 @@ private fun AddEditContainerImageCard(
             Text("Image", style = MaterialTheme.typography.titleMedium)
 
             // Get image preview (or text indicating no image was selected
-            AddEditContainerImagePreview(imageUri = imageUri)
+            ImagePreview(imageUri = imageUri)
 
             // Buttons for user action related to changing the picture
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -449,7 +418,7 @@ private fun AddEditContainerImageCard(
  * @param imageUri Image URI string to display (nullable/blank indicates no image).
  */
 @Composable
-private fun AddEditContainerImagePreview(
+private fun ImagePreview(
     imageUri: String?
 ) {
     // If URI is not available, show text
@@ -485,7 +454,7 @@ private fun AddEditContainerImagePreview(
  * @param onCancel Callback invoked when the user taps Cancel.
  */
 @Composable
-private fun AddEditContainerActionsCard(
+private fun ActionsCard(
     isSaving: Boolean,
     onSave: () -> Unit,
     onCancel: () -> Unit
