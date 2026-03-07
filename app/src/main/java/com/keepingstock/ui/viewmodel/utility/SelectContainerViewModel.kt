@@ -69,7 +69,7 @@ class SelectContainerViewModel(
                 viewModelScope.launch { _effects.send(UiEffect.NavigateBack) }
 
             SelectContainerIntent.Confirm ->
-                viewModelScope.launch { validate() }
+                viewModelScope.launch { confirm() }
         }
     }
 
@@ -133,9 +133,9 @@ class SelectContainerViewModel(
         )
     }
 
-    private suspend fun validate() {
-        // TODO: For validating a container being moved so it doesn't create a cycle
-        //  needed? Using inability to see/enter invalid as the validation so far.
+    private suspend fun confirm() {
+        // TODO: Validate to confirm not creating cycle?
+        _effects.send(UiEffect.ReturnSelection(selectedContainerId = selectedContainerId))
     }
 
     private suspend fun buildBreadcrumb(

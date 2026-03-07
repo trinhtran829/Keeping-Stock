@@ -57,9 +57,17 @@ internal fun NavGraphBuilder.addSelectContainerDestination(
         LaunchedEffect(vm) {
             vm.effects.collectLatest { effect ->
                 when (effect) {
-                    is SelectContainerViewModel.UiEffect.ReturnSelection -> TODO()
+                    is SelectContainerViewModel.UiEffect.ReturnSelection -> {
+                        // Write result to previous entry and pop
+                        deps.navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set(effect.resultKey, effect.selectedContainerId?.value)
 
-                    is SelectContainerViewModel.UiEffect.ShowSnackbar -> TODO()
+                        deps.navController.popBackStack()
+                    }
+
+                    is SelectContainerViewModel.UiEffect.ShowSnackbar ->
+                        deps.showSnackbar(effect.message)
 
                     SelectContainerViewModel.UiEffect.NavigateBack ->
                         deps.navController.popBackStack()
