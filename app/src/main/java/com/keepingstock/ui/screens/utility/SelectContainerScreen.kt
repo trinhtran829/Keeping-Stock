@@ -265,7 +265,7 @@ fun CurrentSubcontainers(
                             .clickable(
                                 enabled = !row.isDisabled,
                                 onClick = {
-                                    onIntent(SelectContainerIntent.ChangeSelection(
+                                    onIntent(SelectContainerIntent.EnterContainer(
                                         row.container.id)
                                     )
                                 }
