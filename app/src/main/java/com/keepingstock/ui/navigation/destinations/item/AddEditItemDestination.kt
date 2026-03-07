@@ -10,9 +10,12 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
+import com.keepingstock.core.contracts.intents.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.ui.navigation.NavDeps
+import com.keepingstock.ui.navigation.NavResultKeys
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.navigation.itemIdOrNull
@@ -70,6 +73,27 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
 
         val uiState by vm.uiState.collectAsStateWithLifecycle()
 
+        val selectedContainerIdFlow =
+            backStackEntry.savedStateHandle.getStateFlow<Long?>(
+                NavResultKeys.SELECTED_CONTAINER_ID,
+                null
+            )
+
+        LaunchedEffect(backStackEntry) {
+            selectedContainerIdFlow.collectLatest { selectedContainerIdValue ->
+                val hasResult =
+                    backStackEntry.savedStateHandle.contains(NavResultKeys.SELECTED_CONTAINER_ID)
+
+                if (!hasResult) return@collectLatest
+
+                val newContainerId = selectedContainerIdValue?.let { ContainerId(it) }
+
+                vm.onIntent(AddEditItemIntent.ContainerChanged(newContainerId))
+
+                backStackEntry.savedStateHandle.remove<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
+            }
+        }
+
         LaunchedEffect(vm) {
             vm.effects.collectLatest { effect ->
                 when (effect) {
@@ -94,7 +118,18 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
         AddEditItemScreen(
             uiState = uiState,
             onIntent = vm::onIntent,
-            onNavigateBack = { deps.navController.popBackStack() }
+            onNavigateBack = { deps.navController.popBackStack() },
+            onMove = {
+                val readyState = uiState as? AddEditItemUiState.Ready ?: return@AddEditItemScreen
+
+                deps.navController.navigate(
+                    NavRoute.SelectContainer.createRoute(
+                        subjectType = Routes.SubjectType.Item,
+                        subjectId = readyState.itemId?.value ?: 0L,
+                        currentContainerId = readyState.containerId
+                    )
+                )
+            }
         )
     }
 }
