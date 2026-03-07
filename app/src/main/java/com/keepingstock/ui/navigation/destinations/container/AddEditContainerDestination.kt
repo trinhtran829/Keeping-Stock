@@ -72,18 +72,10 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
 
         val uiState by vm.uiState.collectAsStateWithLifecycle()
 
-        val selectedContainerIdFlow =
-            backStackEntry.savedStateHandle.getStateFlow<Long?>(
-                NavResultKeys.SELECTED_CONTAINER_ID,
-                null
-            )
-
-        LaunchedEffect(backStackEntry) {
-            selectedContainerIdFlow.collectLatest { selectedContainerIdValue ->
-                val hasResult =
-                    backStackEntry.savedStateHandle.contains(NavResultKeys.SELECTED_CONTAINER_ID)
-
-                if (!hasResult) return@collectLatest
+        LaunchedEffect(Unit) {
+            if (backStackEntry.savedStateHandle.contains(NavResultKeys.SELECTED_CONTAINER_ID)) {
+                val selectedContainerIdValue =
+                    backStackEntry.savedStateHandle.get<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
 
                 val newParentId = selectedContainerIdValue?.let { ContainerId(it) }
 
@@ -118,6 +110,8 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
             onMove = {
                 val readyState =
                     uiState as? AddEditContainerUiState.Ready ?: return@AddEditContainerScreen
+
+                backStackEntry.savedStateHandle.remove<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
 
                 deps.navController.navigate(
                     NavRoute.SelectContainer.createRoute(
