@@ -134,7 +134,8 @@ class SelectContainerViewModel(
     }
 
     private suspend fun validate() {
-
+        // TODO: For validating a container being moved so it doesn't create a cycle
+        //  needed? Using inability to see/enter invalid as the validation so far.
     }
 
     private suspend fun buildBreadcrumb(
