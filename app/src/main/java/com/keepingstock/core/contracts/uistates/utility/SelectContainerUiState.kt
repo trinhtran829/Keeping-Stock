@@ -2,6 +2,7 @@ package com.keepingstock.core.contracts.uistates.utility
 
 import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.Routes
 
 
 sealed interface SelectContainerUiState {
@@ -14,8 +15,13 @@ sealed interface SelectContainerUiState {
     ) : SelectContainerUiState
 
     data class Ready(
+        val subjectType: Routes.SubjectType,
+        val subjectId: Long,
+        val subjectName: String,
+
         val currentContainer: Container?,
         val selectedContainer: Container?,
+        val browsingParentContainer: Container?,
 
         val breadcrumbs: List<Breadcrumb>,
         val rows: List<ContainerSelectRow>,

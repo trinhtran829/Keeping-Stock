@@ -84,7 +84,7 @@ class SelectContainerViewModel(
 
     private suspend fun render() {
         // Build breadcrumb for browsingParentId
-        val breadcrumb = buildBreadcrumb(browsingParentId)
+        val breadcrumbs = buildBreadcrumb(browsingParentId)
 
         // Get subcontainers
         val containers: List<Container> =
@@ -98,7 +98,10 @@ class SelectContainerViewModel(
         val rows = containers
             .sortedBy { it.name.lowercase() }
             .map { subcontainer ->
-                val disabled = (subcontainer.id.value == subjectId)
+                val disabled = (
+                        (subjectType == Routes.SubjectType.Container) &&
+                                (subcontainer.id.value == subjectId)
+                        )
                 SelectContainerUiState.Ready.ContainerSelectRow(
                     container = subcontainer,
                     isSelected = (selectedContainerId?.value == subcontainer.id.value),
@@ -106,13 +109,27 @@ class SelectContainerViewModel(
                     isDisabled = disabled,
                 )
             }
+
+        val subjectName = {
+
+        }
         
         // Build ready state
         _uiState.value = SelectContainerUiState.Ready(
-            currentContainer = ,
-            selectedContainer = TODO(),
-            breadcrumbs = TODO(),
-            rows = TODO()
+            subjectType = subjectType,
+            subjectId = subjectId,
+            subjectName = "", //TODO
+            currentContainer = currentContainerId?.let {
+                containerRepository.getContainerById(it)
+            },
+            selectedContainer = selectedContainerId?.let {
+                containerRepository.getContainerById(it)
+            },
+            browsingParentContainer = browsingParentId?.let {
+                containerRepository.getContainerById(it)
+            },
+            breadcrumbs = breadcrumbs,
+            rows = rows,
         )
     }
 
