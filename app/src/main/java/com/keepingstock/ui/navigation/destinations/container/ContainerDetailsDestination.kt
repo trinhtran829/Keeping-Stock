@@ -90,7 +90,17 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
                     NavRoute.AddEditContainer.createRoute(containerId = id)
                 )
             },
-            onMove = { /* TODO: hook up when Move flow exists */ }
+            onMove = { id ->
+                deps.navController.navigate(
+                    NavRoute.SelectContainer.createRoute(
+                        subjectType = Routes.SubjectType.Container,
+                        subjectId = id.value,
+                        currentContainerId = (
+                            uiState as? ContainerDetailUiState.Ready
+                        )?.container?.parentContainerId
+                    )
+                )
+            }
         )
     }
 }
