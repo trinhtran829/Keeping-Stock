@@ -48,19 +48,38 @@ class SelectContainerViewModel(
 
     override fun onIntent(intent: SelectContainerIntent) {
         when (intent) {
-            is SelectContainerIntent.EnterContainer -> TODO()
-            is SelectContainerIntent.ChangeSelection -> TODO()
-            is SelectContainerIntent.ClickBreadcrumb -> TODO()
-            SelectContainerIntent.Cancel -> TODO()
-            SelectContainerIntent.Confirm -> TODO()
+            is SelectContainerIntent.EnterContainer -> {
+                browsingParentId = intent.containerId
+                viewModelScope.launch { render() }
+            }
+
+            is SelectContainerIntent.ChangeSelection -> {
+                selectedContainerId = intent.containerId
+                viewModelScope.launch { render() }
+            }
+
+            is SelectContainerIntent.ClickBreadcrumb -> {
+                browsingParentId = intent.containerId
+                viewModelScope.launch { render() }
+            }
+
+            SelectContainerIntent.Cancel ->
+                viewModelScope.launch { _effects.send(UiEffect.NavigateBack) }
+
+            SelectContainerIntent.Confirm ->
+                viewModelScope.launch { validate() }
         }
     }
 
     private suspend fun initialize() {
-        
+
     }
 
     private suspend fun render() {
+
+    }
+
+    private suspend fun validate() {
 
     }
 }
