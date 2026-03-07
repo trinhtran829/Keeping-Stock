@@ -1,5 +1,6 @@
 package com.keepingstock.ui.screens.utility
 
+import android.R.attr.name
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.intents.utility.SelectContainerIntent
 import com.keepingstock.core.contracts.uistates.utility.SelectContainerUiState
 import com.keepingstock.ui.components.screen.DetailRow
@@ -148,8 +150,12 @@ fun ContextCard(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             DetailRow(
-                label = "Moving Container:",
-                value = uiState.currentContainer?.name ?: "Root"
+                label = if (uiState.subjectType == Routes.SubjectType.Container)
+                    "Moving Container:"
+                else
+                    "Moving Item"
+                ,
+                value = uiState.subjectName
             )
 
             DetailRow(
@@ -182,7 +188,7 @@ fun BreadcrumbRow(
             modifier = Modifier.fillMaxWidth().padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Browsing current container:")
+            Text("Browsing container: ${uiState.currentContainer?.name ?: "Root"}")
 
             HorizontalDivider()
 
@@ -442,7 +448,15 @@ fun Preview_SelectContainerScreen_Ready() {
                 SelectContainerUiState.Ready.Breadcrumb(ContainerId(8L), "Example7"),
                 SelectContainerUiState.Ready.Breadcrumb(ContainerId(9L), "Example8"),
             ),
-            rows = rows
+            rows = rows,
+            subjectType = Routes.SubjectType.Container,
+            subjectId = 1L,
+            subjectName = "Garage",
+            browsingParentContainer = Container(
+                id = ContainerId(1L),
+                name = "Root",
+                createdDate = Date()
+            )
         )
     )
 }
