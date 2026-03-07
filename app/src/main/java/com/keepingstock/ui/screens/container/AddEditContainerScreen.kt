@@ -33,12 +33,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.intents.container.AddEditContainerIntent
 import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
+import com.keepingstock.platform.storage.copyImageToAppStorage
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
 
@@ -232,20 +234,30 @@ private fun BackHandling(
 /**
  * Creates and remembers an Activity Result launcher for selecting an image from the system picker.
  *
- * When the picker returns a non-null [Uri], this emits [AddEditContainerIntent.ImagePicked]
- * through [onIntent]. The caller is responsible for invoking `launch(...)` on the returned launcher.
+ * When the picker returns a non-null [Uri], this copies the selected image into app-private
+ * storage and emits [AddEditContainerIntent.ImagePicked] with the copied file URI.
  *
  * @param onIntent: Callback used to emit [AddEditContainerIntent] events.
- * @return: A launcher that can start the visual media picker and deliver a picked image [Uri].
+ * @return A launcher that can start the visual media picker and deliver a picked image [Uri].
  */
 @Composable
 private fun rememberPickImageLauncher(
     onIntent: (AddEditContainerIntent) -> Unit
-) = rememberLauncherForActivityResult(
-    contract = ActivityResultContracts.PickVisualMedia()
-) { uri: Uri? ->
-    if (uri != null)
-        onIntent(AddEditContainerIntent.ImagePicked(uri.toString()))
+) = run {
+    val context = LocalContext.current
+
+    rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            try {
+                val storedUri = copyImageToAppStorage(context, uri)
+                onIntent(AddEditContainerIntent.ImagePicked(storedUri.toString()))
+            } catch (_: Exception) {
+                // TODO: emit a snackbar/event.
+            }
+        }
+    }
 }
 
 /**
