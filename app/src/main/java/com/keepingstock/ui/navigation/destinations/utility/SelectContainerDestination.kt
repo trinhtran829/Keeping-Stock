@@ -21,6 +21,16 @@ import com.keepingstock.ui.screens.utility.SelectContainerScreen
 import com.keepingstock.ui.viewmodel.utility.SelectContainerViewModel
 import kotlinx.coroutines.flow.collectLatest
 
+/**
+ * Registers the Select Container destination and wires navigation arguments, state collection,
+ * and result-return behavior.
+ *
+ * This destination displays the Select Container flow for either a container or an item, collects
+ * [SelectContainerViewModel.UiEffect] emissions, and returns the confirmed destination selection
+ * to the previous back stack entry through its saved state handle.
+ *
+ * @param deps: Navigation and UI dependencies used to build the destination and handle side effects.
+ */
 internal fun NavGraphBuilder.addSelectContainerDestination(
     deps: NavDeps
 ) {
