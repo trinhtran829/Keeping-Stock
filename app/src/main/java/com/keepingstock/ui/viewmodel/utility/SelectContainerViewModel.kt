@@ -95,7 +95,25 @@ class SelectContainerViewModel(
             }
 
         // Build Display Rows
-        val
+        val rows = containers
+            .sortedBy { it.name.lowercase() }
+            .map { subcontainer ->
+                val disabled = (subcontainer.id.value == subjectId)
+                SelectContainerUiState.Ready.ContainerSelectRow(
+                    container = subcontainer,
+                    isSelected = (selectedContainerId?.value == subcontainer.id.value),
+                    isCurrent = (currentContainerId?.value == subcontainer.id.value),
+                    isDisabled = disabled,
+                )
+            }
+        
+        // Build ready state
+        _uiState.value = SelectContainerUiState.Ready(
+            currentContainer = ,
+            selectedContainer = TODO(),
+            breadcrumbs = TODO(),
+            rows = TODO()
+        )
     }
 
     private suspend fun validate() {
