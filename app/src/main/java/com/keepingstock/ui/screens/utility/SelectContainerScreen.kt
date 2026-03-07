@@ -40,24 +40,15 @@ import com.keepingstock.ui.components.thumbnail.ContainerThumbnail
 import java.util.Date
 
 /**
- * Add/Edit Container screen that renders based on uiState.
+ * Select Container screen that renders based on [SelectContainerUiState].
  *
- * State handling:
- * - [SelectContainerUiState.Loading] shows a loading indicator.
- * - [SelectContainerUiState.Error] shows an error message.
- * - [SelectContainerUiState.Ready] shows the editable form and emits [SelectContainerIntent]
- *   events via [onIntent].
- *
- * Navigation:
- * - [onNavigateBack] is called when the user confirms leaving (e.g. discard changes) or taps
- *   Cancel when the form is not dirty.
- *
- * TODO: Extract back handling to VM/effects
+ * This composable switches between loading, error, and ready content and emits
+ * [SelectContainerIntent] values through [onIntent] for user-driven browsing and selection.
  *
  * @param modifier: Modifier applied to the screen container.
  * @param uiState: Current UI state for the Select Container flow.
- * @param onIntent: Callback for user intents (field edits, save, image changes, etc.).
- * @param onNavigateBack: Callback to navigate up/back out of this screen.
+ * @param onIntent: Callback for user intents emitted from the screen.
+ * @param onNavigateBack: Callback invoked when navigation should leave this screen.
  */
 @Composable
 fun SelectContainerScreen(
@@ -87,11 +78,20 @@ fun SelectContainerScreen(
 }
 
 /**
- * Renders the editable Add/Edit Container form for the [SelectContainerUiState.Ready] state.
+ * Renders the ready-state content for the Select Container flow.
+ *
+ * This layout presents current move context, breadcrumb navigation, visible child containers, and
+ * confirmation actions for the current destination selection.
+ *
+ * Layout:
+ * - context card
+ * - breadcrumb card
+ * - visible child container list
+ * - action buttons
  *
  * @param modifier: Modifier applied to the scrolling content container.
- * @param uiState: Ready state containing current field values, validation, and flags.
- * @param onIntent: Callback for emitting user intents to the state owner
+ * @param uiState: Ready state containing the current browsing location and selection state.
+ * @param onIntent: Callback for emitting user intents to the state owner.
  * @param onNavigateBack: Callback invoked when navigation away from the screen is confirmed.
  */
 @Composable
@@ -132,10 +132,12 @@ fun ReadyContents(
 }
 
 /**
- * Renders the current meta information/context of the current move.
+ * Renders contextual information about the current move operation.
  *
- * @param uiState: Ready state containing current field values, validation, and flags.
- * @param onIntent: Callback for emitting user intents to the state owner
+ * Displays the subject being moved and the destination container currently selected by the user.
+ *
+ * @param uiState: Ready state containing move context and selected destination information.
+ * @param onIntent: Callback for emitting user intents to the state owner.
  */
 @Composable
 fun ContextCard(
@@ -167,12 +169,13 @@ fun ContextCard(
 }
 
 /**
- * Renders the breadcrumb path row(s)
+ * Renders the breadcrumb path for the currently browsed container location.
  *
- * TODO: AssistChip vs Text component?
+ * Each breadcrumb segment is clickable and emits [SelectContainerIntent.ClickBreadcrumb] to jump
+ * browsing context back to that level of the hierarchy.
  *
- * @param uiState: Ready state containing current field values, validation, and flags.
- * @param onIntent: Callback for emitting user intents to the state owner
+ * @param uiState: Ready state containing the current breadcrumb path.
+ * @param onIntent: Callback for emitting user intents to the state owner.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -226,10 +229,15 @@ fun BreadcrumbRow(
 }
 
 /**
- * Renders the current containers list of subcontainers
+ * Renders the visible list of child containers for the current browsing location.
  *
- * @param uiState: Ready state containing current field values, validation, and flags.
- * @param onIntent: Callback for emitting user intents to the state owner
+ * Tapping a row updates the selected destination and enters that container, while the chevron
+ * separately allows browsing further into the hierarchy. Disabled rows are visually de-emphasized
+ * and do not emit interaction intents.
+ *
+ * @param modifier: Modifier applied to the container list section.
+ * @param uiState: Ready state containing the visible child container rows.
+ * @param onIntent: Callback for emitting user intents to the state owner.
  */
 @Composable
 fun CurrentSubcontainers(
@@ -346,10 +354,13 @@ fun CurrentSubcontainers(
 }
 
 /**
- * The collection of buttons for the user to signal intent.
+ * Renders the primary actions for the Select Container flow.
  *
- * @param uiState: Ready state containing current field values, validation, and flags.
- * @param onIntent: Callback for emitting user intents to the state owner
+ * Provides actions to select the currently browsed container as the destination, cancel the flow,
+ * or confirm the currently selected destination.
+ *
+ * @param uiState: Ready state containing the current browsing and selection context.
+ * @param onIntent: Callback for emitting user intents to the state owner.
  */
 @Composable
 fun ActionSection(
@@ -385,7 +396,10 @@ fun ActionSection(
 }
 
 /**
- * Previews the current overall select container screen format
+ * Previews the ready-state Select Container screen with sample browsing and selection data.
+ *
+ * This preview is intended for layout verification of the context card, breadcrumb path, visible
+ * rows, and action section.
  */
 @Preview(showBackground = true)
 @Composable
