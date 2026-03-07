@@ -49,7 +49,8 @@ internal fun NavGraphBuilder.addSelectContainerDestination(
                         subjectType = subjectType,
                         subjectId = subjectId,
                         currentContainerId = currentContainerId,
-                        containerRepository = deps.containerRepo
+                        containerRepository = deps.containerRepo,
+                        itemRepository = deps.itemRepo
                     )
                 }
             }
