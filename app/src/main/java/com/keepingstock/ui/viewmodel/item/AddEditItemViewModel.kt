@@ -101,9 +101,9 @@ class AddEditItemViewModel(
                     }
                 _originalItem = item
 
-                val containerName = item.containerId?.let { id ->
-                    parentOptions.firstOrNull { it.id == id }?.name
-                        ?: containerRepository.getContainerById(id)?.name
+                val containerName = when (item.containerId) {
+                    null -> "No Container"
+                    else -> containerRepository.getContainerById(item.containerId)?.name
                 }
 
                 AddEditItemUiState.Ready(
@@ -124,7 +124,10 @@ class AddEditItemViewModel(
                 val now = Date()
                 val initialStatus = if (initialContainerId == null) ItemStatus.TAKEN_OUT else ItemStatus.STORED
                 val initialCheckout = if (initialContainerId == null) now else null
-                val containerName = parentOptions.firstOrNull { it.id == initialContainerId }?.name
+                val containerName = when (initialContainerId) {
+                    null -> "No Container"
+                    else -> containerRepository.getContainerById(initialContainerId)?.name
+                }
 
                 AddEditItemUiState.Ready(
                     mode = mode,
@@ -165,6 +168,9 @@ class AddEditItemViewModel(
         when (intent) {
             AddEditItemIntent.SaveClicked ->
                 viewModelScope.launch { save(current) }
+
+            is AddEditItemIntent.ContainerChanged ->
+                viewModelScope.launch { applyContainerChanged(current, intent.containerId) }
 
             // Navigation/dialog intents handled by destination for MVP
             AddEditItemIntent.BackClicked,
@@ -230,6 +236,36 @@ class AddEditItemViewModel(
             _effects.send(UiEffect.ShowSnackbar("Failed to save item"))
         }
     }
+
+    private suspend fun applyContainerChanged(
+        current: AddEditItemUiState.Ready,
+        newContainerId: ContainerId?
+    ) {
+        if (!current.canChangeParent) return
+
+        val containerName = when (newContainerId) {
+            null -> "No Container"
+            else -> containerRepository.getContainerById(newContainerId)?.name ?: "Unknown Container"
+        }
+
+        val nextState = if (newContainerId == null) {
+            current.copy(
+                containerId = null,
+                containerName = containerName,
+                status = ItemStatus.TAKEN_OUT,
+                checkoutDate = current.checkoutDate ?: Date(),
+                isDirty = true
+            )
+        } else {
+            current.copy(
+                containerId = newContainerId,
+                containerName = containerName,
+                isDirty = true
+            )
+        }
+
+        _uiState.value = validate(nextState)
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -267,28 +303,7 @@ private fun reduceIntent(
     AddEditItemIntent.RemoveImageClicked ->
         currentState.copy(imageUri = null, isDirty = true)
 
-    is AddEditItemIntent.ContainerChanged -> {
-        if (!currentState.canChangeParent) {
-            currentState
-        } else if (intent.containerId == null) {
-            // No container forces TAKEN_OUT status; ensure checkoutDate is set.
-            currentState.copy(
-                containerId = null,
-                containerName = null,
-                status = ItemStatus.TAKEN_OUT,
-                checkoutDate = currentState.checkoutDate ?: Date(),
-                isDirty = true
-            )
-        } else {
-            val containerName = currentState.availableParents
-                .firstOrNull { it.id == intent.containerId }?.name
-            currentState.copy(
-                containerId = intent.containerId,
-                containerName = containerName,
-                isDirty = true
-            )
-        }
-    }
+    is AddEditItemIntent.ContainerChanged -> currentState
 
     is AddEditItemIntent.StatusChanged -> {
         if (currentState.containerId == null) {
