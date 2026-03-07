@@ -12,9 +12,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.Routes.SubjectType
+import com.keepingstock.core.contracts.uistates.utility.SelectContainerUiState
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.containerIdOrNull
+import com.keepingstock.ui.scaffold.TopBarConfig
+import com.keepingstock.ui.screens.utility.SelectContainerScreen
 import com.keepingstock.ui.viewmodel.utility.SelectContainerViewModel
 import kotlinx.coroutines.flow.collectLatest
 
@@ -74,5 +77,42 @@ internal fun NavGraphBuilder.addSelectContainerDestination(
                 }
             }
         }
+
+        val topBarConfig = buildTopBarConfig(uiState)
+
+        LaunchedEffect(topBarConfig.title, topBarConfig.showBack) {
+            deps.onTopBarChange(topBarConfig)
+        }
+
+        SelectContainerScreen(
+            uiState = uiState,
+            onIntent = vm::onIntent,
+            onNavigateBack = { deps.navController.popBackStack() }
+        )
     }
+}
+
+/**
+ * Builds the TopBarConfig for the destination from UiState.
+ *
+ * TODO: refine titles
+ *
+ * Back button:
+ * - Shown always // TODO: correct behavior?
+ *
+ * @param uiState: The current UI state for the screen.
+ * @return: TopBarConfig used by the app scaffold's top bar.
+ */
+private fun buildTopBarConfig(
+    uiState: SelectContainerUiState,
+): TopBarConfig {
+    val title = when (uiState) {
+        is SelectContainerUiState.Ready ->
+            "Moving ${if (uiState.subjectType == SubjectType.Container) "Container" else "Item"}: " +
+                    uiState.subjectName
+        is SelectContainerUiState.Loading -> "Loading…"
+        is SelectContainerUiState.Error -> "Moving Err"
+    }
+
+    return TopBarConfig(title = title, showBack = true)
 }
