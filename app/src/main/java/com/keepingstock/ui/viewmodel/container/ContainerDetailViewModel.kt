@@ -114,4 +114,17 @@ class ContainerDetailViewModel(
             _effects.send(UiEffect.ShowSnackbar("Failed to delete container"))
         }
     }
+
+    fun onMoveParentSelected(newParentId: ContainerId?) {
+        viewModelScope.launch {
+            val container = _loadedContainer ?: return@launch
+            try {
+                containerRepository.updateContainer(container.copy(parentContainerId = newParentId))
+                _effects.send(UiEffect.ShowSnackbar("Moved container"))
+                load()
+            } catch (e: Exception) {
+                _effects.send(UiEffect.ShowSnackbar("Failed to move container"))
+            }
+        }
+    }
 }
