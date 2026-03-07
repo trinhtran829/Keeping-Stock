@@ -119,13 +119,13 @@ class SelectContainerViewModel(
             subjectType = subjectType,
             subjectId = subjectId,
             subjectName = "", //TODO
-            currentContainer = currentContainerId?.let {
+            currentAssignedContainer = currentContainerId?.let {
                 containerRepository.getContainerById(it)
             },
-            selectedContainer = selectedContainerId?.let {
+            selectedDestinationContainer = selectedContainerId?.let {
                 containerRepository.getContainerById(it)
             },
-            browsingParentContainer = browsingParentId?.let {
+            browsingContainer = browsingParentId?.let {
                 containerRepository.getContainerById(it)
             },
             breadcrumbs = breadcrumbs,

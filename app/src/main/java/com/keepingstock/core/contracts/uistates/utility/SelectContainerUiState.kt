@@ -19,9 +19,9 @@ sealed interface SelectContainerUiState {
         val subjectId: Long,
         val subjectName: String,
 
-        val currentContainer: Container?,
-        val selectedContainer: Container?,
-        val browsingParentContainer: Container?,
+        val currentAssignedContainer: Container?,
+        val selectedDestinationContainer: Container?,
+        val browsingContainer: Container?,
 
         val breadcrumbs: List<Breadcrumb>,
         val rows: List<ContainerSelectRow>,

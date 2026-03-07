@@ -1,6 +1,5 @@
 package com.keepingstock.ui.screens.utility
 
-import android.R.attr.name
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -160,7 +159,7 @@ fun ContextCard(
 
             DetailRow(
                 label = "Selected Container to Move to:",
-                value = uiState.selectedContainer?.name ?: "Root"
+                value = uiState.selectedDestinationContainer?.name ?: "Root"
             )
         }
     }
@@ -188,7 +187,7 @@ fun BreadcrumbRow(
             modifier = Modifier.fillMaxWidth().padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Browsing container: ${uiState.browsingParentContainer?.name ?: "Root"}")
+            Text("Browsing container: ${uiState.browsingContainer?.name ?: "Root"}")
 
             HorizontalDivider()
 
@@ -229,7 +228,7 @@ fun BreadcrumbRow(
  * Renders the current containers list of subcontainers
  *
  * @param uiState: Ready state containing current field values, validation, and flags.
- * @param onIntent: Callback for emitting user intents to the state owner (demo controller / ViewModel).
+ * @param onIntent: Callback for emitting user intents to the state owner
  */
 @Composable
 fun CurrentSubcontainers(
@@ -292,7 +291,7 @@ fun CurrentSubcontainers(
  * The collection of buttons for the user to signal intent.
  *
  * @param uiState: Ready state containing current field values, validation, and flags.
- * @param onIntent: Callback for emitting user intents to the state owner (demo controller / ViewModel).
+ * @param onIntent: Callback for emitting user intents to the state owner
  */
 @Composable
 fun ActionSection(
@@ -301,7 +300,7 @@ fun ActionSection(
 ) {
     Button(
         onClick = {
-            onIntent(SelectContainerIntent.ChangeSelection(uiState.currentContainer?.id))
+            onIntent(SelectContainerIntent.ChangeSelection(uiState.currentAssignedContainer?.id))
         },
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -439,8 +438,8 @@ fun Preview_SelectContainerScreen_Ready() {
 
     SelectContainerScreen(
         uiState = SelectContainerUiState.Ready(
-            currentContainer = null,
-            selectedContainer = currentContainer,
+            currentAssignedContainer = null,
+            selectedDestinationContainer = currentContainer,
             breadcrumbs = listOf(
                 SelectContainerUiState.Ready.Breadcrumb(null, "Root"),
                 SelectContainerUiState.Ready.Breadcrumb(ContainerId(2L), "Example"),
@@ -456,7 +455,7 @@ fun Preview_SelectContainerScreen_Ready() {
             subjectType = Routes.SubjectType.Container,
             subjectId = 1L,
             subjectName = "Garage",
-            browsingParentContainer = Container(
+            browsingContainer = Container(
                 id = ContainerId(1L),
                 name = "Root",
                 createdDate = Date()
