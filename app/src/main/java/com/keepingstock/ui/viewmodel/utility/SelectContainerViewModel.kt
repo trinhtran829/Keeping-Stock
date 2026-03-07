@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
@@ -84,6 +85,17 @@ class SelectContainerViewModel(
     private suspend fun render() {
         // Build breadcrumb for browsingParentId
         val breadcrumb = buildBreadcrumb(browsingParentId)
+
+        // Get subcontainers
+        val containers: List<Container> =
+            if (browsingParentId == null) {
+                containerRepository.observeRootContainers().first()
+            } else {
+                containerRepository.observeChildContainers(browsingParentId!!).first()
+            }
+
+        // Build Display Rows
+        val
     }
 
     private suspend fun validate() {
@@ -116,7 +128,7 @@ class SelectContainerViewModel(
         crumbs += chain.map {
             SelectContainerUiState.Ready.Breadcrumb(id = it.id, label = it.name)
         }
-        
+
         return crumbs
     }
 }

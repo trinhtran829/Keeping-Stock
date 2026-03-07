@@ -336,7 +336,8 @@ fun Preview_SelectContainerScreen_Ready() {
         SelectContainerUiState.Ready.ContainerSelectRow(
             currentContainer,
             isSelected = false,
-            isCurrent = false
+            isCurrent = false,
+            isDisabled = false
         ),
         SelectContainerUiState.Ready.ContainerSelectRow(
             Container(
@@ -346,7 +347,8 @@ fun Preview_SelectContainerScreen_Ready() {
                 createdDate = Date()
             ),
             isSelected = false,
-            isCurrent = false
+            isCurrent = false,
+            isDisabled = false
         ),
         SelectContainerUiState.Ready.ContainerSelectRow(
             Container(
@@ -356,7 +358,8 @@ fun Preview_SelectContainerScreen_Ready() {
                 createdDate = Date()
             ),
             isSelected = false,
-            isCurrent = false
+            isCurrent = false,
+            isDisabled = false
         ),
         SelectContainerUiState.Ready.ContainerSelectRow(
             Container(
@@ -366,7 +369,8 @@ fun Preview_SelectContainerScreen_Ready() {
                 createdDate = Date()
             ),
             isSelected = false,
-            isCurrent = false
+            isCurrent = false,
+            isDisabled = false
         ),
         SelectContainerUiState.Ready.ContainerSelectRow(
             Container(
@@ -376,7 +380,8 @@ fun Preview_SelectContainerScreen_Ready() {
                 createdDate = Date()
             ),
         isSelected = false,
-        isCurrent = false
+        isCurrent = false,
+            isDisabled = false
         ),
         SelectContainerUiState.Ready.ContainerSelectRow(Container(
                 id = ContainerId(6L),
@@ -385,7 +390,8 @@ fun Preview_SelectContainerScreen_Ready() {
                 createdDate = Date()
             ),
         isSelected = false,
-        isCurrent = false
+        isCurrent = false,
+            isDisabled = false
         ),
         SelectContainerUiState.Ready.ContainerSelectRow(
             Container(
@@ -395,7 +401,8 @@ fun Preview_SelectContainerScreen_Ready() {
                 createdDate = Date()
             ),
         isSelected = false,
-        isCurrent = false
+        isCurrent = false,
+            isDisabled = false
         ),
         SelectContainerUiState.Ready.ContainerSelectRow(
             Container(
@@ -405,7 +412,8 @@ fun Preview_SelectContainerScreen_Ready() {
                 createdDate = Date()
             ),
         isSelected = false,
-        isCurrent = false
+        isCurrent = false,
+            isDisabled = false
         ),
         SelectContainerUiState.Ready.ContainerSelectRow(Container(
                 id = ContainerId(9L),
@@ -414,7 +422,8 @@ fun Preview_SelectContainerScreen_Ready() {
                 createdDate = Date()
             ),
         isSelected = false,
-        isCurrent = false
+        isCurrent = false,
+            isDisabled = false
         ),
     )
 

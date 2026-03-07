@@ -37,7 +37,8 @@ sealed interface SelectContainerUiState {
         data class ContainerSelectRow(
             val container: Container,
             val isSelected: Boolean,
-            val isCurrent: Boolean
+            val isCurrent: Boolean,
+            val isDisabled: Boolean
         )
     }
 }
