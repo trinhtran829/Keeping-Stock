@@ -265,8 +265,11 @@ fun CurrentSubcontainers(
                             .clickable(
                                 enabled = !row.isDisabled,
                                 onClick = {
-                                    onIntent(SelectContainerIntent.EnterContainer(
-                                        row.container.id)
+                                    onIntent(
+                                        SelectContainerIntent.ChangeSelection(row.container.id)
+                                    )
+                                    onIntent(
+                                        SelectContainerIntent.EnterContainer(row.container.id)
                                     )
                                 }
                             ),
@@ -355,7 +358,7 @@ fun ActionSection(
 ) {
     Button(
         onClick = {
-            onIntent(SelectContainerIntent.ChangeSelection(uiState.currentAssignedContainer?.id))
+            onIntent(SelectContainerIntent.ChangeSelection(uiState.browsingContainer?.id))
         },
         modifier = Modifier.fillMaxWidth()
     ) {

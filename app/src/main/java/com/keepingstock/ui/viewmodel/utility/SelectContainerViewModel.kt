@@ -45,7 +45,7 @@ class SelectContainerViewModel(
     private val _uiState = MutableStateFlow<SelectContainerUiState>(SelectContainerUiState.Loading)
     override val uiState: StateFlow<SelectContainerUiState> = _uiState.asStateFlow()
 
-    private var browsingParentId: ContainerId? = null
+    private var browsingParentId: ContainerId? = currentContainerId
     private var selectedContainerId: ContainerId? = currentContainerId
 
     private val containerCache = mutableMapOf<Long, Container?>()

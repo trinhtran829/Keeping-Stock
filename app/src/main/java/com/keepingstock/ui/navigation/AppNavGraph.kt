@@ -27,6 +27,7 @@ import com.keepingstock.ui.navigation.destinations.item.addItemBrowserDestinatio
 import com.keepingstock.ui.navigation.destinations.item.addItemDetailsDestination
 import com.keepingstock.ui.navigation.destinations.media.addPhotoViewerDestination
 import com.keepingstock.ui.navigation.destinations.media.addQRScanDestination
+import com.keepingstock.ui.navigation.destinations.utility.addSelectContainerDestination
 import com.keepingstock.ui.scaffold.TopBarConfig
 
 /**
@@ -101,6 +102,11 @@ fun AppNavGraph(
         // -------------------------
         addAddEditContainerDestination(deps)
         addAddEditItemDestination(deps)
+
+        // --------------------------------
+        // Register Select Container Screen
+        // --------------------------------
+        addSelectContainerDestination(deps)
 
         // -----------------------
         // Register QR Scan Screen
