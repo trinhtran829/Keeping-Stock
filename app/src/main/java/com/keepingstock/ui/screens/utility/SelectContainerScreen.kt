@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -252,7 +253,9 @@ fun CurrentSubcontainers(
         ) {
             items(uiState.rows) { row ->
                 ElevatedCard(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .alpha(if (row.isDisabled) 0.55f else 1f),
                     colors = CardDefaults.elevatedCardColors()
                 ) {
                     Row(
@@ -276,24 +279,62 @@ fun CurrentSubcontainers(
 
                         Spacer(Modifier.width(10.dp))
 
-                        Text(
-                            text = row.container.name,
-                            style = MaterialTheme.typography.bodyLarge,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
+                        Column(
                             modifier = Modifier.weight(1f)
-                        )
+                        ) {
+                            Text(
+                                text = row.container.name,
+                                style = MaterialTheme.typography.bodyLarge,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                color = if (row.isDisabled) {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                }
+                            )
 
-                        Text(
-                            text = ">",
-                            Modifier
-                                .clickable {
-                                    onIntent(
-                                        SelectContainerIntent.EnterContainer(row.container.id)
+                            when {
+                                row.isDisabled -> {
+                                    Text(
+                                        text = "Unavailable",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error
                                     )
                                 }
-                                .padding(end = 16.dp)
-                        )
+                                row.isCurrent -> {
+                                    Text(
+                                        text = "Current",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                row.isSelected -> {
+                                    Text(
+                                        text = "Selected",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+
+                        if (!row.isDisabled) {
+                            Text(
+                                text = ">",
+                                modifier = Modifier
+                                    .clickable {
+                                        onIntent(SelectContainerIntent.EnterContainer(row.container.id))
+                                    }
+                                    .padding(end = 16.dp)
+                            )
+                        } else {
+                            Text(
+                                text = "×",
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(end = 16.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -359,7 +400,7 @@ fun Preview_SelectContainerScreen_Ready() {
         SelectContainerUiState.Ready.ContainerSelectRow(
             currentContainer,
             isSelected = false,
-            isCurrent = false,
+            isCurrent = true,
             isDisabled = false
         ),
         SelectContainerUiState.Ready.ContainerSelectRow(
@@ -402,19 +443,20 @@ fun Preview_SelectContainerScreen_Ready() {
                 parentContainerId = ContainerId(4L),
                 createdDate = Date()
             ),
-        isSelected = false,
-        isCurrent = false,
+            isSelected = false,
+            isCurrent = false,
             isDisabled = false
         ),
-        SelectContainerUiState.Ready.ContainerSelectRow(Container(
+        SelectContainerUiState.Ready.ContainerSelectRow(
+            Container(
                 id = ContainerId(6L),
                 name = "Example5",
                 parentContainerId = ContainerId(5L),
                 createdDate = Date()
             ),
-        isSelected = false,
-        isCurrent = false,
-            isDisabled = false
+            isSelected = false,
+            isCurrent = false,
+            isDisabled = true
         ),
         SelectContainerUiState.Ready.ContainerSelectRow(
             Container(
@@ -423,8 +465,8 @@ fun Preview_SelectContainerScreen_Ready() {
                 parentContainerId = ContainerId(6L),
                 createdDate = Date()
             ),
-        isSelected = false,
-        isCurrent = false,
+            isSelected = true,
+            isCurrent = false,
             isDisabled = false
         ),
         SelectContainerUiState.Ready.ContainerSelectRow(
@@ -434,18 +476,19 @@ fun Preview_SelectContainerScreen_Ready() {
                 parentContainerId = ContainerId(7L),
                 createdDate = Date()
             ),
-        isSelected = false,
-        isCurrent = false,
+            isSelected = false,
+            isCurrent = false,
             isDisabled = false
         ),
-        SelectContainerUiState.Ready.ContainerSelectRow(Container(
+        SelectContainerUiState.Ready.ContainerSelectRow(
+            Container(
                 id = ContainerId(9L),
                 name = "Example8",
                 parentContainerId = ContainerId(8L),
                 createdDate = Date()
             ),
-        isSelected = false,
-        isCurrent = false,
+            isSelected = false,
+            isCurrent = false,
             isDisabled = false
         ),
     )
