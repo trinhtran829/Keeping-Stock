@@ -1,6 +1,5 @@
 package com.keepingstock.core.contracts.intents.utility
 
-import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
 
 sealed interface SelectContainerIntent {

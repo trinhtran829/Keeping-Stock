@@ -49,6 +49,8 @@ class SelectContainerViewModel(
     private var selectedContainerId: ContainerId? = currentContainerId
 
     private val containerCache = mutableMapOf<Long, Container?>()
+    private var subjectName: String = ""
+    private var currentContainer: Container? = null
 
     init {
         viewModelScope.launch { initialize() }
@@ -82,6 +84,8 @@ class SelectContainerViewModel(
     private suspend fun initialize() {
         _uiState.value = SelectContainerUiState.Loading
         try {
+            subjectName = loadSubjectName()
+            currentContainer = getContainerCached(currentContainerId)
             render()
         } catch (e: Exception) {
             _uiState.value = SelectContainerUiState.Error("Failed to load destinations", e)
@@ -115,32 +119,36 @@ class SelectContainerViewModel(
                     isDisabled = disabled,
                 )
             }
-
-        val subjectName = loadSubjectName()
         
         // Build ready state
         _uiState.value = SelectContainerUiState.Ready(
             subjectType = subjectType,
             subjectId = subjectId,
             subjectName = subjectName,
-            currentAssignedContainer = currentContainerId?.let {
-                containerRepository.getContainerById(it)
-            },
-            selectedDestinationContainer = selectedContainerId?.let {
-                containerRepository.getContainerById(it)
-            },
-            browsingContainer = browsingParentId?.let {
-                containerRepository.getContainerById(it)
-            },
+            currentAssignedContainer = currentContainer,
+            selectedDestinationContainer = selectedContainerId?.let { getContainerCached(it) },
+            browsingContainer = browsingParentId?.let { getContainerCached(it) },
             breadcrumbs = breadcrumbs,
             rows = rows,
         )
     }
 
+    private suspend fun getContainerCached(containerId: ContainerId?): Container? {
+        if (containerId == null) return null
+
+        if (containerCache.containsKey(containerId.value)) {
+            return containerCache[containerId.value]
+        }
+
+        val container = containerRepository.getContainerById(containerId)
+        containerCache[containerId.value] = container
+        return container
+    }
+
     private suspend fun loadSubjectName(): String {
         return when (subjectType) {
             Routes.SubjectType.Container -> {
-                containerRepository.getContainerById(ContainerId(subjectId))?.name
+                getContainerCached(ContainerId(subjectId))?.name
                     ?: "Unknown Container"
             }
             Routes.SubjectType.Item -> {
