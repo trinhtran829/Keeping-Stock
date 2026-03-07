@@ -34,7 +34,6 @@ import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -88,7 +87,8 @@ fun AddEditItemScreen(
     modifier: Modifier = Modifier,
     uiState: AddEditItemUiState,
     onIntent: (AddEditItemIntent) -> Unit = {},
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    onMove: () -> Unit = {}
 ) {
     Column(modifier = modifier.padding(16.dp)) {
         when (uiState) {
@@ -99,11 +99,12 @@ fun AddEditItemScreen(
                 ErrorContent(modifier = modifier.fillMaxSize(), message = uiState.message)
 
             is AddEditItemUiState.Ready ->
-                AddEditItemReadyContent(
+                ReadyContent(
                     modifier = modifier.fillMaxSize(),
                     uiState = uiState,
                     onIntent = onIntent,
-                    onNavigateBack = onNavigateBack
+                    onNavigateBack = onNavigateBack,
+                    onMove = onMove
                 )
         }
     }
@@ -123,11 +124,12 @@ fun AddEditItemScreen(
  * :param onNavigateBack: Callback invoked when navigation away from the screen is confirmed.
  */
 @Composable
-private fun AddEditItemReadyContent(
+private fun ReadyContent(
     modifier: Modifier,
     uiState: AddEditItemUiState.Ready,
     onIntent: (AddEditItemIntent) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onMove: () -> Unit
 ) {
     /**
      * UI-only state: controls the discard confirmation dialog. Keeping this out of UiState
@@ -157,7 +159,11 @@ private fun AddEditItemReadyContent(
     ) {
         // Item Details
         item {
-            ItemFormCard(uiState = uiState, onIntent = onIntent)
+            ItemFormCard(
+                uiState = uiState,
+                onIntent = onIntent,
+                onMove = onMove
+            )
         }
 
         // Item Image
@@ -289,7 +295,8 @@ private fun rememberPickImageLauncher(
 @Composable
 private fun ItemFormCard(
     uiState: AddEditItemUiState.Ready,
-    onIntent: (AddEditItemIntent) -> Unit
+    onIntent: (AddEditItemIntent) -> Unit,
+    onMove: () -> Unit
 ) {
     ElevatedCard(Modifier.fillMaxWidth()) {
         Column(
@@ -331,10 +338,7 @@ private fun ItemFormCard(
                 canChangeParent = uiState.canChangeParent,
                 containerId = uiState.containerId,
                 containerName = uiState.containerName,
-                availableParents = uiState.availableParents,
-                onParentChanged = {
-                    onIntent(AddEditItemIntent.ContainerChanged(it))
-                }
+                onMove = onMove
             )
 
             // Status toggle: disabled/hidden when container/Id == null
@@ -376,75 +380,38 @@ private fun ParentSection(
     canChangeParent: Boolean,
     containerId: ContainerId?,
     containerName: String?,
-    availableParents: List<AddEditItemUiState.Ready.ParentOption>,
-    onParentChanged: (ContainerId?) -> Unit
+    onMove: () -> Unit
 ) {
     if (canChangeParent) {
-        ParentPicker(
-            selectedId = containerId,
-            options = availableParents,
-            onSelected = onParentChanged
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text("Container", style = MaterialTheme.typography.labelLarge)
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = containerName ?: "No Container",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(Modifier.width(12.dp))
+
+                OutlinedButton(
+                    onClick = onMove
+                ) {
+                    Text("Change")
+                }
+            }
+
+            Text(
+                text = "Open container picker to choose a container.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     } else {
         Text(
-            text = "Parent: ${containerName ?: "Root"}",
+            text = "Container: ${containerName ?: "No Container"}",
             style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-/**
- * Demo parent selection UI.
- *
- * Current implementation:
- * - Displays the current parent name.
- * - Provides a "Change" button that cycles through [options] (no dropdown dependency).
- *
- * Future implementation:
- * - Replace cycling behavior with a dropdown or hierarchical picker when the repository-backed
- *   container tree is available.
- *
- * Assumption:
- * - [options] is non-empty.
- *
- * :param selectedId: Currently selected parent container id (null = Root).
- * :param options: List of selectable parent options.
- * :param onSelected: Callback invoked when the selection changes.
- */
-@Composable
-private fun ParentPicker(
-    selectedId: ContainerId?,
-    options: List<AddEditItemUiState.Ready.ParentOption>,
-    onSelected: (ContainerId?) -> Unit
-) {
-    // TODO: Replace cycling picker with dropdown/hierarchical picker when container tree is available.
-    val current = options.firstOrNull { it.id == selectedId } ?: options.first()
-
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text("Container", style = MaterialTheme.typography.labelLarge)
-
-        Row {
-            Text(
-                text = current.name,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
-            )
-
-            Spacer(Modifier.width(12.dp))
-
-            OutlinedButton(
-                onClick = {
-                    val idx = options.indexOfFirst { it.id == selectedId }.coerceAtLeast(0)
-                    val next = options[(idx + 1) % options.size]
-                    onSelected(next.id)
-                }
-            ) { Text("Change") }
-        }
-
-        Text(
-            text = "Tap Change to cycle container (demo). Replace with dropdown later.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
