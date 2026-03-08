@@ -174,6 +174,20 @@ class AddEditItemViewModel(
             is AddEditItemIntent.ContainerChanged ->
                 viewModelScope.launch { applyContainerChanged(current, intent.containerId) }
 
+            is AddEditItemIntent.ImagePicked ->
+                viewModelScope.launch { applyImagePicked(current, intent.uriString) }
+
+            AddEditItemIntent.RemoveImageClicked -> {
+                val next = validate(reduceIntent(current, intent, _allTags))
+                _uiState.value = next.copy(
+                    tagRecommendations = emptyList(),
+                    isRecommending = false
+                )
+            }
+
+            AddEditItemIntent.RefreshRecommendations ->
+                viewModelScope.launch { refreshRecommendations() }
+
             // Navigation/dialog intents handled by destination for MVP
             AddEditItemIntent.BackClicked,
             AddEditItemIntent.DiscardChangesConfirmed,
@@ -268,6 +282,17 @@ class AddEditItemViewModel(
 
         _uiState.value = validate(nextState)
     }
+}
+
+private suspend fun applyImagePicked(
+    current: AddEditItemUiState.Ready,
+    uriString: String
+) {
+
+}
+
+private suspend fun refreshRecommendations() {
+    
 }
 
 // ---------------------------------------------------------------------------
