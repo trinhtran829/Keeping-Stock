@@ -384,10 +384,26 @@ private fun reduceIntent(
         currentState.copy(description = intent.value, isDirty = true)
 
     is AddEditItemIntent.ImagePicked ->
-        currentState.copy(imageUri = intent.uriString, isDirty = true)
+        currentState.copy(
+            imageUri = intent.uriString,
+            tagRecommendations = emptyList(),
+            isRecommending = true,
+            isDirty = true
+        )
 
     AddEditItemIntent.RemoveImageClicked ->
-        currentState.copy(imageUri = null, isDirty = true)
+        currentState.copy(
+            imageUri = null,
+            tagRecommendations = emptyList(),
+            isRecommending = false,
+            isDirty = true
+        )
+
+    AddEditItemIntent.RefreshRecommendations ->
+        currentState.copy(
+            isRecommending = true,
+            tagRecommendations = emptyList()
+        )
 
     is AddEditItemIntent.ContainerChanged -> currentState
 
@@ -416,7 +432,6 @@ private fun reduceIntent(
     is AddEditItemIntent.ExistingTagSelected,
     is AddEditItemIntent.QueryChanged,
     is AddEditItemIntent.RecommendedTagSelected,
-    AddEditItemIntent.RefreshRecommendations,
     is AddEditItemIntent.RemoveTagClicked ->
         reduceTagIntent(currentState, intent, allTags)
 
