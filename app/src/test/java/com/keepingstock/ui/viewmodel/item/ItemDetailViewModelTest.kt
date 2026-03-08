@@ -254,6 +254,8 @@ private class FakeItemRepository(
         return storedItem
     }
 
+    override fun observeItemById(itemId: ItemId): Flow<Item?> = flowOf(storedItem)
+
     override suspend fun updateItemStatus(itemId: ItemId, status: ItemStatus) {
         toggleShouldThrow?.let { throw it }
     }
@@ -273,6 +275,9 @@ private class FakeContainerRepository(
     private val container: Container? = null
 ) : ContainerRepository {
     override suspend fun getContainerById(containerId: ContainerId): Container? = container
+
+    override fun observeContainerById(containerId: ContainerId): Flow<Container?> = flowOf(container)
+
     override suspend fun createContainer(name: String, description: String?, imageUri: String?, parentContainerId: ContainerId?): Container = error("unused in tests")
     override suspend fun updateContainer(container: Container) = error("unused in tests")
     override suspend fun deleteContainer(container: Container) = error("unused in tests")

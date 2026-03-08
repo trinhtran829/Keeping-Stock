@@ -85,7 +85,10 @@ class AddEditContainerViewModel(
                     }
                 _originalContainer = container
 
-                val parentName = parentOptions.firstOrNull { it.id == container.parentContainerId }?.name
+                val parentName = when (container.parentContainerId) {
+                    null -> "Root"
+                    else -> containerRepository.getContainerById(container.parentContainerId)?.name
+                }
 
                 AddEditContainerUiState.Ready(
                     mode = mode,
@@ -101,7 +104,10 @@ class AddEditContainerViewModel(
                     canChangeParent = true
                 )
             } else {
-                val parentName = parentOptions.firstOrNull { it.id == initialParentContainerId }?.name
+                val parentName = when (initialParentContainerId) {
+                    null -> "Root"
+                    else -> containerRepository.getContainerById(initialParentContainerId)?.name
+                }
 
                 AddEditContainerUiState.Ready(
                     mode = mode,
@@ -143,6 +149,9 @@ class AddEditContainerViewModel(
         when (intent) {
             AddEditContainerIntent.SaveClicked ->
                 viewModelScope.launch { save(current) }
+
+            is AddEditContainerIntent.ParentChanged ->
+                viewModelScope.launch { applyParentChanged(current, intent.parentId) }
 
             // Navigation/dialog intents handled by destination for MVP
             AddEditContainerIntent.BackClicked,
@@ -192,6 +201,26 @@ class AddEditContainerViewModel(
             _effects.send(UiEffect.ShowSnackbar("Failed to save container"))
         }
     }
+
+    private suspend fun applyParentChanged(
+        current: AddEditContainerUiState.Ready,
+        newParentId: ContainerId?
+    ) {
+        if (!current.canChangeParent) return
+
+        val parentName = when (newParentId) {
+            null -> "Root"
+            else -> containerRepository.getContainerById(newParentId)?.name ?: "Unknown Container"
+        }
+
+        _uiState.value = validate(
+            current.copy(
+                parentContainerId = newParentId,
+                parentContainerName = parentName,
+                isDirty = true
+            )
+        )
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -216,18 +245,7 @@ private fun reduceIntent(
     is AddEditContainerIntent.DescriptionChanged ->
         current.copy(description = intent.value, isDirty = true)
 
-    is AddEditContainerIntent.ParentChanged -> {
-        if (!current.canChangeParent) {
-            current
-        } else {
-            val parentName = availableParents.firstOrNull { it.id == intent.parentId }?.name
-            current.copy(
-                parentContainerId = intent.parentId,
-                parentContainerName = parentName,
-                isDirty = true
-            )
-        }
-    }
+    is AddEditContainerIntent.ParentChanged -> current
 
     is AddEditContainerIntent.ImagePicked ->
         current.copy(imageUri = intent.uriString, isDirty = true)

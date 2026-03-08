@@ -2,6 +2,7 @@ package com.keepingstock.ui.viewmodel.item
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.intents.ViewModelContract
@@ -122,6 +123,26 @@ class ItemDetailViewModel(
             _effects.send(UiEffect.ShowSnackbar("Item $label"))
         } catch (e: Exception) {
             _effects.send(UiEffect.ShowSnackbar("Failed to update status"))
+        }
+    }
+
+    fun onMoveContainerSelected(newContainerId: ContainerId?) {
+        viewModelScope.launch {
+            val item = _loadedItem ?: return@launch
+
+            if (item.containerId == newContainerId) {
+                return@launch
+            }
+
+            try {
+                itemRepository.updateItem(
+                    item.copy(containerId = newContainerId)
+                )
+                _effects.send(UiEffect.ShowSnackbar("Moved item"))
+                load()
+            } catch (e: Exception) {
+                _effects.send(UiEffect.ShowSnackbar("Failed to move item"))
+            }
         }
     }
 }

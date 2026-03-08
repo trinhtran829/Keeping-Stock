@@ -10,9 +10,12 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
+import com.keepingstock.core.contracts.intents.container.AddEditContainerIntent
 import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiState
 import com.keepingstock.ui.navigation.NavDeps
+import com.keepingstock.ui.navigation.NavResultKeys
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
@@ -69,6 +72,19 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
 
         val uiState by vm.uiState.collectAsStateWithLifecycle()
 
+        LaunchedEffect(Unit) {
+            if (backStackEntry.savedStateHandle.contains(NavResultKeys.SELECTED_CONTAINER_ID)) {
+                val selectedContainerIdValue =
+                    backStackEntry.savedStateHandle.get<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
+
+                val newParentId = selectedContainerIdValue?.let { ContainerId(it) }
+
+                vm.onIntent(AddEditContainerIntent.ParentChanged(newParentId))
+
+                backStackEntry.savedStateHandle.remove<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
+            }
+        }
+
         LaunchedEffect(vm) {
             vm.effects.collectLatest { effect ->
                 when (effect) {
@@ -90,7 +106,21 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
         AddEditContainerScreen(
             uiState = uiState,
             onIntent = vm::onIntent,
-            onNavigateBack = { deps.navController.popBackStack() }
+            onNavigateBack = { deps.navController.popBackStack() },
+            onMove = {
+                val readyState =
+                    uiState as? AddEditContainerUiState.Ready ?: return@AddEditContainerScreen
+
+                backStackEntry.savedStateHandle.remove<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
+
+                deps.navController.navigate(
+                    NavRoute.SelectContainer.createRoute(
+                        subjectType = Routes.SubjectType.Container,
+                        subjectId = readyState.containerId?.value ?: 0L,
+                        currentContainerId = readyState.parentContainerId
+                    )
+                )
+            }
         )
     }
 }

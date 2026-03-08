@@ -12,9 +12,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
 import com.keepingstock.ui.navigation.NavDeps
+import com.keepingstock.ui.navigation.NavResultKeys
 import com.keepingstock.ui.navigation.NavRoute
 import com.keepingstock.ui.navigation.containerIdOrNull
 import com.keepingstock.ui.scaffold.TopBarConfig
@@ -62,6 +64,19 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
 
         val uiState by vm.uiState.collectAsStateWithLifecycle()
 
+        LaunchedEffect(Unit) {
+            if (backStackEntry.savedStateHandle.contains(NavResultKeys.SELECTED_CONTAINER_ID)) {
+                val selectedContainerIdValue =
+                    backStackEntry.savedStateHandle.get<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
+
+                val newParentId = selectedContainerIdValue?.let { ContainerId(it) }
+
+                vm.onMoveParentSelected(newParentId)
+
+                backStackEntry.savedStateHandle.remove<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
+            }
+        }
+
         LaunchedEffect(vm) {
             vm.effects.collectLatest { effect ->
                 when (effect) {
@@ -90,7 +105,17 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
                     NavRoute.AddEditContainer.createRoute(containerId = id)
                 )
             },
-            onMove = { /* TODO: hook up when Move flow exists */ }
+            onMove = { id ->
+                deps.navController.navigate(
+                    NavRoute.SelectContainer.createRoute(
+                        subjectType = Routes.SubjectType.Container,
+                        subjectId = id.value,
+                        currentContainerId = (
+                            uiState as? ContainerDetailUiState.Ready
+                        )?.container?.parentContainerId
+                    )
+                )
+            }
         )
     }
 }
