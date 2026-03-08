@@ -65,7 +65,8 @@ internal fun NavGraphBuilder.addAddEditItemDestination(
                         initialContainerId = containerId,
                         itemRepository = deps.itemRepo,
                         containerRepository = deps.containerRepo,
-                        tagRepository = deps.tagRepo
+                        tagRepository = deps.tagRepo,
+                        imageLabelService = deps.imageLabelService,
                     )
                 }
             }

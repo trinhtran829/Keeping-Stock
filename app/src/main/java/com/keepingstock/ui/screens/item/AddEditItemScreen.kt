@@ -880,14 +880,23 @@ private fun RecommendedTagsRow(
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("Recommended", style = MaterialTheme.typography.labelLarge)
-            TextButton(onClick = onRefresh, enabled = !uiState.isRecommending) {
+            TextButton(
+                onClick = onRefresh,
+                enabled = !uiState.isRecommending && !uiState.imageUri.isNullOrBlank()
+            ) {
                 Text(if (uiState.isRecommending) "Refreshing…" else "Refresh")
             }
         }
 
         if (uiState.tagRecommendations.isEmpty()) {
+            val message = when {
+                uiState.imageUri.isNullOrBlank() -> "Add an image to generate recommendations."
+                uiState.isRecommending -> "Generating recommendations…"
+                else -> "No recommendations found."
+            }
+
             Text(
-                text = "No recommendations yet.",
+                text = message,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

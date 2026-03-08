@@ -9,6 +9,7 @@ import com.keepingstock.data.integration.DemoDataManager
 import com.keepingstock.data.repositories.ContainerRepositoryImpl
 import com.keepingstock.data.repositories.ItemRepositoryImpl
 import com.keepingstock.data.repositories.TagRepositoryImpl
+import com.keepingstock.platform.services.MlKitImageLabelService
 import com.keepingstock.ui.KeepingStockApp
 import com.keepingstock.ui.theme.KeepingStockTheme
 
@@ -32,6 +33,9 @@ class MainActivity : ComponentActivity() {
             itemTagDao = db.itemTagDao(),
             itemWithTagsDao = db.itemWithTagsDao()
         )
+        val imageLabelService = MlKitImageLabelService(
+            context = applicationContext
+        )
         val demoDataManager = DemoDataManager(
             db = db,
             containerRepo = containerRepo,
@@ -45,6 +49,7 @@ class MainActivity : ComponentActivity() {
                     containerRepo = containerRepo,
                     itemRepo = itemRepo,
                     tagRepo = tagRepo,
+                    imageLabelService = imageLabelService,
                     demoDataManager = demoDataManager
                 )
             }

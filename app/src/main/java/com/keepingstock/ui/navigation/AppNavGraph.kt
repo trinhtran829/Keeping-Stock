@@ -1,6 +1,5 @@
 package com.keepingstock.ui.navigation
 
-import android.R.attr.tag
 import com.keepingstock.core.DebugFlags
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -11,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.ImageLabelService
 import com.keepingstock.core.contracts.Routes
 import com.keepingstock.data.integration.DemoDataManager
 import com.keepingstock.data.repositories.ContainerRepositoryImpl
@@ -59,6 +59,7 @@ fun AppNavGraph(
     containerRepo: ContainerRepositoryImpl,
     itemRepo: ItemRepositoryImpl,
     tagRepo: TagRepositoryImpl,
+    imageLabelService: ImageLabelService,
     demoDataManager: DemoDataManager,
     navController: NavHostController,
     contentPadding: PaddingValues,
@@ -76,6 +77,7 @@ fun AppNavGraph(
         containerRepo = containerRepo,
         itemRepo = itemRepo,
         tagRepo = tagRepo,
+        imageLabelService = imageLabelService,
         demoDataManager = demoDataManager
     )
 

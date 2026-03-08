@@ -3,6 +3,7 @@ package com.keepingstock.ui.viewmodel.item
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.ImageLabelService
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Tag
@@ -49,7 +50,8 @@ class AddEditItemViewModel(
     private val initialContainerId: ContainerId?,
     private val itemRepository: ItemRepository,
     private val containerRepository: ContainerRepository,
-    private val tagRepository: TagRepository
+    private val tagRepository: TagRepository,
+    private val imageLabelService: ImageLabelService,
 ) : ViewModel(), ViewModelContract<AddEditItemUiState, AddEditItemIntent> {
 
     sealed interface UiEffect {
@@ -172,6 +174,20 @@ class AddEditItemViewModel(
             is AddEditItemIntent.ContainerChanged ->
                 viewModelScope.launch { applyContainerChanged(current, intent.containerId) }
 
+            is AddEditItemIntent.ImagePicked ->
+                viewModelScope.launch { applyImagePicked(current, intent.uriString) }
+
+            AddEditItemIntent.RemoveImageClicked -> {
+                val next = validate(reduceIntent(current, intent, _allTags))
+                _uiState.value = next.copy(
+                    tagRecommendations = emptyList(),
+                    isRecommending = false
+                )
+            }
+
+            AddEditItemIntent.RefreshRecommendations ->
+                viewModelScope.launch { refreshRecommendations() }
+
             // Navigation/dialog intents handled by destination for MVP
             AddEditItemIntent.BackClicked,
             AddEditItemIntent.DiscardChangesConfirmed,
@@ -266,6 +282,76 @@ class AddEditItemViewModel(
 
         _uiState.value = validate(nextState)
     }
+
+    private suspend fun applyImagePicked(
+        current: AddEditItemUiState.Ready,
+        uriString: String
+    ) {
+        val nextState = validate(
+            current.copy(
+                imageUri = uriString,
+                tagRecommendations = emptyList(),
+                isRecommending = true,
+                isDirty = true
+            )
+        )
+        _uiState.value = nextState
+
+        val recommendations = loadImageRecommendations(uriString, nextState.selectedTags)
+
+        val latest = _uiState.value as? AddEditItemUiState.Ready ?: return
+        _uiState.value = latest.copy(
+            tagRecommendations = recommendations,
+            isRecommending = false
+        )
+    }
+
+    private suspend fun refreshRecommendations() {
+        val current = _uiState.value as? AddEditItemUiState.Ready ?: return
+        val imageUri = current.imageUri
+
+        if (imageUri.isNullOrBlank()) {
+            _uiState.value = current.copy(
+                tagRecommendations = emptyList(),
+                isRecommending = false
+            )
+            return
+        }
+
+        _uiState.value = current.copy(
+            isRecommending = true,
+            tagRecommendations = emptyList()
+        )
+
+        val recommendations = loadImageRecommendations(imageUri, current.selectedTags)
+
+        val latest = _uiState.value as? AddEditItemUiState.Ready ?: return
+        _uiState.value = latest.copy(
+            tagRecommendations = recommendations,
+            isRecommending = false
+        )
+    }
+
+    private suspend fun loadImageRecommendations(
+        imageUri: String,
+        selectedTags: List<Tag>
+    ): List<String> {
+        return try {
+            val selectedKeys = selectedTags
+                .map { normalizeForCommit(it.name).lowercase() }
+                .toSet()
+
+            imageLabelService.labelImage(imageUri)
+                .rawLabels
+                .map { normalizeForCommit(it) }
+                .filter { it.isNotBlank() }
+                .distinctBy { it.lowercase() }
+                .filterNot { it.lowercase() in selectedKeys }
+                .take(8)
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -298,10 +384,26 @@ private fun reduceIntent(
         currentState.copy(description = intent.value, isDirty = true)
 
     is AddEditItemIntent.ImagePicked ->
-        currentState.copy(imageUri = intent.uriString, isDirty = true)
+        currentState.copy(
+            imageUri = intent.uriString,
+            tagRecommendations = emptyList(),
+            isRecommending = true,
+            isDirty = true
+        )
 
     AddEditItemIntent.RemoveImageClicked ->
-        currentState.copy(imageUri = null, isDirty = true)
+        currentState.copy(
+            imageUri = null,
+            tagRecommendations = emptyList(),
+            isRecommending = false,
+            isDirty = true
+        )
+
+    AddEditItemIntent.RefreshRecommendations ->
+        currentState.copy(
+            isRecommending = true,
+            tagRecommendations = emptyList()
+        )
 
     is AddEditItemIntent.ContainerChanged -> currentState
 
@@ -330,7 +432,6 @@ private fun reduceIntent(
     is AddEditItemIntent.ExistingTagSelected,
     is AddEditItemIntent.QueryChanged,
     is AddEditItemIntent.RecommendedTagSelected,
-    AddEditItemIntent.RefreshRecommendations,
     is AddEditItemIntent.RemoveTagClicked ->
         reduceTagIntent(currentState, intent, allTags)
 

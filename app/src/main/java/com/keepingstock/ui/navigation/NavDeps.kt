@@ -1,6 +1,7 @@
 package com.keepingstock.ui.navigation
 
 import androidx.navigation.NavHostController
+import com.keepingstock.core.contracts.ImageLabelService
 import com.keepingstock.data.integration.DemoDataManager
 import com.keepingstock.data.repositories.ContainerRepositoryImpl
 import com.keepingstock.data.repositories.ItemRepositoryImpl
@@ -17,5 +18,6 @@ internal data class NavDeps(
     val containerRepo: ContainerRepositoryImpl,
     val itemRepo: ItemRepositoryImpl,
     val tagRepo: TagRepositoryImpl,
+    val imageLabelService: ImageLabelService,
     val demoDataManager: DemoDataManager
 )
