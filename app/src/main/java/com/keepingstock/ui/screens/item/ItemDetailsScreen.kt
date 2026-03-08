@@ -1,25 +1,33 @@
 package com.keepingstock.ui.screens.item
 
 import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
@@ -37,6 +45,9 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.keepingstock.R
 import com.keepingstock.core.contracts.ItemId
+import com.keepingstock.core.contracts.Tag
+import com.keepingstock.core.contracts.TagId
+import com.keepingstock.core.contracts.intents.item.AddEditItemIntent
 import com.keepingstock.core.contracts.intents.item.ItemDetailIntent
 import com.keepingstock.core.contracts.uistates.item.ItemDetailUiState
 import com.keepingstock.data.entities.ItemStatus
@@ -46,6 +57,7 @@ import com.keepingstock.ui.components.screen.LoadingContent
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
+import kotlin.collections.forEach
 
 /**
  * Details screen for an Item. Render based on ItemDetailUiState.
@@ -133,6 +145,10 @@ private fun ReadyContent(
 
         item {
             ItemDetailMetadataCard(uiState, onIntent)
+        }
+
+        item {
+            TagsCard(uiState)
         }
 
         item {
@@ -352,6 +368,103 @@ private fun CheckoutToggleRow(
             )
         }
     }
+}
+
+/**
+ * Card section for tag viewing
+ *
+ * @param uiState: Ready state containing tag-related fields.
+ */
+@Composable
+private fun TagsCard(
+    uiState: ItemDetailUiState.Ready
+) {
+    ElevatedCard(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Card title
+                Text(
+                    text = "Tags",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                // Display selected / max
+                Text(
+                    text = "${uiState.item.tags.size}/20", // TODO: hardcoded max but should be uiState/contract
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            // Display current tags
+            TagChips(tags = uiState.item.tags)
+        }
+    }
+}
+
+/**
+ * Displays selected tags as chips in a wrapping layout.
+ *
+ * @param modifier: Modifier applied to the chip container.
+ * @param tags: Current selected tags.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TagChips(
+    modifier: Modifier = Modifier,
+    tags: List<Tag>
+) {
+    if (tags.isEmpty()) {
+        Text(
+            text = "No tags selected.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        return
+    }
+
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        tags.forEach { tag ->
+            TagChip(name = tag.name)
+        }
+    }
+}
+
+/**
+ * A single selected-tag chip with a trailing remove icon.
+ *
+ * @param modifier: Modifier applied to the chip.
+ * @param name: Tag display name.
+ */
+@Composable
+private fun TagChip(
+    modifier: Modifier = Modifier,
+    name: String
+) {
+    InputChip(
+        modifier = modifier.height(32.dp),
+        selected = true,
+        onClick = { /* TODO: Consult group on behavior, if any (conceptual idea: open item browser
+                         with search set to that tag?)*/ },
+        label = {
+            Text(
+                text = name,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1
+            )
+        },
+    )
 }
 
 /**
