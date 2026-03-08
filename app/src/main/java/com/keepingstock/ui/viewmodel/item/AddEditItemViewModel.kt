@@ -336,7 +336,21 @@ class AddEditItemViewModel(
         imageUri: String,
         selectedTags: List<Tag>
     ): List<String> {
+        return try {
+            val selectedKeys = selectedTags
+                .map { normalizeForCommit(it.name).lowercase() }
+                .toSet()
 
+            imageLabelService.labelImage(imageUri)
+                .rawLabels
+                .map { normalizeForCommit(it) }
+                .filter { it.isNotBlank() }
+                .distinctBy { it.lowercase() }
+                .filterNot { it.lowercase() in selectedKeys }
+                .take(8)
+        } catch (_: Exception) {
+            emptyList()
+        }
     }
 }
 
