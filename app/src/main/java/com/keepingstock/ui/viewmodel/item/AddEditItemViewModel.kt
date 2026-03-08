@@ -282,17 +282,33 @@ class AddEditItemViewModel(
 
         _uiState.value = validate(nextState)
     }
-}
 
-private suspend fun applyImagePicked(
-    current: AddEditItemUiState.Ready,
-    uriString: String
-) {
+    private suspend fun applyImagePicked(
+        current: AddEditItemUiState.Ready,
+        uriString: String
+    ) {
+        val nextState = validate(
+            current.copy(
+                imageUri = uriString,
+                tagRecommendations = emptyList(),
+                isRecommending = true,
+                isDirty = true
+            )
+        )
+        _uiState.value = nextState
 
-}
+        val recommendations = loadImageRecommendations(uriString, nextState.selectedTags)
 
-private suspend fun refreshRecommendations() {
-    
+        val latest = _uiState.value as? AddEditItemUiState.Ready ?: return
+        _uiState.value = latest.copy(
+            tagRecommendations = recommendations,
+            isRecommending = false
+        )
+    }
+
+    private suspend fun refreshRecommendations() {
+
+    }
 }
 
 // ---------------------------------------------------------------------------
