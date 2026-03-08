@@ -307,6 +307,35 @@ class AddEditItemViewModel(
     }
 
     private suspend fun refreshRecommendations() {
+        val current = _uiState.value as? AddEditItemUiState.Ready ?: return
+        val imageUri = current.imageUri
+
+        if (imageUri.isNullOrBlank()) {
+            _uiState.value = current.copy(
+                tagRecommendations = emptyList(),
+                isRecommending = false
+            )
+            return
+        }
+
+        _uiState.value = current.copy(
+            isRecommending = true,
+            tagRecommendations = emptyList()
+        )
+
+        val recommendations = loadImageRecommendations(imageUri, current.selectedTags)
+
+        val latest = _uiState.value as? AddEditItemUiState.Ready ?: return
+        _uiState.value = latest.copy(
+            tagRecommendations = recommendations,
+            isRecommending = false
+        )
+    }
+
+    private suspend fun loadImageRecommendations(
+        imageUri: String,
+        selectedTags: List<Tag>
+    ): List<String> {
 
     }
 }
