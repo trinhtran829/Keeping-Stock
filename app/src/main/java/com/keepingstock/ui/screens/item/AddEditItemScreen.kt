@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
@@ -55,6 +56,7 @@ import com.keepingstock.core.contracts.TagId
 import com.keepingstock.core.contracts.intents.item.AddEditItemIntent
 import com.keepingstock.core.contracts.uistates.item.AddEditItemUiState
 import com.keepingstock.data.entities.ItemStatus
+import com.keepingstock.platform.storage.copyImageToAppStorage
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
 import java.time.ZoneId
@@ -265,21 +267,30 @@ private fun AddEditItemBackHandling(
 /**
  * Creates and remembers an Activity Result launcher for selecting an image from the system picker.
  *
- * When the picker returns a non-null [Uri], this emits [AddEditItemIntent.ImagePicked]
- * through [onIntent]. The caller is responsible for invoking `launch(...)` on the returned
- * launcher.
+ * When the picker returns a non-null [Uri], this copies the selected image into app-private
+ * storage and emits [AddEditItemIntent.ImagePicked] with the copied file URI.
  *
- * :param onIntent: Callback used to emit [AddEditItemIntent] events.
- * :return: A launcher that can start the visual media picker and deliver a picked image [Uri].
+ * @param onIntent: Callback used to emit [AddEditItemIntent] events.
+ * @return A launcher that can start the visual media picker and deliver a picked image [Uri].
  */
 @Composable
 private fun rememberPickImageLauncher(
     onIntent: (AddEditItemIntent) -> Unit
-) = rememberLauncherForActivityResult(
-    contract = ActivityResultContracts.PickVisualMedia()
-) { uri: Uri? ->
-    if (uri != null)
-        onIntent(AddEditItemIntent.ImagePicked(uri.toString()))
+) = run {
+    val context = LocalContext.current
+
+    rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            try {
+                val storedUri = copyImageToAppStorage(context, uri)
+                onIntent(AddEditItemIntent.ImagePicked(storedUri.toString()))
+            } catch (_: Exception) {
+                // Optional follow-up: surface failure through a snackbar or error state.
+            }
+        }
+    }
 }
 
 /**
