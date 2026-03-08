@@ -3,6 +3,7 @@ package com.keepingstock.ui.viewmodel.item
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.keepingstock.core.contracts.ContainerId
+import com.keepingstock.core.contracts.ImageLabelService
 import com.keepingstock.core.contracts.Item
 import com.keepingstock.core.contracts.ItemId
 import com.keepingstock.core.contracts.Tag
@@ -49,7 +50,8 @@ class AddEditItemViewModel(
     private val initialContainerId: ContainerId?,
     private val itemRepository: ItemRepository,
     private val containerRepository: ContainerRepository,
-    private val tagRepository: TagRepository
+    private val tagRepository: TagRepository,
+    private val imageLabelService: ImageLabelService,
 ) : ViewModel(), ViewModelContract<AddEditItemUiState, AddEditItemIntent> {
 
     sealed interface UiEffect {
