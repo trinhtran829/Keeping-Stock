@@ -26,6 +26,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.keepingstock.core.contracts.ImageLabelService
 import com.keepingstock.data.integration.DemoDataManager
 import com.keepingstock.data.repositories.ContainerRepositoryImpl
 import com.keepingstock.data.repositories.ItemRepositoryImpl
@@ -47,6 +48,7 @@ fun KeepingStockApp(
     containerRepo: ContainerRepositoryImpl,
     itemRepo: ItemRepositoryImpl,
     tagRepo: TagRepositoryImpl,
+    imageLabelService: ImageLabelService,
     demoDataManager: DemoDataManager
 ) {
     // Single NavController instance for the entire app. Owned here so global UI can trigger
@@ -116,6 +118,7 @@ fun KeepingStockApp(
             containerRepo = containerRepo,
             itemRepo = itemRepo,
             tagRepo = tagRepo,
+            imageLabelService = imageLabelService,
             demoDataManager = demoDataManager,
             navController = navController,
             contentPadding = innerPadding,
