@@ -3,7 +3,7 @@ package com.keepingstock.ui.viewmodel.media
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.keepingstock.core.contracts.ContainerId
-import com.keepingstock.core.contracts.ContainerRepository
+import com.keepingstock.data.repositories.ContainerRepository
 import com.keepingstock.core.contracts.QrService
 import com.keepingstock.core.contracts.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,7 +47,8 @@ class QrScanViewModel(
 
             _uiState.value = UiState.Loading
             try {
-                val container = containerRepository.getContainer(containerId)
+                // Use getContainerById as defined in the project's ContainerRepository interface
+                val container = containerRepository.getContainerById(containerId)
                 if (container != null) {
                     _uiState.value = UiState.Success(
                         QrScanUiData(
