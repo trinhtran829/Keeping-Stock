@@ -9,7 +9,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.keepingstock.data.integration.DemoContainerRepository
 import com.keepingstock.platform.services.MlKitQrService
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavRoute
@@ -30,7 +29,7 @@ internal fun NavGraphBuilder.addQRScanDestination(
                 initializer {
                     QrScanViewModel(
                         qrService = MlKitQrService(context),
-                        containerRepository = DemoContainerRepository()
+                        containerRepository = deps.containerRepo
                     )
                 }
             }
