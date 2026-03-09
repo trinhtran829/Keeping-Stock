@@ -2,12 +2,14 @@ package com.keepingstock.ui.viewmodel.media
 
 import com.keepingstock.core.contracts.Container
 import com.keepingstock.core.contracts.ContainerId
-import com.keepingstock.core.contracts.ContainerRepository
+import com.keepingstock.data.repositories.ContainerRepository
 import com.keepingstock.core.contracts.QrService
 import com.keepingstock.core.contracts.UiState
 import com.keepingstock.testutil.MainDispatcherRule
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
@@ -119,25 +121,44 @@ private class FakeContainerRepository(
     private val delayMs: Long = 0L
 ) : ContainerRepository {
 
-    override suspend fun getContainer(id: ContainerId): Container? {
+    override suspend fun createContainer(
+        name: String,
+        description: String?,
+        imageUri: String?,
+        parentContainerId: ContainerId?
+    ): Container {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateContainer(container: Container) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteContainer(container: Container) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getContainerById(containerId: ContainerId): Container? {
         if (delayMs > 0) delay(delayMs)
-        return containers[id.value]
+        return containers[containerId.value]
     }
 
-    override suspend fun getRootContainers(): List<Container> {
-        return containers.values.filter { it.parentContainerId == null }.sortedBy { it.name }
+    override fun observeContainerById(containerId: ContainerId): Flow<Container?> {
+        return flowOf(containers[containerId.value])
     }
 
-    override suspend fun getChildContainers(parentId: ContainerId): List<Container> {
-        return containers.values.filter { it.parentContainerId == parentId }.sortedBy { it.name }
+    override fun observeRootContainers(): Flow<List<Container>> {
+        return flowOf(containers.values.filter { it.parentContainerId == null }.sortedBy { it.name })
     }
 
-    override suspend fun upsertContainer(container: Container): Container {
-        containers[container.id.value] = container
-        return container
+    override fun observeChildContainers(parentContainerId: ContainerId): Flow<List<Container>> {
+        return flowOf(containers.values.filter { it.parentContainerId == parentContainerId }.sortedBy { it.name })
     }
 
-    override suspend fun deleteContainer(id: ContainerId) {
-        containers.remove(id.value)
+    override fun searchChildContainers(
+        parentContainerId: ContainerId?,
+        query: String
+    ): Flow<List<Container>> {
+        TODO("Not yet implemented")
     }
 }
