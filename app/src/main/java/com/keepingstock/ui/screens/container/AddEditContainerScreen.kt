@@ -1,5 +1,6 @@
 package com.keepingstock.ui.screens.container
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -7,6 +8,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -36,6 +39,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.intents.container.AddEditContainerIntent
@@ -43,6 +47,7 @@ import com.keepingstock.core.contracts.uistates.container.AddEditContainerUiStat
 import com.keepingstock.platform.storage.copyImageToAppStorage
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
+import java.io.File
 
 /**
  * Add/Edit Container screen that renders based on uiState.
@@ -134,6 +139,7 @@ private fun ReadyContent(
 
     // Gets an object that can launch the system image picker.
     val pickImageLauncher = rememberPickImageLauncher(onIntent)
+    val takePicture = rememberTakePictureLauncher(onIntent)
 
     // Presentation of content
     LazyColumn(
@@ -158,6 +164,7 @@ private fun ReadyContent(
                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                     )
                 },
+                onTakePhoto = takePicture,
                 onRemoveImage = { onIntent(AddEditContainerIntent.RemoveImageClicked) }
             )
         }
@@ -386,10 +393,12 @@ private fun ParentSection(
  * @param onPickImage Invoked to launch the system image picker.
  * @param onRemoveImage Invoked to remove the current image from the form state.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ImageCard(
     imageUri: String?,
     onPickImage: () -> Unit,
+    onTakePhoto: () -> Unit,
     onRemoveImage: () -> Unit
 ) {
     ElevatedCard(Modifier.fillMaxWidth()) {
@@ -406,11 +415,15 @@ private fun ImageCard(
             ImagePreview(imageUri = imageUri)
 
             // Buttons for user action related to changing the picture
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = onPickImage
                 ) {
                     Text(if (imageUri.isNullOrBlank()) "Pick image" else "Change image")
+                }
+
+                OutlinedButton(onClick = onTakePhoto) {
+                    Text("Take photo")
                 }
 
                 OutlinedButton(
@@ -495,4 +508,42 @@ private fun ActionsCard(
             }
         }
     }
+}
+
+@Composable
+private fun rememberTakePictureLauncher(
+    onIntent: (AddEditContainerIntent) -> Unit
+): () -> Unit {
+    val context = LocalContext.current
+    var pendingCameraUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        val uri = pendingCameraUri
+        if (success && uri != null) {
+            try {
+                val storedUri = copyImageToAppStorage(context, uri)
+                onIntent(AddEditContainerIntent.ImagePicked(storedUri.toString()))
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    return {
+        val uri = createTempImageUri(context)
+        pendingCameraUri = uri
+        launcher.launch(uri)
+    }
+}
+
+private fun createTempImageUri(context: Context): Uri {
+    val imagesDir = File(context.cacheDir, "camera_images").apply { mkdirs() }
+    val imageFile = File(imagesDir, "captured_${System.currentTimeMillis()}.jpg")
+
+    return FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.fileprovider",
+        imageFile
+    )
 }
