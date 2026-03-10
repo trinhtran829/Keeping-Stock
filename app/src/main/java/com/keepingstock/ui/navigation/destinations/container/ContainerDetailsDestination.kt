@@ -65,17 +65,23 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
 
         val uiState by vm.uiState.collectAsStateWithLifecycle()
 
-        LaunchedEffect(Unit) {
-            if (backStackEntry.savedStateHandle.contains(NavResultKeys.SELECTED_CONTAINER_ID)) {
-                val selectedContainerIdValue =
-                    backStackEntry.savedStateHandle.get<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
+        LaunchedEffect(backStackEntry, vm) {
+            backStackEntry.savedStateHandle
+                .getStateFlow<Long?>(NavResultKeys.SELECTED_CONTAINER_ID, null)
+                .collectLatest { selectedContainerIdValue ->
+                    if (
+                        selectedContainerIdValue != null ||
+                        backStackEntry.savedStateHandle.contains(NavResultKeys.SELECTED_CONTAINER_ID)
+                    ) {
+                        val newParentId = selectedContainerIdValue?.let { ContainerId(it) }
 
-                val newParentId = selectedContainerIdValue?.let { ContainerId(it) }
+                        vm.onMoveParentSelected(newParentId)
 
-                vm.onMoveParentSelected(newParentId)
-
-                backStackEntry.savedStateHandle.remove<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
-            }
+                        backStackEntry.savedStateHandle.remove<Long?>(
+                            NavResultKeys.SELECTED_CONTAINER_ID
+                        )
+                    }
+                }
         }
 
         LaunchedEffect(backStackEntry, vm) {
