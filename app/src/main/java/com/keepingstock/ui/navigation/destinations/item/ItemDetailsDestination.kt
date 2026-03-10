@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
+import com.keepingstock.core.contracts.intents.item.ItemDetailIntent
 import com.keepingstock.core.contracts.uistates.item.ItemDetailUiState
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavResultKeys
@@ -75,6 +76,19 @@ internal fun NavGraphBuilder.addItemDetailsDestination(
 
                 backStackEntry.savedStateHandle.remove<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
             }
+        }
+
+        LaunchedEffect(backStackEntry, vm) {
+            backStackEntry.savedStateHandle
+                .getStateFlow<Boolean?>(NavResultKeys.DETAILS_SHOULD_REFRESH, null)
+                .collectLatest { shouldRefresh ->
+                    if (shouldRefresh == true) {
+                        vm.onIntent(ItemDetailIntent.Retry)
+                        backStackEntry.savedStateHandle.remove<Boolean>(
+                            NavResultKeys.DETAILS_SHOULD_REFRESH
+                        )
+                    }
+                }
         }
 
         LaunchedEffect(vm) {

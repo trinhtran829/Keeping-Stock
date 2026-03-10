@@ -91,8 +91,13 @@ internal fun NavGraphBuilder.addAddEditContainerDestination(
                     is AddEditContainerViewModel.UiEffect.ShowSnackbar ->
                         deps.showSnackbar(effect.message)
 
-                    AddEditContainerViewModel.UiEffect.NavigateBack ->
+                    AddEditContainerViewModel.UiEffect.NavigateBack -> {
+                        deps.navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set(NavResultKeys.DETAILS_SHOULD_REFRESH, true)
+
                         deps.navController.popBackStack()
+                    }
                 }
             }
         }
