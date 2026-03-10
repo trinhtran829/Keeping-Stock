@@ -1,6 +1,7 @@
 package com.keepingstock.ui.screens.container
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -39,6 +40,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.keepingstock.core.contracts.ContainerId
@@ -48,6 +50,7 @@ import com.keepingstock.platform.storage.copyImageToAppStorage
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
 import java.io.File
+import android.Manifest
 
 /**
  * Add/Edit Container screen that renders based on uiState.
@@ -517,23 +520,47 @@ private fun rememberTakePictureLauncher(
     val context = LocalContext.current
     var pendingCameraUri by rememberSaveable { mutableStateOf<Uri?>(null) }
 
-    val launcher = rememberLauncherForActivityResult(
+    val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         val uri = pendingCameraUri
+        pendingCameraUri = null
+
         if (success && uri != null) {
             try {
                 val storedUri = copyImageToAppStorage(context, uri)
                 onIntent(AddEditContainerIntent.ImagePicked(storedUri.toString()))
             } catch (_: Exception) {
+                // TODO: emit snackbar/event?
             }
         }
     }
 
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            val uri = createTempImageUri(context)
+            pendingCameraUri = uri
+            takePictureLauncher.launch(uri)
+        }
+    }
+
     return {
-        val uri = createTempImageUri(context)
-        pendingCameraUri = uri
-        launcher.launch(uri)
+        when {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                val uri = createTempImageUri(context)
+                pendingCameraUri = uri
+                takePictureLauncher.launch(uri)
+            }
+
+            else -> {
+                permissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
     }
 }
 
