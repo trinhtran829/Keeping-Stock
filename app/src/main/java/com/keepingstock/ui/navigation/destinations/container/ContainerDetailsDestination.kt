@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Routes
+import com.keepingstock.core.contracts.intents.container.ContainerDetailIntent
 import com.keepingstock.core.contracts.uistates.container.ContainerDetailUiState
 import com.keepingstock.ui.navigation.NavDeps
 import com.keepingstock.ui.navigation.NavResultKeys
@@ -64,17 +65,36 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
 
         val uiState by vm.uiState.collectAsStateWithLifecycle()
 
-        LaunchedEffect(Unit) {
-            if (backStackEntry.savedStateHandle.contains(NavResultKeys.SELECTED_CONTAINER_ID)) {
-                val selectedContainerIdValue =
-                    backStackEntry.savedStateHandle.get<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
+        LaunchedEffect(backStackEntry, vm) {
+            backStackEntry.savedStateHandle
+                .getStateFlow<Long?>(NavResultKeys.SELECTED_CONTAINER_ID, null)
+                .collectLatest { selectedContainerIdValue ->
+                    if (
+                        selectedContainerIdValue != null ||
+                        backStackEntry.savedStateHandle.contains(NavResultKeys.SELECTED_CONTAINER_ID)
+                    ) {
+                        val newParentId = selectedContainerIdValue?.let { ContainerId(it) }
 
-                val newParentId = selectedContainerIdValue?.let { ContainerId(it) }
+                        vm.onMoveParentSelected(newParentId)
 
-                vm.onMoveParentSelected(newParentId)
+                        backStackEntry.savedStateHandle.remove<Long?>(
+                            NavResultKeys.SELECTED_CONTAINER_ID
+                        )
+                    }
+                }
+        }
 
-                backStackEntry.savedStateHandle.remove<Long?>(NavResultKeys.SELECTED_CONTAINER_ID)
-            }
+        LaunchedEffect(backStackEntry, vm) {
+            backStackEntry.savedStateHandle
+                .getStateFlow<Boolean?>(NavResultKeys.DETAILS_SHOULD_REFRESH, null)
+                .collectLatest { shouldRefresh ->
+                    if (shouldRefresh == true) {
+                        vm.onIntent(ContainerDetailIntent.Retry)
+                        backStackEntry.savedStateHandle.remove<Boolean>(
+                            NavResultKeys.DETAILS_SHOULD_REFRESH
+                        )
+                    }
+                }
         }
 
         LaunchedEffect(vm) {
@@ -85,6 +105,11 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
 
                     ContainerDetailViewModel.UiEffect.NavigateBack ->
                         deps.navController.popBackStack()
+
+                    ContainerDetailViewModel.UiEffect.NavigateBackAfterDelete -> {
+                        deps.navController.popBackStack()
+                        deps.navController.popBackStack()
+                    }
                 }
             }
         }

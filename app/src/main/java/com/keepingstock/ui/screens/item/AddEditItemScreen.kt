@@ -1,5 +1,7 @@
 package com.keepingstock.ui.screens.item
 
+import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -49,6 +51,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.keepingstock.core.contracts.ContainerId
 import com.keepingstock.core.contracts.Tag
@@ -59,9 +63,11 @@ import com.keepingstock.data.entities.ItemStatus
 import com.keepingstock.platform.storage.copyImageToAppStorage
 import com.keepingstock.ui.components.screen.ErrorContent
 import com.keepingstock.ui.components.screen.LoadingContent
+import java.io.File
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
+import android.Manifest
 
 /**
  * Add/Edit Item screen that renders based on uiState and emits user intents.
@@ -153,6 +159,7 @@ private fun ReadyContent(
 
     // Gets an object that can launch the system image picker.
     val pickImageLauncher = rememberPickImageLauncher(onIntent)
+    val takePicture = rememberTakePictureLauncher(onIntent)
 
     // Main scrollable form content.
     LazyColumn(
@@ -178,6 +185,7 @@ private fun ReadyContent(
                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                     )
                 },
+                onTakePhoto = takePicture,
                 onRemoveImage = { onIntent(AddEditItemIntent.RemoveImageClicked) }
             )
         }
@@ -522,10 +530,12 @@ private fun StatusToggle(
  * :param onPickImage: Invoked to launch the system image picker.
  * :param onRemoveImage: Invoked to remove the current image from the form state.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ItemImageCard(
     imageUri: String?,
     onPickImage: () -> Unit,
+    onTakePhoto: () -> Unit,
     onRemoveImage: () -> Unit
 ) {
     ElevatedCard(Modifier.fillMaxWidth()) {
@@ -542,14 +552,17 @@ private fun ItemImageCard(
             ImagePreview(imageUri = imageUri)
 
             // Buttons for user action related to changing the picture
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = onPickImage
                 ) {
-                    Text(
-                        if (imageUri.isNullOrBlank()) "Pick image" else "Change image"
-                    )
+                    Text(if (imageUri.isNullOrBlank()) "Pick image" else "Change image")
                 }
+
+                OutlinedButton(onClick = onTakePhoto) {
+                    Text("Take photo")
+                }
+
                 OutlinedButton(
                     onClick = onRemoveImage,
                     enabled = !imageUri.isNullOrBlank()
@@ -923,4 +936,66 @@ private fun RecommendedTagsRow(
             }
         }
     }
+}
+
+@Composable
+private fun rememberTakePictureLauncher(
+    onIntent: (AddEditItemIntent) -> Unit
+): () -> Unit {
+    val context = LocalContext.current
+    var pendingCameraUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        val uri = pendingCameraUri
+        pendingCameraUri = null
+
+        if (success && uri != null) {
+            try {
+                val storedUri = copyImageToAppStorage(context, uri)
+                onIntent(AddEditItemIntent.ImagePicked(storedUri.toString()))
+            } catch (_: Exception) {
+                // TODO: emit snackbar/event if desired
+            }
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            val uri = createTempImageUri(context)
+            pendingCameraUri = uri
+            takePictureLauncher.launch(uri)
+        }
+    }
+
+    return {
+        when {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                val uri = createTempImageUri(context)
+                pendingCameraUri = uri
+                takePictureLauncher.launch(uri)
+            }
+
+            else -> {
+                permissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+    }
+}
+
+private fun createTempImageUri(context: Context): Uri {
+    val imagesDir = File(context.cacheDir, "camera_images").apply { mkdirs() }
+    val imageFile = File(imagesDir, "captured_${System.currentTimeMillis()}.jpg")
+
+    return FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.fileprovider",
+        imageFile
+    )
 }

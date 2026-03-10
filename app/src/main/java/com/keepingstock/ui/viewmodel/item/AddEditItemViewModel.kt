@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.util.Date
+import kotlin.math.abs
 
 /**
  * ViewModel for the Add/Edit Item screen.
@@ -235,10 +236,9 @@ class AddEditItemViewModel(
             tagRepository.unlinkAllTagsFromItem(savedItemId)
             for (tag in state.selectedTags) {
                 val actualTag = if (tag.id.value < 0) {
-                    // Negative ID = tag staged during session; create or reuse via repo.
                     tagRepository.createTag(tag.name)
                 } else {
-                    tag
+                    tagRepository.getTagById(tag.id) ?: tagRepository.createTag(tag.name)
                 }
                 tagRepository.linkTagToItem(savedItemId, actualTag.id)
             }
@@ -504,8 +504,10 @@ private fun reduceTagIntent(
         }
 
         // Negative IDs mark tags staged for creation on save.
+        val stagedId = -(abs(tagKey.hashCode().toLong()) + 1L)
+
         val tagToAdd = existing ?: Tag(
-            id = TagId(-tagKey.hashCode().toLong()),
+            id = TagId(stagedId),
             name = tagName
         )
 
