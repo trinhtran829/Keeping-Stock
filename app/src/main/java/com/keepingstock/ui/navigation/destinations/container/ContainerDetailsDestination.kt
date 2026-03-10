@@ -105,6 +105,11 @@ internal fun NavGraphBuilder.addContainerDetailsDestination(
 
                     ContainerDetailViewModel.UiEffect.NavigateBack ->
                         deps.navController.popBackStack()
+
+                    ContainerDetailViewModel.UiEffect.NavigateBackAfterDelete -> {
+                        deps.navController.popBackStack()
+                        deps.navController.popBackStack()
+                    }
                 }
             }
         }

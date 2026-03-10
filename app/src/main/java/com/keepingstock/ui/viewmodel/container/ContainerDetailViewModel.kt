@@ -37,6 +37,7 @@ class ContainerDetailViewModel(
     sealed interface UiEffect {
         data class ShowSnackbar(val message: String) : UiEffect
         data object NavigateBack : UiEffect
+        data object NavigateBackAfterDelete : UiEffect
     }
 
     private val _effects = Channel<UiEffect>(Channel.BUFFERED)
@@ -109,7 +110,7 @@ class ContainerDetailViewModel(
         try {
             containerRepository.deleteContainer(container)
             _effects.send(UiEffect.ShowSnackbar("Container deleted"))
-            _effects.send(UiEffect.NavigateBack)
+            _effects.send(UiEffect.NavigateBackAfterDelete)
         } catch (e: Exception) {
             _effects.send(UiEffect.ShowSnackbar("Failed to delete container"))
         }
