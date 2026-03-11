@@ -144,10 +144,4 @@ class ItemBrowserViewModel(
             emptyState = emptyState
         )
     }
-
-    private fun matchesItemQuery(item: Item, queryLower: String): Boolean {
-        return item.name.lowercase().contains(queryLower) ||
-                item.description?.lowercase()?.contains(queryLower) == true ||
-                item.tags.any { tag -> tag.name.lowercase().contains(queryLower) }
-    }
 }
