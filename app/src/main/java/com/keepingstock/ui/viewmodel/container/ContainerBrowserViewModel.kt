@@ -151,7 +151,10 @@ class ContainerBrowserViewModel(
         val visibleItems = if (query.isBlank()) {
             statusFilteredItems
         } else {
-            statusFilteredItems.filter { it.name.lowercase().contains(queryLower) }
+            statusFilteredItems.filter { item ->
+                item.name.lowercase().contains(queryLower) ||
+                        item.tags.any { tag -> tag.name.lowercase().contains(queryLower) }
+            }
         }
 
         // Apply sort to both lists independently

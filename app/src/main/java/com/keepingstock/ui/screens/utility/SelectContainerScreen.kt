@@ -250,7 +250,7 @@ fun CurrentSubcontainers(
     ) {
         Text(
             style = MaterialTheme.typography.bodyLarge,
-            text = "Containers in this lcoation:"
+            text = "Containers in this location:"
         )
 
         HorizontalDivider()

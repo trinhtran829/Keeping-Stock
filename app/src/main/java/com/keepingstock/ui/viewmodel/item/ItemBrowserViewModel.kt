@@ -113,7 +113,10 @@ class ItemBrowserViewModel(
             filtered
         } else {
             val queryLower = query.lowercase()
-            filtered.filter { it.name.lowercase().contains(queryLower) }
+            filtered.filter { item ->
+                item.name.lowercase().contains(queryLower) ||
+                        item.tags.any { tag -> tag.name.lowercase().contains(queryLower) }
+            }
         }
 
         // Apply sort
@@ -140,5 +143,11 @@ class ItemBrowserViewModel(
             layout = controls.layout,
             emptyState = emptyState
         )
+    }
+
+    private fun matchesItemQuery(item: Item, queryLower: String): Boolean {
+        return item.name.lowercase().contains(queryLower) ||
+                item.description?.lowercase()?.contains(queryLower) == true ||
+                item.tags.any { tag -> tag.name.lowercase().contains(queryLower) }
     }
 }
